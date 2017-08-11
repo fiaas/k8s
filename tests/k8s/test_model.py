@@ -103,7 +103,7 @@ class TestRequiredField(object):
     ])
     def test_create_with_fields(self, kwargs):
         instance = RequiredFieldTest(new=True, **kwargs)
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             assert getattr(instance, key) == value
 
     def test_create_fails_when_field_missing(self):
