@@ -23,6 +23,7 @@ FLAKE8_REQ = [
 ]
 
 TESTS_REQ = [
+    'tox==2.7.0',
     'vcrpy',
     'mock',
     'pytest-sugar',
@@ -44,7 +45,9 @@ setup(
     # Requirements
     install_requires=GENERIC_REQ + FLAKE8_REQ,
     setup_requires=['pytest-runner', 'wheel', 'setuptools_git >= 0.3'],
-    tests_require=TESTS_REQ,
+    extras_require={
+        "dev": TESTS_REQ
+    },
 
     # Metadata
     description="Python client library for the Kubernetes API",
