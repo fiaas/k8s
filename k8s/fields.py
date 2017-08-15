@@ -82,11 +82,11 @@ class Field(object):
 
     def __repr__(self):
         return "{}(name={}, type={}, default_value={}, alt_type={})".format(
-                self.__class__.__name__,
-                self.name,
-                self.type,
-                self._default_value,
-                self.alt_type
+            self.__class__.__name__,
+            self.name,
+            self.type,
+            self._default_value,
+            self.alt_type
         )
 
 

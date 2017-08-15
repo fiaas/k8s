@@ -15,11 +15,8 @@ GENERIC_REQ = [
     "requests == 2.13.0"
 ]
 
-FLAKE8_REQ = [
-    'flake8-print',
-    'flake8-comprehensions',
-    'pep8-naming',
-    'flake8'
+CODE_QUALITY_REQ = [
+    'prospector'
 ]
 
 TESTS_REQ = [
@@ -43,10 +40,10 @@ setup(
     include_package_data=True,
 
     # Requirements
-    install_requires=GENERIC_REQ + FLAKE8_REQ,
+    install_requires=GENERIC_REQ,
     setup_requires=['pytest-runner', 'wheel', 'setuptools_git >= 0.3'],
     extras_require={
-        "dev": TESTS_REQ
+        "dev": TESTS_REQ + CODE_QUALITY_REQ
     },
 
     # Metadata

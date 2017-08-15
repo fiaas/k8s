@@ -1,0 +1,37 @@
+strictness: high
+test-warnings: true
+doc-warnings: false
+
+ignore-paths:
+  - build
+  - .git
+  - __pycache__
+  - .eggs
+  - dist
+  - .tox
+  - .cachedocs
+
+pep8:
+  options:
+    max-line-length: 140
+
+mccabe:
+  max-complexity: 10
+
+# TODO: Figure out how to replace the functionality provided by:
+#       flake8-comprehensions and flake8-print
+
+pylint:
+  run: false
+
+pyroma:
+  run: false
+
+frosted:
+  run: false
+
+vulture:
+  run: false
+
+pep257:
+  run: false
