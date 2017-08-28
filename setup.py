@@ -43,7 +43,8 @@ setup(
     install_requires=GENERIC_REQ,
     setup_requires=['pytest-runner', 'wheel', 'setuptools_git >= 0.3'],
     extras_require={
-        "dev": TESTS_REQ + CODE_QUALITY_REQ
+        "dev": TESTS_REQ + CODE_QUALITY_REQ,
+        "codacy": ["codacy-coverage"]
     },
 
     # Metadata
