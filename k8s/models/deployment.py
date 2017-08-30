@@ -15,8 +15,8 @@ class LabelSelector(Model):
 
 
 class RollingUpdateDeployment(Model):
-    maxUnavailable = Field(six.text_type)
-    maxSurge = Field(six.text_type)
+    maxUnavailable = Field(int, alt_type=six.text_type)
+    maxSurge = Field(int, alt_type=six.text_type)
 
 
 class DeploymentStrategy(Model):
