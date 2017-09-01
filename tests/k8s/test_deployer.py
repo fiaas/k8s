@@ -14,6 +14,7 @@ from k8s.models.pod import ContainerPort, Container, LocalObjectReference, Probe
 NAME = "my-name"
 NAMESPACE = "my-namespace"
 
+
 @pytest.mark.usefixtures("k8s_config")
 class TestDeployer(object):
     @pytest.fixture
@@ -87,6 +88,7 @@ class TestDeployer(object):
         Deployment.delete(NAME, namespace=NAMESPACE)
         pytest.helpers.assert_any_call(delete, _uri(NAMESPACE, NAME))
 
+
 def _create_default_deployment():
     labels = {"test": "true"}
     object_meta = ObjectMeta(name=NAME, namespace=NAMESPACE, labels=labels)
@@ -110,6 +112,7 @@ def _create_default_deployment():
     deployment = Deployment(metadata=object_meta, spec=deployer_spec)
 
     return deployment
+
 
 def _create_mock_response():
     mock_response = mock.Mock()
@@ -182,6 +185,7 @@ def _create_mock_response():
         }
     }
     return mock_response
+
 
 def _uri(namespace, name=""):
     return "/apis/extensions/v1beta1/namespaces/{namespace}/deployments/{name}".format(name=name, namespace=namespace)
