@@ -21,6 +21,7 @@ from __future__ import unicode_literals, print_function
 
 import argparse
 import subprocess
+import sys
 import tempfile
 import textwrap
 
@@ -63,9 +64,9 @@ class Repository(object):
     def version(self):
         tag = self.current_tag
         try:
-            return tag.tag
+            return str(tag.tag)
         except AttributeError:
-            return tag
+            return str(tag)
 
     def ready_for_release(self):
         """Return true if the current git checkout is suitable for release
@@ -104,14 +105,50 @@ class Repository(object):
         return self.repo.git.rev_parse(sha, short=True)
 
 
-def format_rst_changelog(changelog, version):
+class Uploader(object):
+    def __init__(self, options, version, changelog, artifacts):
+        self.dry_run = options.dry_run
+        self.version = version
+        self.changelog = changelog
+        self.artifacts = artifacts
+        self._changelog = format_rst_changelog(self.changelog)
+
+    def _call(self, *args, **kwargs):
+        msg = kwargs.pop("msg", "")
+        if kwargs:
+            raise TypeError("Unexpected **kwargs: {!r}".format(kwargs))
+        try:
+            if self.dry_run:
+                cmd_line = " ".join(repr(x) for x in args)
+                print("Dry run. Would have called: {}".format(cmd_line))
+            else:
+                subprocess.check_call(args)
+        except subprocess.CalledProcessError:
+            print(msg, file=sys.stderr)
+
+    def github_release(self):
+        """Create release in github.com, and upload artifacts and changelog"""
+        gh_path = os.getenv("GITHUB_RELEASE")
+        if gh_path:
+            self._call(gh_path, "release", "--tag", self.version, "--description", self._changelog,
+                       msg="Failed to create release on Github")
+            for artifact in self.artifacts:
+                name = os.path.basename(artifact)
+                self._call(gh_path, "upload", "--tag", self.version, "--name", name, "--file", artifact,
+                           msg="Failed to upload artifact {} to Github".format(name))
+
+    def pypi_release(self):
+        """Create release in pypi.python.org, and upload artifacts and changelog"""
+        self._call("twine", "register", "k8s.egg-info", msg="Failed to register release on PyPI")
+        self._call("twine", "upload", *self.artifacts, msg="Failed to upload artifacts to PyPI")
+
+
+def format_rst_changelog(changelog):
     output = textwrap.dedent("""
-    {}
-    ------------------------------------------
+    Changes since last version
+    --------------------------
     
-    Changes since last version:
-    
-    """.format(version)).splitlines(False)
+    """).splitlines(False)
     links = {}
     for sha, summary in changelog:
         links[sha] = ".. _{sha}: https://github.com/fiaas/k8s/commit/{sha}".format(sha=sha)
@@ -125,44 +162,30 @@ def format_rst_changelog(changelog, version):
     return "\n".join(output)
 
 
-def create_artifacts(changelog, version):
+def create_artifacts(changelog):
     """List all artifacts for uploads
 
     Wheels and tarballs
     """
     fd, name = tempfile.mkstemp(prefix="changelog", suffix=".rst", text=True)
     with os.fdopen(fd, "w") as fobj:
-        fobj.write(format_rst_changelog(changelog, version).encode("utf-8"))
-    subprocess.check_call(["python", "setup.py", "sdist", "bdist_wheel", "--universal"], env={"CHANGELOG_FILE": name})
+        fobj.write(format_rst_changelog(changelog).encode("utf-8"))
+    subprocess.check_call([sys.executable, "setup.py", "sdist", "bdist_wheel", "--universal"],
+                          env={"CHANGELOG_FILE": name})
     os.unlink(name)
     return [os.path.abspath(os.path.join("dist", fname)) for fname in os.listdir("dist")]
-
-
-def github_release(changelog, artifacts):
-    """Create release in github.com, and upload artifacts and changelog"""
-    pass
-
-
-def pypi_release(artifacts):
-    """Create release in pypi.python.org, and upload artifacts and changelog"""
-    pass
 
 
 def main(options):
     repo = Repository(options)
     if not repo.ready_for_release():
-        print("Repository is not ready for release")
+        print("Repository is not ready for release", file=sys.stderr)
         return
     changelog = repo.generate_changelog()
-    artifacts = create_artifacts(changelog, repo.version)
-    print("==== Ready to create release ====")
-    print("---- Changelog ----")
-    print(format_rst_changelog(changelog, repo.version))
-    print("---- Artifacts ----")
-    print("\n".join(artifacts))
-    print("-" * 40)
-    github_release(changelog, artifacts)
-    pypi_release(artifacts)
+    artifacts = create_artifacts(changelog)
+    uploader = Uploader(options, repo.version, changelog, artifacts)
+    uploader.github_release()
+    uploader.pypi_release()
 
 
 if __name__ == "__main__":

@@ -65,7 +65,7 @@ def main():
         extras_require={
             "dev": TESTS_REQ + CODE_QUALITY_REQ,
             "codacy": ["codacy-coverage"],
-            "release": ["gitpython"]
+            "release": ["gitpython", "twine"]
         },
 
         # Metadata
