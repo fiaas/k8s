@@ -63,10 +63,10 @@ class TestRepository(object):
         yield repository
 
     @pytest.mark.parametrize("dirty,untracked,result", (
-            (True, True, False),
-            (True, False, False),
-            (False, True, False),
-            (False, False, True)
+        (True, True, False),
+        (True, False, False),
+        (False, True, False),
+        (False, False, True)
     ))
     def test_can_not_release_from_unclean_repo(self, repository, git_repo, dirty, untracked, result):
         git_repo.is_dirty.return_value = dirty
@@ -75,13 +75,13 @@ class TestRepository(object):
         assert repository.ready_for_release() is result
 
     @pytest.mark.parametrize("name,result", (
-            ("v1", True),
-            ("v1.2", True),
-            ("v1.2.3", True),
-            ("v123", True),
-            ("1.2.3", False),
-            ("a.b.c", False),
-            ("v1.a.3", False),
+        ("v1", True),
+        ("v1.2", True),
+        ("v1.2.3", True),
+        ("v123", True),
+        ("1.2.3", False),
+        ("a.b.c", False),
+        ("v1.a.3", False),
     ))
     def test_tag_must_match_version(self, repository, git_repo, name, result):
         git_repo.is_dirty.return_value = False
@@ -95,8 +95,8 @@ class TestRepository(object):
         assert repository.ready_for_release() is result
 
     @pytest.mark.parametrize("current_tag,previous_tag", (
-            ("444444", release.THE_NULL_COMMIT),
-            ("v1.2.3", "v1.2.2")
+        ("444444", release.THE_NULL_COMMIT),
+        ("v1.2.3", "v1.2.2")
     ))
     def test_creates_changelog(self, monkeypatch, repository, git_repo, current_tag, previous_tag):
         monkeypatch.setattr(repository, "_current_tag", current_tag)

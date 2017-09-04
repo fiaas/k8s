@@ -23,7 +23,6 @@ import argparse
 import subprocess
 import sys
 import tempfile
-import textwrap
 
 import os
 import re
@@ -35,6 +34,12 @@ from git.cmd import Git
 THE_NULL_COMMIT = Git().hash_object(os.devnull, t="tree")
 
 ISSUE_NUMBER = re.compile(r"#(\d+)")
+
+CHANGELOG_HEADER = """
+Changes since last version
+--------------------------
+
+"""
 
 
 class Formatter(argparse.RawDescriptionHelpFormatter, argparse.ArgumentDefaultsHelpFormatter):
@@ -144,11 +149,7 @@ class Uploader(object):
 
 
 def format_rst_changelog(changelog):
-    output = textwrap.dedent("""
-    Changes since last version
-    --------------------------
-    
-    """).splitlines(False)
+    output = CHANGELOG_HEADER.splitlines(False)
     links = {}
     for sha, summary in changelog:
         links[sha] = ".. _{sha}: https://github.com/fiaas/k8s/commit/{sha}".format(sha=sha)
