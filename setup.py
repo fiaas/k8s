@@ -23,7 +23,8 @@ TESTS_REQ = [
     'pytest-html',
     'pytest-cov',
     'pytest-helpers-namespace',
-    'pytest >= 3.0'
+    'pytest >= 3.0',
+    'gitpython'
 ]
 
 
