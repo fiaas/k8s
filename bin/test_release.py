@@ -4,9 +4,21 @@ import argparse
 
 import mock
 import pytest
-from git import Repo, TagObject, Commit
+from git import Repo, TagObject, Commit, GitCommandError
+from git.util import hex_to_bin
 
 import release
+
+PREVIOUS_TAG = "v1.2.2"
+CURRENT_TAG = "v1.2.3"
+
+
+def _h2b(prefix):
+    return hex_to_bin(_pad(prefix))
+
+
+def _pad(prefix):
+    return prefix + "0" * (40 - len(prefix))
 
 
 class TestRepository(object):
@@ -16,14 +28,32 @@ class TestRepository(object):
 
     @pytest.fixture
     def git_repo(self):
-        rev_parse_returns = {
-            "heads/master": mock.NonCallableMagicMock(spec=Commit, name="master-commit", hexsha="abcdef"),
-            "v1.2.2": mock.NonCallableMagicMock(spec=TagObject, name="122-tag", tag="v1.2.2"),
-            "v1.2.3": mock.NonCallableMagicMock(spec=TagObject, name="123-tag", tag="v1.2.3")
-        }
         with mock.patch("release.Repo", spec=Repo, spec_set=True) as mock_repo:
-            mock_repo.git.describe.return_value = "v1.2.3"
+            commits = [
+                Commit(mock_repo, _h2b("111111"), message="First commit", parents=tuple()),
+                Commit(mock_repo, _h2b("222222"), message="Second commit", parents=("111111",)),
+                Commit(mock_repo, _h2b("333333"), message="Third commit", parents=("222222",))
+            ]
+            mock_repo.iter_commits.return_value = commits
+            rev_parse_returns = {
+                "heads/master": commits[-1],
+                PREVIOUS_TAG: TagObject(mock_repo, _h2b("aaaaaa"), object=commits[-2], tag=PREVIOUS_TAG),
+                CURRENT_TAG: TagObject(mock_repo, _h2b("bbbbbb"), object=commits[-1], tag=CURRENT_TAG)
+            }
             mock_repo.rev_parse.side_effect = lambda x: rev_parse_returns[x]
+            mock_repo.git.rev_parse.side_effect = lambda x, **kwargs: x
+
+            def describe(rev=None, **kwargs):
+                print("call to describe(%r, %r)" % (rev, kwargs))
+                if rev is None:
+                    return CURRENT_TAG
+                if rev.endswith("^"):
+                    if rev.startswith(CURRENT_TAG):
+                        return PREVIOUS_TAG
+                    raise GitCommandError("describe", "failed")
+                raise AssertionError("Test wants to describe something unexpected: rev=%r, kwargs=%r" % (rev, kwargs))
+
+            mock_repo.git.describe.side_effect = describe
             yield mock_repo
 
     @pytest.fixture
@@ -64,25 +94,17 @@ class TestRepository(object):
 
         assert repository.ready_for_release() is result
 
-    def test_creates_changelog(self, repository, git_repo):
-        git_repo.iter_commits.return_value = [
-            mock.NonCallableMagicMock(spec=Commit, hexsha="123456", summary="First commit"),
-            mock.NonCallableMagicMock(spec=Commit, hexsha="abcdef", summary="Second commit")
-        ]
+    @pytest.mark.parametrize("current_tag,previous_tag", (
+            ("444444", release.THE_NULL_COMMIT),
+            ("v1.2.3", "v1.2.2")
+    ))
+    def test_creates_changelog(self, monkeypatch, repository, git_repo, current_tag, previous_tag):
+        monkeypatch.setattr(repository, "_current_tag", current_tag)
         changelog = repository.generate_changelog()
 
-        assert len(changelog) == 2
-        assert changelog[0] == "123456 First commit"
-        assert changelog[1] == "abcdef Second commit"
+        assert len(changelog) == 3
+        assert changelog[0] == (_pad("111111"), "First commit")
+        assert changelog[1] == (_pad("222222"), "Second commit")
+        assert changelog[2] == (_pad("333333"), "Third commit")
 
-    def test_creates_changelog_since_initial_if_no_tag(self, repository, git_repo):
-        git_repo.iter_commits.return_value = [
-            mock.NonCallableMagicMock(spec=Commit, hexsha="123456", summary="First commit"),
-            mock.NonCallableMagicMock(spec=Commit, hexsha="abcdef", summary="Second commit")
-        ]
-        git_repo.git.describe.return_value = "heads/master"
-        changelog = repository.generate_changelog()
-
-        assert len(changelog) == 2
-        assert changelog[0] == "123456 First commit"
-        assert changelog[1] == "abcdef Second commit"
+        git_repo.iter_commits.assert_called_with("{}..{}".format(previous_tag, current_tag))

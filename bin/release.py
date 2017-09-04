@@ -22,6 +22,7 @@ from __future__ import unicode_literals, print_function
 import argparse
 import subprocess
 import tempfile
+import textwrap
 
 import os
 import re
@@ -31,6 +32,8 @@ from git.cmd import Git
 # Magical, always present, empty tree reference
 # https://stackoverflow.com/questions/9765453/
 THE_NULL_COMMIT = Git().hash_object(os.devnull, t="tree")
+
+ISSUE_NUMBER = re.compile(r"#(\d+)")
 
 
 class Formatter(argparse.RawDescriptionHelpFormatter, argparse.ArgumentDefaultsHelpFormatter):
@@ -53,8 +56,16 @@ class Repository(object):
             current_name = self.repo.git.describe(all=True)
             self._current_tag = self.repo.rev_parse(current_name)
             return self._current_tag
-        except BadName:
+        except (BadName, GitCommandError):
             return None
+
+    @property
+    def version(self):
+        tag = self.current_tag
+        try:
+            return tag.tag
+        except AttributeError:
+            return tag
 
     def ready_for_release(self):
         """Return true if the current git checkout is suitable for release
@@ -75,23 +86,55 @@ class Repository(object):
             previous_tag = self.repo.rev_parse(previous_name)
         except GitCommandError:
             previous_tag = THE_NULL_COMMIT
-        commits = list(self.repo.iter_commits("{}..{}".format(previous_tag, self.current_tag)))
-        return ["{} {}".format(commit.hexsha, commit.summary) for commit in commits]
+        current = self._resolve_tag(self.current_tag)
+        previous = self._resolve_tag(previous_tag)
+        commit_range = "{}..{}".format(previous, current)
+        return [(self._shorten(commit.hexsha), commit.summary) for commit in self.repo.iter_commits(commit_range)
+                if len(commit.parents) <= 1]
+
+    @staticmethod
+    def _resolve_tag(tag):
+        try:
+            current = tag.tag
+        except AttributeError:
+            current = tag
+        return current
+
+    def _shorten(self, sha):
+        return self.repo.git.rev_parse(sha, short=True)
 
 
-def format_rst_changelog(changelog):
-    return "\n".join(changelog)
+def format_rst_changelog(changelog, version):
+    output = textwrap.dedent("""
+    {}
+    ------------------------------------------
+    
+    Changes since last version:
+    
+    """.format(version)).splitlines(False)
+    links = {}
+    for sha, summary in changelog:
+        links[sha] = ".. _{sha}: https://github.com/fiaas/k8s/commit/{sha}".format(sha=sha)
+        for match in ISSUE_NUMBER.finditer(summary):
+            issue_number = match.group(1)
+            links[issue_number] = ".. _#{num}: https://github.com/fiaas/k8s/issues/{num}".format(num=issue_number)
+        summary = ISSUE_NUMBER.sub(r"`#\1`_", summary)
+        output.append("* `{sha}`_: {summary}".format(sha=sha, summary=summary))
+    output.append("")
+    output.extend(links.values())
+    return "\n".join(output)
 
 
-def create_artifacts(changelog):
+def create_artifacts(changelog, version):
     """List all artifacts for uploads
 
     Wheels and tarballs
     """
     fd, name = tempfile.mkstemp(prefix="changelog", suffix=".rst", text=True)
     with os.fdopen(fd, "w") as fobj:
-        fobj.write(format_rst_changelog(changelog))
+        fobj.write(format_rst_changelog(changelog, version).encode("utf-8"))
     subprocess.check_call(["python", "setup.py", "sdist", "bdist_wheel", "--universal"], env={"CHANGELOG_FILE": name})
+    os.unlink(name)
     return [os.path.abspath(os.path.join("dist", fname)) for fname in os.listdir("dist")]
 
 
@@ -111,10 +154,10 @@ def main(options):
         print("Repository is not ready for release")
         return
     changelog = repo.generate_changelog()
-    artifacts = create_artifacts(changelog)
+    artifacts = create_artifacts(changelog, repo.version)
     print("==== Ready to create release ====")
     print("---- Changelog ----")
-    print("\n".join(changelog))
+    print(format_rst_changelog(changelog, repo.version))
     print("---- Artifacts ----")
     print("\n".join(artifacts))
     print("-" * 40)
