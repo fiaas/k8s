@@ -26,13 +26,8 @@ def main():
 
 
 def _unpack(tmp_dir, asset_path):
-    old_dir = os.getcwd()
-    os.chdir(tmp_dir)
-    try:
-        output = subprocess.check_output(["tar", "xjvf", asset_path])
-        return os.path.join(tmp_dir, output.strip())
-    finally:
-        os.chdir(old_dir)
+    output = subprocess.check_output(["tar", "--directory", tmp_dir, "xjvf", asset_path])
+    return os.path.join(tmp_dir, output.strip())
 
 
 def _download_asset(asset_url):
@@ -54,11 +49,17 @@ def _get_release_info():
 
 
 def _find_wanted_asset(release_info):
+    names = list()
     for asset in release_info["assets"]:
-        m = ASSET_NAME_PATTERN.match(asset["name"])
+        name = asset["name"]
+        names.append(name)
+        m = ASSET_NAME_PATTERN.match(name)
         if m:
             return asset["browser_download_url"]
-    raise RuntimeError("Unable to find an asset matching {!r}".format(ASSET_NAME_PATTERN.pattern))
+    raise RuntimeError("No asset in {} matches {!r}".format(
+        ", ".join(names),
+        ASSET_NAME_PATTERN.pattern
+    ))
 
 
 if __name__ == "__main__":
