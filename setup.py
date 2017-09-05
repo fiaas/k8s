@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
 
-import subprocess
-
 import os
 from setuptools import setup, find_packages
 
@@ -28,15 +26,6 @@ TESTS_REQ = [
 ]
 
 
-def _has_tags():
-    """setuptools_git will crash if you ask it to use vcs version without any tags in the repo"""
-    try:
-        subprocess.check_output(["git", "describe"], stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError:
-        return False
-    return True
-
-
 def _generate_description():
     description = [_read("README.md")]
     changelog_file = os.getenv("CHANGELOG_FILE")
@@ -55,14 +44,14 @@ def main():
         name="k8s",
         author="FINN Team Infrastructure",
         author_email="FINN-TechteamInfrastruktur@finn.no",
-        use_vcs_version=_has_tags(),
+        use_scm_version=True,
         packages=find_packages(exclude=("tests",)),
         zip_safe=True,
         include_package_data=True,
 
         # Requirements
         install_requires=GENERIC_REQ,
-        setup_requires=['pytest-runner', 'wheel', 'setuptools_git >= 1.2'],
+        setup_requires=['pytest-runner', 'wheel', 'setuptools_scm'],
         extras_require={
             "dev": TESTS_REQ + CODE_QUALITY_REQ,
             "codacy": ["codacy-coverage"],
