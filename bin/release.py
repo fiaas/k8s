@@ -83,7 +83,10 @@ class Repository(object):
             return True
         if self.repo.is_dirty() or self.repo.untracked_files or not self.current_tag:
             return False
-        return self.RELEASE_TAG_PATTERN.match(self.current_tag.tag) is not None
+        try:
+            return self.RELEASE_TAG_PATTERN.match(self.current_tag.tag) is not None
+        except AttributeError:
+            return False
 
     def generate_changelog(self):
         """Use the git log to create a changelog with all changes since the previous tag"""
