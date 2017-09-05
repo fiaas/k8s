@@ -109,8 +109,14 @@ To update the resource we first get the current state of the resource::
 
   >>> deployment = Deployment.get('nginx')
 
+If you want to update a resource with some state, but you don't know if it exists, it is possible to use the
+`get_or_create` method rather than trying to `get` and then catching `NotFound` to handle the case where the resource
+doesn't exist::
 
-Then modify it, and call `save` again to propa; let's say that we want to scale up to two instances::
+  >>> deployment = Deployment.get_or_create('nginx')
+
+Either case, we can then modify the resource, and call `save` again to propagate the changes; let's say that we want
+to scale up to two instances::
 
   >>> deployment.spec.replicas = 2
   >>> deployment.save()
