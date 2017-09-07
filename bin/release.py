@@ -26,6 +26,7 @@ import tempfile
 
 import os
 import re
+import six
 from git import Repo, BadName, GitCommandError
 from git.cmd import Git
 
@@ -119,7 +120,6 @@ class Uploader(object):
         self.version = version
         self.changelog = changelog
         self.artifacts = artifacts
-        self._changelog = format_rst_changelog(self.changelog)
 
     def _call(self, *args, **kwargs):
         msg = kwargs.pop("msg", "")
@@ -138,16 +138,22 @@ class Uploader(object):
         """Create release in github.com, and upload artifacts and changelog"""
         gh_path = os.getenv("GITHUB_RELEASE")
         if gh_path:
-            self._call(gh_path, "release", "--tag", self.version, "--description", self._changelog,
+            self._call(gh_path, "release",
+                       "--repo", "k8s",
+                       "--tag", self.version,
+                       "--description", format_gh_changelog(self.changelog),
                        msg="Failed to create release on Github")
             for artifact in self.artifacts:
                 name = os.path.basename(artifact)
-                self._call(gh_path, "upload", "--tag", self.version, "--name", name, "--file", artifact,
+                self._call(gh_path, "upload",
+                           "--repo", "k8s",
+                           "--tag", self.version,
+                           "--name", name,
+                           "--file", artifact,
                            msg="Failed to upload artifact {} to Github".format(name))
 
     def pypi_release(self):
         """Create release in pypi.python.org, and upload artifacts and changelog"""
-        self._call("twine", "register", "k8s.egg-info", msg="Failed to register release on PyPI")
         self._call("twine", "upload", *self.artifacts, msg="Failed to upload artifacts to PyPI")
 
 
@@ -166,16 +172,35 @@ def format_rst_changelog(changelog):
     return "\n".join(output)
 
 
+def format_gh_changelog(changelog):
+    output = CHANGELOG_HEADER.splitlines(False)
+    links = {}
+    for sha, summary in changelog:
+        output.append("* {sha}: {summary}".format(sha=sha, summary=summary))
+    output.append("")
+    output.extend(links.values())
+    return "\n".join(output)
+
+
 def create_artifacts(changelog):
     """List all artifacts for uploads
 
     Wheels and tarballs
     """
     fd, name = tempfile.mkstemp(prefix="changelog", suffix=".rst", text=True)
-    with os.fdopen(fd, "w") as fobj:
-        fobj.write(format_rst_changelog(changelog).encode("utf-8"))
-    subprocess.check_call([sys.executable, "setup.py", "sdist", "bdist_wheel", "--universal"],
-                          env={"CHANGELOG_FILE": name})
+    formatted_changelog = format_rst_changelog(changelog)
+    if six.PY2:
+        with os.fdopen(fd, "w") as fobj:
+            fobj.write(formatted_changelog.encode("utf-8"))
+    else:
+        with open(fd, "w", encoding="utf-8") as fobj:
+            fobj.write(formatted_changelog)
+    subprocess.check_call([
+        sys.executable, "setup.py",
+        "egg_info", "--tag-build=",
+        "sdist",
+        "bdist_wheel", "--universal"
+    ], env={"CHANGELOG_FILE": name})
     os.unlink(name)
     return [os.path.abspath(os.path.join("dist", fname)) for fname in os.listdir("dist")]
 

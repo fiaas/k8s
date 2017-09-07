@@ -27,11 +27,18 @@ TESTS_REQ = [
 
 
 def _generate_description():
-    description = [_read("README.md")]
+    description = [_read("README.rst")]
     changelog_file = os.getenv("CHANGELOG_FILE")
     if changelog_file:
         description.append(_read(changelog_file))
     return "\n".join(description)
+
+
+def _get_license_name():
+    with open(os.path.join(os.path.dirname(__file__), "LICENSE")) as f:
+        for line in f:
+            if line.strip():
+                return line.strip()
 
 
 def _read(filename):
@@ -62,7 +69,7 @@ def main():
         description="Python client library for the Kubernetes API",
         long_description=_generate_description(),
         url="https://github.com/fiaas/k8s",
-        license=_read("LICENSE")
+        license=_get_license_name()
     )
 
 
