@@ -26,6 +26,7 @@ import tempfile
 
 import os
 import re
+import six
 from git import Repo, BadName, GitCommandError
 from git.cmd import Git
 
@@ -153,7 +154,6 @@ class Uploader(object):
 
     def pypi_release(self):
         """Create release in pypi.python.org, and upload artifacts and changelog"""
-        self._call("twine", "register", "k8s.egg-info", msg="Failed to register release on PyPI")
         self._call("twine", "upload", *self.artifacts, msg="Failed to upload artifacts to PyPI")
 
 
@@ -188,8 +188,13 @@ def create_artifacts(changelog):
     Wheels and tarballs
     """
     fd, name = tempfile.mkstemp(prefix="changelog", suffix=".rst", text=True)
-    with os.fdopen(fd, "w") as fobj:
-        fobj.write(format_rst_changelog(changelog).encode("utf-8"))
+    formatted_changelog = format_rst_changelog(changelog)
+    if six.PY2:
+        with os.fdopen(fd, "w") as fobj:
+            fobj.write(formatted_changelog.encode("utf-8"))
+    else:
+        with open(fd, "w", encoding="utf-8") as fobj:
+            fobj.write(formatted_changelog)
     subprocess.check_call([
         sys.executable, "setup.py",
         "egg_info", "--tag-build=",
