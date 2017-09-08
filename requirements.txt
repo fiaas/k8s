@@ -1,3 +1,2 @@
-Sphinx>=1.6.3
 -e .[dev]
 --index-url https://pypi.python.org/simple/
