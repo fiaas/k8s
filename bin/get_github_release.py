@@ -7,6 +7,7 @@ from __future__ import unicode_literals, print_function
 
 import platform
 import subprocess
+import sys
 import tempfile
 
 import os
@@ -27,7 +28,7 @@ def main():
 
 def _unpack(tmp_dir, asset_path):
     output = subprocess.check_output(["tar", "--directory", tmp_dir, "-xjvf", asset_path])
-    return os.path.join(tmp_dir, output.strip())
+    return os.path.join(tmp_dir, output.strip().decode(sys.getfilesystemencoding()))
 
 
 def _download_asset(asset_url):
