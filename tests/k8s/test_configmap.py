@@ -13,7 +13,7 @@ NAMESPACE = "my-namespace"
 
 
 @pytest.mark.usefixtures("k8s_config")
-class TestIngress(object):
+class TestConfigMap(object):
     def test_created_if_not_exists(self, post, api_get):
         api_get.side_effect = NotFound()
         configmap = _create_default_configmap()
