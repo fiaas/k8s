@@ -19,11 +19,12 @@ class MetaModel(type):
     """Metaclass for Model
 
     Responsibilities:
-    Creating the _meta attribute, with url_template (if present), list of fields
-        and for convenience, a list of field names.
-    Creates properties for name and namespace if the instance has a metadata field.
-    Mixes in ApiMixIn if the Model has a Meta attribute, indicating a top level
-        Model (not to be confused with _meta).
+
+    * Creating the _meta attribute, with url_template (if present), list of fields
+      and for convenience, a list of field names.
+    * Creates properties for name and namespace if the instance has a metadata field.
+    * Mixes in ApiMixIn if the Model has a Meta attribute, indicating a top level
+      Model (not to be confused with _meta).
     """
 
     @staticmethod

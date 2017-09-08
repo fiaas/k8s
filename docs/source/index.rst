@@ -11,7 +11,8 @@ Welcome to k8s's documentation!
    :caption: Contents:
 
    tutorial
-
+   developer
+   modules/modules
 
 Indices and tables
 ==================
