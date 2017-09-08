@@ -14,7 +14,10 @@ help:
 
 .PHONY: help Makefile
 
+apidocs:
+	sphinx-apidoc -o ./source/modules -d 2 -Mef -H "API Reference" ../k8s
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
+%: Makefile apidocs
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
