@@ -11,6 +11,7 @@ from k8s.models.configmap import ConfigMap
 NAME = "my-name"
 NAMESPACE = "my-namespace"
 
+
 @pytest.mark.usefixtures("k8s_config")
 class TestIngress(object):
     def test_created_if_not_exists(self, post, api_get):
@@ -23,7 +24,6 @@ class TestIngress(object):
         assert not configmap._new
 
         pytest.helpers.assert_any_call(post, _uri(NAMESPACE), call_params)
-
 
     def test_updated_if_exists(self, get, put):
         mock_response = _create_mock_response()
@@ -39,7 +39,6 @@ class TestIngress(object):
 
         from_api.save()
         pytest.helpers.assert_any_call(put, _uri(NAMESPACE, NAME), call_params)
-
 
     def test_deleted(self, delete):
         ConfigMap.delete(NAME, namespace=NAMESPACE)
