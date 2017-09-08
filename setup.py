@@ -62,7 +62,8 @@ def main():
         extras_require={
             "dev": TESTS_REQ + CODE_QUALITY_REQ,
             "codacy": ["codacy-coverage"],
-            "release": ["gitpython", "twine"]
+            "release": ["gitpython", "twine"],
+            "docs": ["Sphinx>=1.6.3"]
         },
 
         # Metadata
