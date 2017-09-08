@@ -49,8 +49,8 @@ def _read(filename):
 def main():
     setup(
         name="k8s",
-        author="FINN Team Infrastructure",
-        author_email="FINN-TechteamInfrastruktur@finn.no",
+        author="FiaaS developers",
+        author_email="fiaas@googlegroups.com",
         use_scm_version=True,
         packages=find_packages(exclude=("tests",)),
         zip_safe=True,
@@ -69,7 +69,26 @@ def main():
         description="Python client library for the Kubernetes API",
         long_description=_generate_description(),
         url="https://github.com/fiaas/k8s",
-        license=_get_license_name()
+        license=_get_license_name(),
+        keywords="kubernetes fiaas",
+        classifiers=[
+            "Development Status :: 3 - Alpha",
+            "Intended Audience :: Developers",
+            "License :: OSI Approved :: Apache Software License",
+            "Operating System :: OS Independent",
+            "Programming Language :: Python",
+            "Programming Language :: Python :: 2",
+            "Programming Language :: Python :: 2.7",
+            "Programming Language :: Python :: 3",
+            "Programming Language :: Python :: 3.3",
+            "Programming Language :: Python :: 3.4",
+            "Programming Language :: Python :: 3.5",
+            "Programming Language :: Python :: 3.6",
+            "Topic :: Internet",
+            "Topic :: Software Development :: Libraries :: Python Modules",
+            "Topic :: System :: Clustering",
+            "Topic :: System :: Distributed Computing",
+        ]
     )
 
 
