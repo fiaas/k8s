@@ -4,6 +4,7 @@
 import logging
 
 import pytest
+import mock
 
 from k8s import config
 
@@ -27,3 +28,33 @@ def k8s_config(monkeypatch):
     monkeypatch.setattr(config, "api_server", "https://10.0.0.1")
     monkeypatch.setattr(config, "api_token", "password")
     monkeypatch.setattr(config, "verify_ssl", False)
+
+
+@pytest.fixture
+def post():
+    with mock.patch('k8s.client.Client.post') as m:
+        yield m
+
+
+@pytest.fixture
+def put():
+    with mock.patch('k8s.client.Client.put') as m:
+        yield m
+
+
+@pytest.fixture
+def get():
+    with mock.patch('k8s.client.Client.get') as m:
+        yield m
+
+
+@pytest.fixture
+def delete():
+    with mock.patch('k8s.client.Client.delete') as m:
+        yield m
+
+
+@pytest.fixture
+def api_get():
+    with mock.patch('k8s.base.ApiMixIn.get') as m:
+        yield m
