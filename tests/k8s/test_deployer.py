@@ -17,31 +17,6 @@ NAMESPACE = "my-namespace"
 
 @pytest.mark.usefixtures("k8s_config")
 class TestDeployer(object):
-    @pytest.fixture
-    def post(self):
-        with mock.patch('k8s.client.Client.post') as m:
-            yield m
-
-    @pytest.fixture
-    def put(self):
-        with mock.patch('k8s.client.Client.put') as m:
-            yield m
-
-    @pytest.fixture
-    def get(self):
-        with mock.patch('k8s.client.Client.get') as m:
-            yield m
-
-    @pytest.fixture
-    def delete(self):
-        with mock.patch('k8s.client.Client.delete') as m:
-            yield m
-
-    @pytest.fixture
-    def api_get(self):
-        with mock.patch('k8s.base.ApiMixIn.get') as m:
-            yield m
-
     def test_create_blank_deployment(self):
         object_meta = ObjectMeta(name=NAME, namespace=NAMESPACE)
         deployment = Deployment(metadata=object_meta)
