@@ -15,7 +15,7 @@ Documentation
 Code
     https://github.com/fiaas/k8s
 
-k8s is a python client library for Kubernetes developed as part of the FiaaS project at FINN.no AS, Norways leading classifieds site. The library has a different approach to working with the API, trying to provide an intuitive developer experience. Our approach does not allow us to use Swagger to auto-generate a library that covers the entire API, but the parts we have implemented are (in our opinion) easier to work with than the client you get when using Swagger.
+k8s is a python client library for Kubernetes developed as part of the FiaaS project at FINN.no, Norway's leading classifieds site. The library tries to provide an intuitive developer experience, rather than modelling the REST API directly. Our approach does not allow us to use Swagger to auto-generate a library that covers the entire API, but the parts we have implemented are (in our opinion) easier to work with than the client you get when using Swagger.
 
 Check out the tutorial_ to find out how to use the library, or the `developer guide`_ to learn how to extend the library to cover parts of the API we haven't gotten around to yet.
 
