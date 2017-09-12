@@ -137,6 +137,7 @@ class PodSpec(Model):
     nodeSelector = Field(dict)
     selector = Field(dict)
     serviceAccountName = Field(six.text_type, "default")
+    automountServiceAccountToken = Field(bool)
     imagePullSecrets = ListField(LocalObjectReference)
 
 
