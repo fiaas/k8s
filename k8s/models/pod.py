@@ -117,10 +117,15 @@ class ConfigMapVolumeSource(Model):
     name = Field(six.text_type)
 
 
+class EmptyDirVolumeSource(Model):
+    medium = Field(six.text_type)
+
+
 class Volume(Model):
     name = Field(six.text_type)
     secret = Field(SecretVolumeSource)
     configMap = Field(ConfigMapVolumeSource)
+    emptyDir = Field(EmptyDirVolumeSource)
 
 
 class LocalObjectReference(Model):
