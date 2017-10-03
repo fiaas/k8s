@@ -32,7 +32,7 @@ class TestResourceQuota(object):
 
         from_api = ResourceQuota.get_or_create(metadata=resourcequota.metadata, spec=resourcequota.spec)
         assert not from_api._new
-        assert from_api.spec== resourcequota.spec
+        assert from_api.spec == resourcequota.spec
         assert from_api.status == resourcequota.status
 
         from_api.spec = ResourceQuotaSpec(hard={'pods': "10"}, scopes=[BestEffort])
