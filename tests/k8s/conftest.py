@@ -25,8 +25,7 @@ def logger():
 @pytest.fixture
 def k8s_config(monkeypatch):
     """Configure k8s for test-runs"""
-    monkeypatch.setattr(config, "api_server", "https://10.0.0.1")
-    monkeypatch.setattr(config, "api_token", "password")
+    monkeypatch.setattr(config, "api_server", "http://localhost:8080")
     monkeypatch.setattr(config, "verify_ssl", False)
 
 
