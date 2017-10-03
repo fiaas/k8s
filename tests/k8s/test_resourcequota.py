@@ -6,7 +6,7 @@ import pytest
 
 from k8s.client import NotFound
 from k8s.models.common import ObjectMeta
-from k8s.models.resourcequota import ResourceQuota, ResourceQuotaSpec, ResourceQuotaStatus, NotBestEffort, BestEffort
+from k8s.models.resourcequota import ResourceQuota, ResourceQuotaSpec, NotBestEffort, BestEffort
 
 NAME = "my-name"
 NAMESPACE = "my-namespace"
