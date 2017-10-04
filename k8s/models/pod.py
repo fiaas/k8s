@@ -144,6 +144,7 @@ class PodSpec(Model):
     serviceAccountName = Field(six.text_type, "default")
     automountServiceAccountToken = Field(bool)
     imagePullSecrets = ListField(LocalObjectReference)
+    initContainers = ListField(Container)
 
 
 class PodTemplateSpec(Model):
