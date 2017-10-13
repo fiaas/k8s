@@ -5,7 +5,7 @@ interactions:
       "volumes": [], "initContainers": [], "imagePullSecrets": [{"name": "image_pull_secret"}],
       "containers": [{"livenessProbe": {"initialDelaySeconds": 5, "httpGet": {"path":
       "/", "scheme": "HTTP", "port": "http5000"}}, "name": "container", "image": "dummy_image",
-      "volumeMounts": [], "env": [], "imagePullPolicy": "IfNotPresent", "readinessProbe":
+      "volumeMounts": [], "env": [], "envFrom": [], "imagePullPolicy": "IfNotPresent", "readinessProbe":
       {"initialDelaySeconds": 5, "tcpSocket": {"port": 5000}}, "ports": [{"protocol":
       "TCP", "containerPort": 5000, "name": "http5000"}]}]}, "metadata": {"labels":
       {"test": "true"}, "namespace": "my-namespace", "name": "my-name"}}, "selector":

@@ -3,6 +3,7 @@
 
 import mock
 import pytest
+
 from k8s.client import NotFound
 from k8s.models.common import ObjectMeta
 from k8s.models.service import Service, ServicePort, ServiceSpec
@@ -33,10 +34,8 @@ class TestService(object):
             }
         }
 
-    @mock.patch('k8s.base.ApiMixIn.get')
-    @mock.patch('k8s.client.Client.post')
-    def test_service_created_if_not_exists(self, post, get):
-        get.side_effect = NotFound()
+    def test_service_created_if_not_exists(self, post, api_get):
+        api_get.side_effect = NotFound()
         service = create_default_service()
         call_params = service.as_dict()
         assert service._new
@@ -44,8 +43,6 @@ class TestService(object):
         assert not service._new
         pytest.helpers.assert_any_call(post, SERVICES_URI, call_params)
 
-    @mock.patch('k8s.client.Client.get')
-    @mock.patch('k8s.client.Client.put')
     def test_get_or_create_service_not_new(self, put, get):
         service = create_default_service()
 
@@ -88,14 +85,12 @@ class TestService(object):
         from_api.save()
         pytest.helpers.assert_any_call(put, SERVICES_URI + SERVICE_NAME, call_params)
 
-    @mock.patch('k8s.client.Client.delete')
     def test_service_deleted(self, delete):
         Service.delete(SERVICE_NAME, SERVICE_NAMESPACE)
 
         # call delete with service_name
         pytest.helpers.assert_any_call(delete, (SERVICES_URI + SERVICE_NAME))
 
-    @mock.patch('k8s.client.Client.get')
     def test_list_services(self, get):
         service_list = {
             "apiVersion": "v1",
