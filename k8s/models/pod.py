@@ -44,6 +44,21 @@ class EnvVarSource(Model):
     secretKeyRef = Field(SecretKeySelector)
 
 
+class SecretEnvSource(Model):
+    name = Field(six.text_type)
+    optional = Field(bool)
+
+
+class ConfigMapEnvSource(Model):
+    name = Field(six.text_type)
+    optional = Field(bool)
+
+
+class EnvFromSource(Model):
+    configMapRef = Field(ConfigMapEnvSource)
+    secretRef = Field(SecretEnvSource)
+
+
 class EnvVar(Model):
     name = Field(six.text_type)
     value = Field(six.text_type)
@@ -97,6 +112,7 @@ class Container(Model):
     image = Field(six.text_type)
     ports = ListField(ContainerPort)
     env = ListField(EnvVar)
+    envFrom = ListField(EnvFromSource)
     resources = Field(ResourceRequirements)
     volumeMounts = ListField(VolumeMount)
     livenessProbe = Field(Probe)
@@ -106,6 +122,8 @@ class Container(Model):
 
 class SecretVolumeSource(Model):
     secretName = Field(six.text_type)
+    optional = Field(bool)
+    defaultMode = Field(int)
 
 
 class KeyToPath(Model):
@@ -115,6 +133,8 @@ class KeyToPath(Model):
 
 class ConfigMapVolumeSource(Model):
     name = Field(six.text_type)
+    optional = Field(bool)
+    defaultMode = Field(int)
 
 
 class EmptyDirVolumeSource(Model):
