@@ -6,7 +6,8 @@ from setuptools import setup, find_packages
 
 GENERIC_REQ = [
     "six == 1.10.0",
-    "requests == 2.13.0"
+    "requests == 2.13.0",
+    "pyrfc3339 == 1.0"
 ]
 
 CODE_QUALITY_REQ = [
