@@ -2,6 +2,10 @@
 # -*- coding: utf-8
 from __future__ import absolute_import
 
+from datetime import datetime
+
+import pyrfc3339
+
 
 class Field(object):
     """Generic field on a k8s model"""
@@ -56,8 +60,7 @@ class Field(object):
             return self.type(new=False)
         return self._default_value
 
-    @staticmethod
-    def _as_dict(value):
+    def _as_dict(self, value):
         try:
             return value.as_dict()
         except AttributeError:
@@ -67,6 +70,8 @@ class Field(object):
             if isinstance(value, dict):
                 d = {k: v for k, v in value.items() if v is not None}
                 return d if d else None
+            elif datetime in (self.type, self.alt_type) and isinstance(value, datetime):
+                return pyrfc3339.generate(value, accept_naive=True)
             else:
                 return value
 
@@ -78,6 +83,8 @@ class Field(object):
         except AttributeError:
             if isinstance(value, self.type) or (self.alt_type and isinstance(value, self.alt_type)):
                 return value
+            if self.type is datetime:
+                return pyrfc3339.parse(value)
             return self.type(value)
 
     def __repr__(self):

@@ -42,7 +42,7 @@ Use this class...                      ...when
 The :py:class:`~k8s.fields.Field` class takes three parameters:
 
 type
-    The type of value this field contains. Can be simple types (int, bool etc), or subclasses of :py:class:`~k8s.base.Model`.
+    The type of value this field contains. Can be simple types (int, bool etc), :py:class:`datetime.datetime` or subclasses of :py:class:`~k8s.base.Model`.
 
 default_value
     The field is set to this value when an instance of the class is created. The default default is ``None``.
