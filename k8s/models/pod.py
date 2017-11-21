@@ -76,16 +76,16 @@ class VolumeMount(Model):
     mountPath = Field(six.text_type)
 
 
+class HTTPHeader(Model):
+    name = Field(six.text_type)
+    value = Field(six.text_type)
+
+
 class HTTPGetAction(Model):
     path = Field(six.text_type)
     port = Field(six.text_type, alt_type=int)
     scheme = Field(six.text_type, "HTTP")
-    httpHeaders = Field(list, None)
-
-
-class HTTPHeader(Model):
-    name = Field(six.text_type)
-    value = Field(six.text_type)
+    httpHeaders = ListField(HTTPHeader)
 
 
 class TCPSocketAction(Model):
