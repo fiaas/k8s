@@ -107,6 +107,17 @@ class Probe(Model):
     periodSeconds = Field(int)
 
 
+class Handler(Model):
+    httpGet = Field(HTTPGetAction)
+    tcpSocket = Field(TCPSocketAction)
+    _exec = Field(ExecAction)
+
+
+class Lifecycle(Model):
+    postStart = Field(Handler)
+    preStop = Field(Handler)
+
+
 class Container(Model):
     name = Field(six.text_type)
     image = Field(six.text_type)
@@ -115,6 +126,7 @@ class Container(Model):
     envFrom = ListField(EnvFromSource)
     resources = Field(ResourceRequirements)
     volumeMounts = ListField(VolumeMount)
+    lifecycle = Field(Lifecycle)
     livenessProbe = Field(Probe)
     readinessProbe = Field(Probe)
     imagePullPolicy = Field(six.text_type, "IfNotPresent")
