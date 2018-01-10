@@ -14,6 +14,7 @@ Submodules
    k8s.models.autoscaler
    k8s.models.common
    k8s.models.configmap
+   k8s.models.custom_resource_definition
    k8s.models.deployment
    k8s.models.ingress
    k8s.models.pod
