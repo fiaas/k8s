@@ -57,7 +57,8 @@ class TestWatcher(object):
         first = [_event(0, ADDED, 1), _event(1, ADDED, 1), _event(2, ADDED, 1)]
         second = [_event(0, ADDED, 1), _event(1, ADDED, 2), _event(2, ADDED, 1), _event(0, MODIFIED, 2)]
         third = [_event(0, ADDED, 2), _event(1, DELETED, 2), _event(2, ADDED, 1), _event(2, MODIFIED, 2)]
-        api_watch_list.side_effect = [first, second, third]
+        fourth = [_event(0, ADDED, 2), _event(0, ADDED, 1, "other"), _event(0, MODIFIED, 2, "other")]
+        api_watch_list.side_effect = [first, second, third, fourth]
         gen = Watcher(WatchListExample).watch()
 
         # First batch
@@ -73,22 +74,27 @@ class TestWatcher(object):
         _assert_event(next(gen), 1, DELETED, 2)
         _assert_event(next(gen), 2, MODIFIED, 2)
 
+        # Fourth batch
+        _assert_event(next(gen), 0, ADDED, 1, "other")
+        _assert_event(next(gen), 0, MODIFIED, 2, "other")
+
         with pytest.raises(StopIteration):
             next(gen)
 
 
-def _event(id, event_type, rv):
-    metadict = {"name": "name{}".format(id), "resourceVersion": rv}
+def _event(id, event_type, rv, namespace="default"):
+    metadict = {"name": "name{}".format(id), "namespace": namespace, "resourceVersion": rv}
     metadata = ObjectMeta.from_dict(metadict)
     wle = WatchListExample(metadata=metadata, value=(id * 100) + rv)
     return mock.NonCallableMagicMock(type=event_type, object=wle)
 
 
-def _assert_event(event, id, event_type, rv):
+def _assert_event(event, id, event_type, rv, namespace="default"):
     assert event.type == event_type
     o = event.object
     assert o.kind == "Example"
     assert o.metadata.name == "name{}".format(id)
+    assert o.metadata.namespace == namespace
     assert o.value == (id * 100) + rv
 
 

@@ -17,8 +17,8 @@ class Watcher(object):
         while True:
             for event in self._model.watch_list():
                 o = event.object
-                key = (o.metadata.name, o.metadata.resourceVersion)
-                if key in self._seen and event.type != WatchEvent.DELETED:
+                key = (o.metadata.name, o.metadata.namespace)
+                if self._seen.get(key) == o.metadata.resourceVersion and event.type != WatchEvent.DELETED:
                     continue
-                self._seen[key] = True
+                self._seen[key] = o.metadata.resourceVersion
                 yield event
