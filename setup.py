@@ -67,7 +67,7 @@ def main():
             "release": ["gitpython", "twine"],
             "docs": ["Sphinx>=1.6.3"]
         },
-
+        tests_require=TESTS_REQ,
         # Metadata
         description="Python client library for the Kubernetes API",
         long_description=_generate_description(),
