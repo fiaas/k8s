@@ -90,10 +90,20 @@ class TestClient(object):
         with pytest.raises(NotImplementedError):
             list(WatchListExampleUnsupported.watch_list())
 
+    def test_watch_list_with_namespace_should_raise_exception_when_watch_list_url_template_is_not_set_on_metaclass(self, session):
+        with pytest.raises(NotImplementedError):
+            list(WatchListExampleUnsupported.watch_list(namespace="explicitly-set"))
+
     def test_watch_list(self, session):
         list(WatchListExample.watch_list())
         session.request.assert_called_once_with(
             "GET", _absolute_url("/watch/example"), json=None, timeout=None, stream=True
+        )
+
+    def test_watch_list_with_namespace(self, session):
+        list(WatchListExample.watch_list(namespace="explicitly-set"))
+        session.request.assert_called_once_with(
+            "GET", _absolute_url("/watch/explicitly-set/example"), json=None, timeout=None, stream=True
         )
 
     @pytest.mark.parametrize("key", SENSITIVE_HEADERS)
@@ -111,14 +121,15 @@ def _absolute_url(url):
 
 class WatchListExample(Model):
     class Meta:
-        url_template = '/example'
-        watch_list_url = '/watch/example'
+        url_template = "/example"
+        watch_list_url = "/watch/example"
+        watch_list_url_template = "/watch/{namespace}/example"
 
     value = Field(int)
 
 
 class WatchListExampleUnsupported(Model):
     class Meta:
-        url_template = '/example'
+        url_template = "/example"
 
     value = Field(int)

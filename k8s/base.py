@@ -35,6 +35,7 @@ class MetaModel(type):
         meta = {
             "url_template": getattr(attr_meta, "url_template", ""),
             "watch_list_url": getattr(attr_meta, "watch_list_url", ""),
+            "watch_list_url_template": getattr(attr_meta, "watch_list_url_template", ""),
             "fields": [],
             "field_names": []
         }
@@ -78,11 +79,18 @@ class ApiMixIn(object):
         return [cls.from_dict(item) for item in resp.json()[u"items"]]
 
     @classmethod
-    def watch_list(cls):
+    def watch_list(cls, namespace=None):
         """Return a generator that yields WatchEvents of cls"""
-        url = cls._meta.watch_list_url
-        if not url:
-            raise NotImplementedError("Cannot watch_list, no watch_list_url defined on class {}".format(cls))
+        if namespace:
+            if cls._meta.watch_list_url_template:
+                url = cls._meta.watch_list_url_template.format(namespace=namespace)
+            else:
+                raise NotImplementedError("Cannot watch_list, no watch_list_url_template defined on class {}".format(cls))
+        else:
+            url = cls._meta.watch_list_url
+            if not url:
+                raise NotImplementedError("Cannot watch_list, no watch_list_url defined on class {}".format(cls))
+
         resp = cls._client.get(url, stream=True, timeout=None)
         for line in resp.iter_lines(chunk_size=None):
             if line:
