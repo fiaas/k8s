@@ -22,4 +22,5 @@ Submodules
    k8s.client
    k8s.config
    k8s.fields
+   k8s.watcher
 
