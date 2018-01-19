@@ -9,9 +9,37 @@ from requests import RequestException
 
 from . import config
 
-DEFAULT_TIMEOUT_SECONDS = 10
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
+
+DEFAULT_TIMEOUT_SECONDS = 10
+SENSITIVE_HEADERS = {
+    # Wordlist lifted from https://github.com/google/har-sanitizer/blob/master/harsanitizer/static/wordlist.json
+    "state",
+    "shdf",
+    "usg",
+    "password",
+    "email",
+    "code",
+    "code_verifier",
+    "client_secret",
+    "client_id",
+    "token",
+    "access_token",
+    "authenticity_token",
+    "id_token",
+    "appid",
+    "challenge",
+    "facetid",
+    "assertion",
+    "fcparams",
+    "serverdata",
+    "authorization",
+    "auth",
+    "x-client-data",
+    "samlrequest",
+    "samlresponse"
+}
 
 
 class K8sClientException(RequestException):
@@ -125,4 +153,6 @@ class Client(object):
     @staticmethod
     def _add_headers(message, headers, prefix):
         for key, value in headers.items():
+            if key.lower() in SENSITIVE_HEADERS:
+                value = "#REDACTED#"
             message.append("{} {}: {}".format(prefix, key, value))
