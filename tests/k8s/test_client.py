@@ -6,7 +6,7 @@ import pytest
 
 from k8s import config
 from k8s.base import Model, Field
-from k8s.client import Client, DEFAULT_TIMEOUT_SECONDS
+from k8s.client import Client, DEFAULT_TIMEOUT_SECONDS, SENSITIVE_HEADERS
 
 
 @pytest.mark.usefixtures("k8s_config")
@@ -96,10 +96,7 @@ class TestClient(object):
             "GET", _absolute_url("/watch/example"), json=None, timeout=None, stream=True
         )
 
-    @pytest.mark.parametrize("key", (
-            "client_id",
-            "authorization"
-    ))
+    @pytest.mark.parametrize("key", SENSITIVE_HEADERS)
     def test_redacts_sensitive_headers(self, key):
         message = []
         sensitive_value = "super sensitive data that should not be exposed"
