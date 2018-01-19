@@ -25,13 +25,15 @@ class Watcher(object):
         self._seen = cachetools.LRUCache(capacity)
         self._model = model
 
-    def watch(self):
+    def watch(self, namespace=None):
         """Watch for events
 
+        :param str namespace: the namespace to watch for events in. The default (None) results in watching for events
+        in all namespaces.
         :return: a generator that yields :py:class:`~.WatchEvent` objects not seen before
         """
         while True:
-            for event in self._model.watch_list():
+            for event in self._model.watch_list(namespace=namespace):
                 o = event.object
                 key = (o.metadata.name, o.metadata.namespace)
                 if self._seen.get(key) == o.metadata.resourceVersion and event.type != WatchEvent.DELETED:
