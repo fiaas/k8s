@@ -85,7 +85,8 @@ class ApiMixIn(object):
             if cls._meta.watch_list_url_template:
                 url = cls._meta.watch_list_url_template.format(namespace=namespace)
             else:
-                raise NotImplementedError("Cannot watch_list, no watch_list_url_template defined on class {}".format(cls))
+                raise NotImplementedError(
+                    "Cannot watch_list with namespace, no watch_list_url_template defined on class {}".format(cls))
         else:
             url = cls._meta.watch_list_url
             if not url:
