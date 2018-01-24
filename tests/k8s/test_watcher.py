@@ -33,6 +33,8 @@ class TestWatcher(object):
         with pytest.raises(StopIteration):
             next(gen)
 
+        api_watch_list.assert_called_with(namespace=None)
+
     def test_handle_reconnect(self, api_watch_list):
         events = [_event(0, ADDED, 1)]
         api_watch_list.side_effect = [events, events]
@@ -81,6 +83,17 @@ class TestWatcher(object):
         with pytest.raises(StopIteration):
             next(gen)
 
+    def test_namespace(self, api_watch_list):
+        namespace = "the-namespace"
+        api_watch_list.side_effect = []
+
+        gen = Watcher(WatchListExample).watch(namespace=namespace)
+
+        with pytest.raises(StopIteration):
+            next(gen)
+
+        api_watch_list.assert_called_with(namespace=namespace)
+
 
 def _event(id, event_type, rv, namespace="default"):
     metadict = {"name": "name{}".format(id), "namespace": namespace, "resourceVersion": rv}
@@ -102,6 +115,7 @@ class WatchListExample(Model):
     class Meta:
         url_template = '/example'
         watch_list_url = '/watch/example'
+        watch_list_url_template = '/watch/{namespace}/example'
 
     apiVersion = Field(six.text_type, "example.com/v1")
     kind = Field(six.text_type, "Example")
