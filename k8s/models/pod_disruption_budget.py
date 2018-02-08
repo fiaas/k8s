@@ -28,7 +28,7 @@ class PodDisruptionBudgetSpec(Model):
 
 class PodDisruptionBudget(Model):
     class Meta:
-        url_template = "/apis/autoscaling/v1/namespaces/{namespace}/poddisruptionbudget/{name}"
+        url_template = "/apis/policy/v1beta1/namespaces/{namespace}/poddisruptionbudgets/{name}"
 
     metadata = Field(ObjectMeta)
     spec = Field(PodDisruptionBudgetSpec)
