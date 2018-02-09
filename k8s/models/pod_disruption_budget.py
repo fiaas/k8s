@@ -21,8 +21,8 @@ class LabelSelector(Model):
 
 
 class PodDisruptionBudgetSpec(Model):
-    minAvailable = Field(six.text_type)
-    maxUnavailable = Field(six.text_type)
+    minAvailable = Field(six.text_type, alt_type=int)
+    maxUnavailable = Field(six.text_type, alt_type=int)
     selector = Field(LabelSelector)
 
 
