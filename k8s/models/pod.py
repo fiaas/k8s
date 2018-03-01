@@ -130,6 +130,7 @@ class Container(Model):
     livenessProbe = Field(Probe)
     readinessProbe = Field(Probe)
     imagePullPolicy = Field(six.text_type, "IfNotPresent")
+    command = Field(list)
 
 
 class SecretVolumeSource(Model):
