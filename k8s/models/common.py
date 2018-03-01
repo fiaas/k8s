@@ -9,8 +9,9 @@ from ..fields import Field, ReadOnlyField, RequiredField
 
 
 class ObjectMeta(Model):
-    name = RequiredField(six.text_type)
+    name = Field(six.text_type)
     namespace = Field(six.text_type, "default")
     resourceVersion = ReadOnlyField(six.text_type)
     labels = Field(dict)
     annotations = Field(dict)
+    generateName = Field(six.text_type)
