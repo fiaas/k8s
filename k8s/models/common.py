@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import six
 
 from ..base import Model
-from ..fields import Field, ReadOnlyField, RequiredField
+from ..fields import Field, ReadOnlyField
 
 
 class ObjectMeta(Model):
