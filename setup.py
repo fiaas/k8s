@@ -17,7 +17,6 @@ CODE_QUALITY_REQ = [
 
 TESTS_REQ = [
     'tox==2.7.0',
-    'vcrpy',
     'mock',
     'pytest-sugar',
     'pytest-html',
