@@ -128,14 +128,6 @@ class TestClient(object):
             "GET", _absolute_url("/example/list"), json=None, timeout=10
         )
 
-    @pytest.mark.parametrize("key", SENSITIVE_HEADERS)
-    def test_redacts_sensitive_headers(self, key):
-        message = []
-        sensitive_value = "super sensitive data that should not be exposed"
-        Client._add_headers(message, {key: sensitive_value}, "")
-        text = "".join(message)
-        assert sensitive_value not in text
-
     def test_find_without_namespace_should_raise_exception_when_list_url_is_not_set_on_metaclass(self, session):
         with pytest.raises(NotImplementedError):
             list(WatchListExampleUnsupported.find("foo", namespace=None))
