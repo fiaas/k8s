@@ -28,6 +28,7 @@ class PodDisruptionBudgetSpec(Model):
 
 class PodDisruptionBudget(Model):
     class Meta:
+        list_url = "/apis/policy/v1beta1/poddisruptionbudgets"
         url_template = "/apis/policy/v1beta1/namespaces/{namespace}/poddisruptionbudgets/{name}"
 
     metadata = Field(ObjectMeta)

@@ -187,6 +187,7 @@ class PodTemplateSpec(Model):
 
 class Pod(Model):
     class Meta:
+        list_url = "/api/v1/pods"
         url_template = "/api/v1/namespaces/{namespace}/pods/{name}"
 
     metadata = Field(ObjectMeta)

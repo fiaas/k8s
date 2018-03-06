@@ -24,6 +24,7 @@ class JobSpec(Model):
 
 class Job(Model):
     class Meta:
+        list_url = "/apis/batch/v1/jobs"
         url_template = "/apis/batch/v1/namespaces/{namespace}/jobs"
 
     metadata = Field(ObjectMeta)
