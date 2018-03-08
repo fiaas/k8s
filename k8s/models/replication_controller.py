@@ -16,6 +16,7 @@ class ReplicationControllerSpec(Model):
 
 class ReplicationController(Model):
     class Meta:
+        list_url = "/api/v1/replicationcontrollers"
         url_template = "/api/v1/namespaces/{namespace}/replicationcontrollers/{name}"
 
     metadata = Field(ObjectMeta)

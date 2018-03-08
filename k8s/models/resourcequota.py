@@ -27,6 +27,7 @@ class ResourceQuotaStatus(Model):
 
 class ResourceQuota(Model):
     class Meta:
+        list_url = "/api/v1/resourcequotas"
         url_template = "/api/v1/namespaces/{namespace}/resourcequotas"
 
     metadata = Field(ObjectMeta)

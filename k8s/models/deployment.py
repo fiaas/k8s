@@ -44,6 +44,7 @@ class DeploymentStatus(Model):
 
 class Deployment(Model):
     class Meta:
+        list_url = "/apis/extensions/v1beta1/deployments"
         url_template = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments/{name}"
 
     metadata = Field(ObjectMeta)

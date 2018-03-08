@@ -29,6 +29,7 @@ class ServiceSpec(Model):
 
 class Service(Model):
     class Meta:
+        list_url = "/api/v1/services"
         url_template = "/api/v1/namespaces/{namespace}/services/{name}"
 
     metadata = Field(ObjectMeta)

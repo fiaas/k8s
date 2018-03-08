@@ -41,6 +41,7 @@ class IngressSpec(Model):
 
 class Ingress(Model):
     class Meta:
+        list_url = "/apis/extensions/v1beta1/ingresses"
         url_template = "/apis/extensions/v1beta1/namespaces/{namespace}/ingresses/{name}"
 
     metadata = Field(ObjectMeta)

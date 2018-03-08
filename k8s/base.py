@@ -34,6 +34,7 @@ class MetaModel(type):
             bases += (ApiMixIn,)
         meta = {
             "url_template": getattr(attr_meta, "url_template", ""),
+            "list_url": getattr(attr_meta, "list_url", ""),
             "watch_list_url": getattr(attr_meta, "watch_list_url", ""),
             "watch_list_url_template": getattr(attr_meta, "watch_list_url_template", ""),
             "fields": [],
@@ -64,7 +65,12 @@ class ApiMixIn(object):
 
     @classmethod
     def find(cls, name, namespace="default", labels=None):
-        url = cls._build_url(name="", namespace=namespace)
+        if namespace is None:
+            if not cls._meta.list_url:
+                raise NotImplementedError("Cannot find without namespace, no list_url defined on class {}".format(cls))
+            url = cls._meta.list_url
+        else:
+            url = cls._build_url(name="", namespace=namespace)
         if labels:
             selector = ",".join("{}={}".format(k, v) for k, v in labels.items())
         else:
@@ -74,7 +80,12 @@ class ApiMixIn(object):
 
     @classmethod
     def list(cls, namespace="default"):
-        url = cls._build_url(name="", namespace=namespace)
+        if namespace is None:
+            if not cls._meta.list_url:
+                raise NotImplementedError("Cannot list without namespace, no list_url defined on class {}".format(cls))
+            url = cls._meta.list_url
+        else:
+            url = cls._build_url(name="", namespace=namespace)
         resp = cls._client.get(url)
         return [cls.from_dict(item) for item in resp.json()[u"items"]]
 

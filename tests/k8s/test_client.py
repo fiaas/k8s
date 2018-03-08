@@ -106,6 +106,53 @@ class TestClient(object):
             "GET", _absolute_url("/watch/explicitly-set/example"), json=None, timeout=None, stream=True
         )
 
+    def test_list_without_namespace_should_raise_exception_when_list_url_is_not_set_on_metaclass(self, session):
+        with pytest.raises(NotImplementedError):
+            WatchListExampleUnsupported.list(namespace=None)
+
+    def test_list_default_namespace(self, session):
+        WatchListExample.list()
+        session.request.assert_called_once_with(
+            "GET", _absolute_url("/apis/namespaces/default/example"), json=None, timeout=10
+        )
+
+    def test_list_explicit_namespace(self, session):
+        WatchListExample.list(namespace="explicitly-set")
+        session.request.assert_called_once_with(
+            "GET", _absolute_url("/apis/namespaces/explicitly-set/example"), json=None, timeout=10
+        )
+
+    def test_list_without_namespace(self, session):
+        WatchListExample.list(namespace=None)
+        session.request.assert_called_once_with(
+            "GET", _absolute_url("/example/list"), json=None, timeout=10
+        )
+
+    def test_find_without_namespace_should_raise_exception_when_list_url_is_not_set_on_metaclass(self, session):
+        with pytest.raises(NotImplementedError):
+            list(WatchListExampleUnsupported.find("foo", namespace=None))
+
+    def test_find_default_namespace(self, session):
+        WatchListExample.find("foo")
+        session.request.assert_called_once_with(
+            "GET", _absolute_url("/apis/namespaces/default/example"), json=None, timeout=10,
+            params={"labelSelector": "app=foo"}
+        )
+
+    def test_find_explicit_namespace(self, session):
+        WatchListExample.find("foo", namespace="explicitly-set")
+        session.request.assert_called_once_with(
+            "GET", _absolute_url("/apis/namespaces/explicitly-set/example"), json=None, timeout=10,
+            params={"labelSelector": "app=foo"}
+        )
+
+    def test_find_without_namespace(self, session):
+        WatchListExample.find("foo", namespace=None)
+        session.request.assert_called_once_with(
+            "GET", _absolute_url("/example/list"), json=None, timeout=10,
+            params={"labelSelector": "app=foo"}
+        )
+
     @pytest.mark.parametrize("key", SENSITIVE_HEADERS)
     def test_redacts_sensitive_headers(self, key):
         message = []
@@ -121,7 +168,8 @@ def _absolute_url(url):
 
 class WatchListExample(Model):
     class Meta:
-        url_template = "/example"
+        list_url = "/example/list"
+        url_template = "/apis/namespaces/{namespace}/example"
         watch_list_url = "/watch/example"
         watch_list_url_template = "/watch/{namespace}/example"
 
