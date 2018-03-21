@@ -31,7 +31,8 @@ class TestService(object):
             "namespace": SERVICE_NAMESPACE,
             "labels": {
                 "label": "value"
-            }
+            },
+            "ownerReferences": []
         }
 
     def test_service_created_if_not_exists(self, post, api_get):
@@ -57,7 +58,7 @@ class TestService(object):
                 "creationTimestamp": "2016-02-05T10:47:06Z",
                 "labels": {
                     "app": "test"
-                }
+                },
             },
             "spec": {
                 "ports": [
