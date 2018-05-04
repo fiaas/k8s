@@ -154,11 +154,39 @@ class EmptyDirVolumeSource(Model):
     medium = Field(six.text_type)
 
 
+class NFSVolumeSource(Model):
+    path = Field(six.text_type)
+    readOnly = Field(bool)
+    server = Field(six.text_type)
+
+
+class HostPathVolumeSource(Model):
+    path = Field(six.text_type)
+
+
+class GCEPersistentDiskVolumeSource(Model):
+    fsType = Field(six.text_type)
+    partition = Field(int)
+    pdName = Field(six.text_type)
+    readOnly = Field(bool)
+
+
+class AWSElasticBlockStoreVolumeSource(Model):
+    fsType = Field(six.text_type)
+    partition = Field(int)
+    readOnly = Field(bool)
+    volumeID = Field(six.text_type)
+
+
 class Volume(Model):
     name = Field(six.text_type)
-    secret = Field(SecretVolumeSource)
+    awsElasticBlockStore = Field(AWSElasticBlockStoreVolumeSource)
     configMap = Field(ConfigMapVolumeSource)
     emptyDir = Field(EmptyDirVolumeSource)
+    gcePersistentDisk = Field(GCEPersistentDiskVolumeSource)
+    hostPath = Field(HostPathVolumeSource)
+    nfs = Field(NFSVolumeSource)
+    secret = Field(SecretVolumeSource)
 
 
 class LocalObjectReference(Model):
