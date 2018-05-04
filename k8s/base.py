@@ -184,9 +184,10 @@ class Model(six.with_metaclass(MetaModel)):
                 d[_api_name(field.name)] = value
         return d
 
-    def update(self, other):
+    def merge(self, other):
         for field in self._meta.fields:
             setattr(self, field.name, getattr(other, field.name))
+    update = merge  # For backwards compatibility
 
     def update_from_dict(self, d):
         for field in self._meta.fields:

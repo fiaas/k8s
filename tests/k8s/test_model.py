@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
+from __future__ import unicode_literals
+
 import pytest
 import six
 from mock import create_autospec
@@ -48,24 +50,60 @@ class TestModel(object):
         assert instance.once_field == 1
         assert instance.read_only_field == 1
 
-    def test_set_dict_field_to_none(self, mock_response):
+    @pytest.mark.parametrize("value", (None, {}, {"key": "value"}), ids=("None", "Empty dict", "Key-Value"))
+    def test_set_dict_field(self, mock_response, value):
         metadata = ObjectMeta(name="my-name", namespace="my-namespace")
         mock_response.json.return_value = {'dict_field': {'thing': 'otherthing'}}
-        instance = ModelTest.get_or_create(metadata=metadata, dict_field=None)
-        assert instance.dict_field is None
+        instance = ModelTest.get_or_create(metadata=metadata, dict_field=value)
+        assert instance.dict_field == value
 
-    def test_annotations_merge(self, mock_response):
+    @pytest.mark.parametrize("value", (None, [], [5, 6]), ids=("None", "Empty list", "2-item list"))
+    def test_set_list_field_to_empty(self, mock_response, value):
+        metadata = ObjectMeta(name="my-name", namespace="my-namespace")
+        mock_response.json.return_value = {'list_field': [1, 2]}
+        instance = ModelTest.get_or_create(metadata=metadata, list_field=value)
+        assert instance.list_field == value
+
+    def test_serialization_of_empty_dict(self):
+        metadata = ObjectMeta(name="my-name", namespace="my-namespace")
+        kwargs = {"dict_field": {}, "metadata": metadata}
+        instance = ModelTest(**kwargs)
+        d = instance.as_dict()
+        assert "dict_field" not in d
+
+    def test_serialization_of_empty_list(self):
+        metadata = ObjectMeta(name="my-name", namespace="my-namespace")
+        kwargs = {"list_field": [], "metadata": metadata}
+        instance = ModelTest(**kwargs)
+        d = instance.as_dict()
+        assert d["list_field"] == []
+
+    def test_annotations_replace(self, mock_response):
         mock_response.json.return_value = {
-            u"metadata": {
-                u"name": u"my-name",
-                u"namespace": u"my-namespace",
-                u"annotations": {
-                    u"must_keep": u"this",
-                    u"will_overwrite": u"this"
+            "metadata": {
+                "name": "my-name",
+                "namespace": "my-namespace",
+                "annotations": {
+                    "must_discard": "this",
+                    "will_overwrite": "this"
                 }
             }
         }
-        metadata = ObjectMeta(name="my-name", namespace="my-namespace", annotations={u"will_overwrite": u"that"})
+        metadata = ObjectMeta(name="my-name", namespace="my-namespace", annotations={"will_overwrite": "that"})
         instance = ModelTest.get_or_create(metadata=metadata)
-        assert instance.metadata.annotations[u"will_overwrite"] == u"that"
-        assert instance.metadata.annotations[u"must_keep"] == u"this"
+        assert instance.metadata.annotations["will_overwrite"] == "that"
+        assert "must_discard" not in instance.metadata.annotations
+
+    def test_spec_merge(self, mock_response):
+        mock_response.json.return_value = {
+            "metadata": {
+                "name": "my-name",
+                "namespace": "my-namespace",
+                "generateName": "my-generated-name",
+                "selfLink": "http://this.link.stays.example.com"
+            }
+        }
+        metadata = ObjectMeta(name="my-name", namespace="my-namespace", generateName="my-new-generated-name")
+        instance = ModelTest.get_or_create(metadata=metadata)
+        assert instance.metadata.generateName == "my-new-generated-name"
+        assert instance.metadata.selfLink == "http://this.link.stays.example.com"
