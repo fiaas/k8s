@@ -44,7 +44,7 @@ class Field(object):
             return
         if new_value is not None:
             try:
-                current_value.update(new_value)
+                current_value.merge(new_value)
                 return
             except AttributeError:
                 pass
