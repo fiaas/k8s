@@ -8,3 +8,4 @@ api_token = ""
 cert = None
 verify_ssl = True
 debug = False
+timeout = 20

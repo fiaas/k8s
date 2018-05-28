@@ -12,7 +12,6 @@ from . import config
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
-DEFAULT_TIMEOUT_SECONDS = 10
 SENSITIVE_HEADERS = {
     # Wordlist lifted from https://github.com/google/har-sanitizer/blob/master/harsanitizer/static/wordlist.json
     "state",
@@ -76,19 +75,19 @@ class Client(object):
             import requests.packages.urllib3 as urllib3
             urllib3.disable_warnings()
 
-    def get(self, url, timeout=DEFAULT_TIMEOUT_SECONDS, **kwargs):
+    def get(self, url, timeout=config.timeout, **kwargs):
         return self._call("GET", url, timeout=timeout, **kwargs)
 
-    def delete(self, url, timeout=DEFAULT_TIMEOUT_SECONDS, **kwargs):
+    def delete(self, url, timeout=config.timeout, **kwargs):
         return self._call("DELETE", url=url, timeout=timeout, **kwargs)
 
-    def post(self, url, body, timeout=DEFAULT_TIMEOUT_SECONDS):
+    def post(self, url, body, timeout=config.timeout):
         return self._call("POST", url, body, timeout=timeout)
 
-    def put(self, url, body, timeout=DEFAULT_TIMEOUT_SECONDS):
+    def put(self, url, body, timeout=config.timeout):
         return self._call("PUT", url, body, timeout=timeout)
 
-    def _call(self, method, url, body=None, timeout=DEFAULT_TIMEOUT_SECONDS, **kwargs):
+    def _call(self, method, url, body=None, timeout=config.timeout, **kwargs):
         self.init_session()
         resp = self._session.request(method, config.api_server + url, json=body, timeout=timeout, **kwargs)
         if config.debug and not kwargs.get('stream', False):
