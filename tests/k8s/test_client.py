@@ -6,7 +6,7 @@ import pytest
 
 from k8s import config
 from k8s.base import Model, Field
-from k8s.client import Client, DEFAULT_TIMEOUT_SECONDS, SENSITIVE_HEADERS
+from k8s.client import Client, SENSITIVE_HEADERS
 
 
 @pytest.mark.usefixtures("k8s_config")
@@ -37,7 +37,7 @@ class TestClient(object):
 
     def test_get_should_use_default_timeout(self, session, client, url):
         client.get(url)
-        session.request.assert_called_once_with("GET", _absolute_url(url), json=None, timeout=DEFAULT_TIMEOUT_SECONDS)
+        session.request.assert_called_once_with("GET", _absolute_url(url), json=None, timeout=config.timeout)
 
     def test_get_should_propagate_timeout(self, session, client, url, explicit_timeout):
         client.get(url, timeout=explicit_timeout)
@@ -46,7 +46,7 @@ class TestClient(object):
     def test_delete_should_use_default_timeout(self, session, client, url):
         client.delete(url)
         session.request.assert_called_once_with(
-            "DELETE", _absolute_url(url), json=None, timeout=DEFAULT_TIMEOUT_SECONDS
+            "DELETE", _absolute_url(url), json=None, timeout=config.timeout
         )
 
     def test_delete_should_propagate_timeout(self, session, client, url, explicit_timeout):
@@ -56,20 +56,20 @@ class TestClient(object):
     def test_delete_should_use_default_body(self, session, client, url):
         client.delete(url)
         session.request.assert_called_once_with(
-            "DELETE", _absolute_url(url), json=None, timeout=DEFAULT_TIMEOUT_SECONDS
+            "DELETE", _absolute_url(url), json=None, timeout=config.timeout
         )
 
     def test_delete_should_propagate_body(self, session, client, url):
         body = {"kind": "DeleteOptions", "apiVersion": "v1", "propagationPolicy": "Foreground"}
         client.delete(url, body=body)
         session.request.assert_called_once_with(
-            "DELETE", _absolute_url(url), json=body, timeout=DEFAULT_TIMEOUT_SECONDS
+            "DELETE", _absolute_url(url), json=body, timeout=config.timeout
         )
 
     def test_post_should_use_default_timeout(self, session, client, url):
         body = {"foo": "bar"}
         client.post(url, body=body)
-        session.request.assert_called_once_with("POST", _absolute_url(url), json=body, timeout=DEFAULT_TIMEOUT_SECONDS)
+        session.request.assert_called_once_with("POST", _absolute_url(url), json=body, timeout=config.timeout)
 
     def test_post_should_propagate_timeout(self, session, client, url, explicit_timeout):
         body = {"foo": "bar"}
@@ -79,7 +79,7 @@ class TestClient(object):
     def test_put_should_use_default_timeout(self, session, client, url):
         body = {"foo": "bar"}
         client.put(url, body=body)
-        session.request.assert_called_once_with("PUT", _absolute_url(url), json=body, timeout=DEFAULT_TIMEOUT_SECONDS)
+        session.request.assert_called_once_with("PUT", _absolute_url(url), json=body, timeout=config.timeout)
 
     def test_put_should_propagate_timeout(self, session, client, url, explicit_timeout):
         body = {"foo": "bar"}
@@ -113,19 +113,19 @@ class TestClient(object):
     def test_list_default_namespace(self, session):
         WatchListExample.list()
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/apis/namespaces/default/example"), json=None, timeout=10
+            "GET", _absolute_url("/apis/namespaces/default/example"), json=None, timeout=config.timeout
         )
 
     def test_list_explicit_namespace(self, session):
         WatchListExample.list(namespace="explicitly-set")
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/apis/namespaces/explicitly-set/example"), json=None, timeout=10
+            "GET", _absolute_url("/apis/namespaces/explicitly-set/example"), json=None, timeout=config.timeout
         )
 
     def test_list_without_namespace(self, session):
         WatchListExample.list(namespace=None)
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/example/list"), json=None, timeout=10
+            "GET", _absolute_url("/example/list"), json=None, timeout=config.timeout
         )
 
     def test_find_without_namespace_should_raise_exception_when_list_url_is_not_set_on_metaclass(self, session):
@@ -135,21 +135,21 @@ class TestClient(object):
     def test_find_default_namespace(self, session):
         WatchListExample.find("foo")
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/apis/namespaces/default/example"), json=None, timeout=10,
+            "GET", _absolute_url("/apis/namespaces/default/example"), json=None, timeout=config.timeout,
             params={"labelSelector": "app=foo"}
         )
 
     def test_find_explicit_namespace(self, session):
         WatchListExample.find("foo", namespace="explicitly-set")
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/apis/namespaces/explicitly-set/example"), json=None, timeout=10,
+            "GET", _absolute_url("/apis/namespaces/explicitly-set/example"), json=None, timeout=config.timeout,
             params={"labelSelector": "app=foo"}
         )
 
     def test_find_without_namespace(self, session):
         WatchListExample.find("foo", namespace=None)
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/example/list"), json=None, timeout=10,
+            "GET", _absolute_url("/example/list"), json=None, timeout=config.timeout,
             params={"labelSelector": "app=foo"}
         )
 
