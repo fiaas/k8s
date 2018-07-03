@@ -23,6 +23,7 @@ class TestIngress(object):
         api_get.side_effect = NotFound()
         ingress = _create_default_ingress()
         call_params = ingress.as_dict()
+        post.return_value.json.return_value = call_params
 
         assert ingress._new
         ingress.save()
@@ -39,6 +40,7 @@ class TestIngress(object):
         assert not from_api._new
         assert from_api.spec.rules[0].host == "dummy.example.com"
         call_params = from_api.as_dict()
+        put.return_value.json.return_value = call_params
 
         from_api.save()
         pytest.helpers.assert_any_call(put, _uri(NAMESPACE, NAME), call_params)
