@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
 
-import pytest
 import mock
+import pytest
+from six import u
 
 from k8s.client import NotFound
 from k8s.models.common import ObjectMeta
@@ -26,6 +27,7 @@ class TestDeployer(object):
         api_get.side_effect = NotFound()
         deployment = _create_default_deployment()
         call_params = deployment.as_dict()
+        post.return_value.json.return_value = call_params
 
         assert deployment._new
         deployment.save()
@@ -36,9 +38,10 @@ class TestDeployer(object):
     def test_created_if_not_exists_with_percentage_rollout_strategy(self, post, api_get):
         api_get.side_effect = NotFound()
         deployment = _create_default_deployment()
-        rolling_update = RollingUpdateDeployment(maxUnavailable="50%", maxSurge="50%")
+        rolling_update = RollingUpdateDeployment(maxUnavailable=u("50%"), maxSurge=u("50%"))
         deployment.spec.strategy = DeploymentStrategy(type="RollingUpdate", rollingUpdate=rolling_update)
         call_params = deployment.as_dict()
+        post.return_value.json.return_value = call_params
 
         assert deployment._new
         deployment.save()
@@ -55,6 +58,7 @@ class TestDeployer(object):
         assert not from_api._new
         assert from_api.spec.replicas == 2
         call_params = from_api.as_dict()
+        put.return_value.json.return_value = call_params
 
         from_api.save()
         pytest.helpers.assert_any_call(put, _uri(NAMESPACE, NAME), call_params)

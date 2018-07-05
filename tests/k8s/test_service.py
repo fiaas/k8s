@@ -29,6 +29,7 @@ class TestService(object):
         assert meta.as_dict() == {
             "name": SERVICE_NAME,
             "namespace": SERVICE_NAMESPACE,
+            "finalizers": [],
             "labels": {
                 "label": "value"
             },
@@ -39,6 +40,8 @@ class TestService(object):
         api_get.side_effect = NotFound()
         service = create_default_service()
         call_params = service.as_dict()
+        post.return_value.json.return_value = call_params
+
         assert service._new
         service.save()
         assert not service._new
@@ -83,6 +86,8 @@ class TestService(object):
         assert from_api.metadata.labels
         assert from_api.metadata.name == service.metadata.name
         call_params = from_api.as_dict()
+        put.return_value.json.return_value = call_params
+
         from_api.save()
         pytest.helpers.assert_any_call(put, SERVICES_URI + SERVICE_NAME, call_params)
 

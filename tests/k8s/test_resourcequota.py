@@ -18,6 +18,7 @@ class TestResourceQuota(object):
         api_get.side_effect = NotFound()
         resourcequota = _create_default_resourcequota()
         call_params = resourcequota.as_dict()
+        post.return_value.json.return_value = call_params
 
         assert resourcequota._new
         resourcequota.save()
@@ -37,6 +38,7 @@ class TestResourceQuota(object):
 
         from_api.spec = ResourceQuotaSpec(hard={'pods': "10"}, scopes=[BestEffort])
         call_params = from_api.as_dict()
+        put.return_value.json.return_value = call_params
 
         from_api.save()
         pytest.helpers.assert_any_call(put, _uri(NAMESPACE, NAME), call_params)

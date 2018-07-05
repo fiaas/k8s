@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
 
-import pytest
 import mock
+import pytest
 
 from k8s.client import NotFound
 from k8s.models.common import ObjectMeta
@@ -24,6 +24,7 @@ class TestJobs(object):
         api_get.side_effect = NotFound()
         job = _create_default_job()
         call_params = job.as_dict()
+        post.return_value.json.return_value = call_params
 
         assert job._new
         job.save()

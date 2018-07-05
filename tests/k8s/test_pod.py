@@ -26,6 +26,8 @@ class TestPod(object):
         api_get.side_effect = NotFound()
         pod = _create_pod()
         call_params = pod.as_dict()
+        post.return_value.json.return_value = call_params
+
         assert pod._new
         pod.save()
         assert not pod._new
@@ -104,6 +106,8 @@ class TestPod(object):
         assert pod.metadata.name == NAME
         assert pod.spec.containers[0].ports[0].name == "http5000"
         call_params = pod.as_dict()
+        put.return_value.json.return_value = call_params
+
         pod.save()
         pytest.helpers.assert_any_call(put, POD_URI + NAME, call_params)
 

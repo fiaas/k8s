@@ -18,6 +18,7 @@ class TestConfigMap(object):
         api_get.side_effect = NotFound()
         configmap = _create_default_configmap()
         call_params = configmap.as_dict()
+        post.return_value.json.return_value = call_params
 
         assert configmap._new
         configmap.save()
@@ -36,6 +37,7 @@ class TestConfigMap(object):
 
         from_api.data = {"baz": "quux"}
         call_params = from_api.as_dict()
+        put.return_value.json.return_value = call_params
 
         from_api.save()
         pytest.helpers.assert_any_call(put, _uri(NAMESPACE, NAME), call_params)

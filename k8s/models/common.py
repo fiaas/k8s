@@ -2,6 +2,8 @@
 # -*- coding: utf-8
 from __future__ import absolute_import
 
+import datetime
+
 import six
 
 from ..base import Model
@@ -18,13 +20,17 @@ class OwnerReference(Model):
 
 
 class ObjectMeta(Model):
+    annotations = Field(dict)
+    creationTimestamp = ReadOnlyField(datetime.datetime)
+    deletionGracePeriodSeconds = ReadOnlyField(int)
+    deletionTimestamp = ReadOnlyField(datetime.datetime)
+    finalizers = ListField(six.text_type)
+    generateName = Field(six.text_type)
+    generation = ReadOnlyField(int)
+    labels = Field(dict)
     name = Field(six.text_type)
     namespace = Field(six.text_type, "default")
-    resourceVersion = ReadOnlyField(six.text_type)
-    labels = Field(dict)
-    annotations = Field(dict)
-    generateName = Field(six.text_type)
     ownerReferences = ListField(OwnerReference)
+    resourceVersion = ReadOnlyField(six.text_type)
     selfLink = ReadOnlyField(six.text_type)
     uid = ReadOnlyField(six.text_type)
-    generation = ReadOnlyField(int)
