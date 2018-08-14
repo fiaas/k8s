@@ -2,6 +2,7 @@
 # -*- coding: utf-8
 
 import os
+
 from setuptools import setup, find_packages
 
 GENERIC_REQ = [
@@ -17,13 +18,20 @@ CODE_QUALITY_REQ = [
 
 TESTS_REQ = [
     'tox==2.7.0',
-    'mock',
-    'pytest-sugar',
-    'pytest-html',
-    'pytest-cov',
-    'pytest-helpers-namespace',
+    'mock==2.0.0',
+    "pytest-sugar==0.9.1",
+    "pytest-html==1.19.0",
+    "pytest-cov==2.5.1",
+    "pytest-helpers-namespace==2017.11.11",
     'pytest==3.3.2',
-    'gitpython',
+    "GitPython==2.1.10",
+]
+
+# These are not direct dependencies, but we need to lock down their versions here
+EXTRA_REQ = [
+    "pluggy==0.6.0",
+    "prospector==0.12.11",
+    "pylint==1.9.2",
 ]
 
 
@@ -61,7 +69,7 @@ def main():
         install_requires=GENERIC_REQ,
         setup_requires=['pytest-runner', 'wheel', 'setuptools_scm'],
         extras_require={
-            "dev": TESTS_REQ + CODE_QUALITY_REQ,
+            "dev": TESTS_REQ + CODE_QUALITY_REQ + EXTRA_REQ,
             "codacy": ["codacy-coverage"],
             "release": ["gitpython", "twine"],
             "docs": ["Sphinx>=1.6.3"]
