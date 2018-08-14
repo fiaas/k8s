@@ -90,7 +90,7 @@ class TestClient(object):
         with pytest.raises(NotImplementedError):
             list(WatchListExampleUnsupported.watch_list())
 
-    def test_watch_list_with_namespace_should_raise_exception_when_watch_list_url_template_is_not_set_on_metaclass(self, session):
+    def test_watch_list_with_namespace_should_raise_exception_when_watch_list_url_template_is_not_set(self, session):
         with pytest.raises(NotImplementedError):
             list(WatchListExampleUnsupported.watch_list(namespace="explicitly-set"))
 
