@@ -32,10 +32,10 @@ class TestFields(object):
         monkeypatch.setattr(config, "debug", True)
 
     @pytest.mark.parametrize("field_name,initial_value,other_value", (
-            ("field", 1, 2),
-            ("list_field", [1], [1, 2]),
-            ("once_field", 1, 2),
-            ("_exec", 1, 2)
+        ("field", 1, 2),
+        ("list_field", [1], [1, 2]),
+        ("once_field", 1, 2),
+        ("_exec", 1, 2)
     ))
     def test_field_new(self, field_name, initial_value, other_value):
         kwargs = {"new": True, field_name: initial_value}
@@ -45,8 +45,8 @@ class TestFields(object):
         assert getattr(model, field_name) == other_value
 
     @pytest.mark.parametrize("field_name,initial_value,other_value", (
-            ("field", 1, 2),
-            ("list_field", [1], [1, 2]),
+        ("field", 1, 2),
+        ("list_field", [1], [1, 2]),
     ))
     def test_field_old(self, field_name, initial_value, other_value):
         model = ModelTest.from_dict({field_name: initial_value})

@@ -107,3 +107,13 @@ class TestModel(object):
         instance = ModelTest.get_or_create(metadata=metadata)
         assert instance.metadata.generateName == "my-new-generated-name"
         assert instance.metadata.selfLink == "http://this.link.stays.example.com"
+
+    def test_independent_default_value(self):
+        my_model1 = ModelTest()
+        my_model1.list_field.append(1)
+
+        my_model2 = ModelTest()
+        my_model2.list_field.append(2)
+
+        assert [1] == my_model1.list_field
+        assert [2] == my_model2.list_field

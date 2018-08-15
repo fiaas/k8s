@@ -2,6 +2,7 @@
 # -*- coding: utf-8
 from __future__ import absolute_import
 
+import copy
 from datetime import datetime
 
 import pyrfc3339
@@ -58,7 +59,7 @@ class Field(object):
         from .base import Model
         if issubclass(self.type, Model) and self._default_value is None:
             return self.type(new=False)
-        return self._default_value
+        return copy.copy(self._default_value)
 
     def _as_dict(self, value):
         try:
