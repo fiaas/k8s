@@ -1,5 +1,5 @@
-k8s\.fields module
-==================
+k8s.fields module
+=================
 
 .. automodule:: k8s.fields
     :members:

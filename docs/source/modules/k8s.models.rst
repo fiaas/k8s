@@ -1,5 +1,5 @@
-k8s\.models package
-===================
+k8s.models package
+==================
 
 .. automodule:: k8s.models
     :members:
@@ -17,7 +17,10 @@ Submodules
    k8s.models.custom_resource_definition
    k8s.models.deployment
    k8s.models.ingress
+   k8s.models.job
+   k8s.models.namespace
    k8s.models.pod
+   k8s.models.pod_disruption_budget
    k8s.models.replication_controller
    k8s.models.resourcequota
    k8s.models.service

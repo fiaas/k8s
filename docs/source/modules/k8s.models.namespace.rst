@@ -1,7 +1,7 @@
-k8s.models.configmap module
+k8s.models.namespace module
 ===========================
 
-.. automodule:: k8s.models.configmap
+.. automodule:: k8s.models.namespace
     :members:
     :undoc-members:
     :show-inheritance:

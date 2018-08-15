@@ -1,5 +1,5 @@
-k8s\.models\.ingress module
-===========================
+k8s.models.ingress module
+=========================
 
 .. automodule:: k8s.models.ingress
     :members:

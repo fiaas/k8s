@@ -1,5 +1,5 @@
-k8s\.models\.common module
-==========================
+k8s.models.common module
+========================
 
 .. automodule:: k8s.models.common
     :members:
