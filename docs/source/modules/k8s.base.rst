@@ -1,5 +1,5 @@
-k8s\.base module
-================
+k8s.base module
+===============
 
 .. automodule:: k8s.base
     :members:

@@ -11,6 +11,7 @@ Welcome to k8s's documentation!
    :caption: Contents:
 
    tutorial
+   gotchas
    developer
    modules/modules
 

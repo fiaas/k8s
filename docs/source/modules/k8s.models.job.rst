@@ -1,7 +1,7 @@
-k8s.models.pod module
+k8s.models.job module
 =====================
 
-.. automodule:: k8s.models.pod
+.. automodule:: k8s.models.job
     :members:
     :undoc-members:
     :show-inheritance:

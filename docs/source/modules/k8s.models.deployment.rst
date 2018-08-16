@@ -1,5 +1,5 @@
-k8s\.models\.deployment module
-==============================
+k8s.models.deployment module
+============================
 
 .. automodule:: k8s.models.deployment
     :members:

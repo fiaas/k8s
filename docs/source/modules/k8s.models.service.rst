@@ -1,5 +1,5 @@
-k8s\.models\.service module
-===========================
+k8s.models.service module
+=========================
 
 .. automodule:: k8s.models.service
     :members:
