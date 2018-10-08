@@ -6,10 +6,10 @@ import os
 from setuptools import setup, find_packages
 
 GENERIC_REQ = [
-    "six == 1.10.0",
-    "requests == 2.13.0",
-    "pyrfc3339 == 1.0",
-    "cachetools == 2.0.1",
+    "six==1.11.0",
+    "requests==2.19.1",
+    "pyrfc3339==1.1",
+    "cachetools==2.1.0",
 ]
 
 CODE_QUALITY_REQ = [
@@ -17,21 +17,20 @@ CODE_QUALITY_REQ = [
 ]
 
 TESTS_REQ = [
-    'tox==2.7.0',
+    'tox==3.4.0',
     'mock==2.0.0',
     "pytest-sugar==0.9.1",
     "pytest-html==1.19.0",
-    "pytest-cov==2.5.1",
+    "pytest-cov==2.6.0",
     "pytest-helpers-namespace==2017.11.11",
-    'pytest==3.3.2',
-    "GitPython==2.1.10",
+    'pytest==3.8.2',
+    "GitPython==2.1.11",
 ]
 
 # These are not direct dependencies, but we need to lock down their versions here
 EXTRA_REQ = [
-    "pluggy==0.6.0",
-    "prospector==0.12.11",
-    "pylint==1.9.2",
+    "pluggy==0.7.1",
+    "prospector==1.1.2",
 ]
 
 
