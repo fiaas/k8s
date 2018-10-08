@@ -20,12 +20,12 @@ The script will do the following steps:
 from __future__ import unicode_literals, print_function
 
 import argparse
+import os
+import re
 import subprocess
 import sys
 import tempfile
 
-import os
-import re
 import six
 from git import Repo, BadName, GitCommandError
 from git.cmd import Git
@@ -133,6 +133,7 @@ class Uploader(object):
                 subprocess.check_call(args)
         except subprocess.CalledProcessError:
             print(msg, file=sys.stderr)
+            raise
 
     def github_release(self):
         """Create release in github.com, and upload artifacts and changelog"""
@@ -213,8 +214,13 @@ def main(options):
     changelog = repo.generate_changelog()
     artifacts = create_artifacts(changelog)
     uploader = Uploader(options, repo.version, changelog, artifacts)
-    uploader.github_release()
-    uploader.pypi_release()
+    return_code = 0
+    for i, release in enumerate((uploader.github_release, uploader.pypi_release)):
+        try:
+            release()
+        except subprocess.CalledProcessError:
+            return_code |= pow(2, i)
+    return return_code
 
 
 if __name__ == "__main__":
@@ -223,4 +229,4 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--force", action="store_true", help="Make a release even if the repo is unclean")
     parser.add_argument("-n", "--dry-run", action="store_true", help="Do everything, except upload to GH/PyPI")
     options = parser.parse_args()
-    main(options)
+    sys.exit(main(options))
