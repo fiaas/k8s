@@ -31,6 +31,7 @@ class Service(Model):
     class Meta:
         list_url = "/api/v1/services"
         url_template = "/api/v1/namespaces/{namespace}/services/{name}"
+        watch_list_url = "/api/v1/watch/services"
 
     metadata = Field(ObjectMeta)
     spec = Field(ServiceSpec)
