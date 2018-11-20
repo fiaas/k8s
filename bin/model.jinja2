@@ -6,11 +6,11 @@ import six
 
 from k8s.base import Model
 from k8s.fields import Field
-{% for import in imports|sort %}
-from k8s.models.{{ import.package }} import {{ import.name }}
+{% for import in module.imports %}
+from k8s.models.{{ import.module.ref }} import {{ import.names|join(", ") }}
 {% endfor %}
 
-{% for model in models|sort %}
+{% for model in module.models %}
 
 class {{ model.definition.name }}(Model):
     """
@@ -23,7 +23,7 @@ class {{ model.definition.name }}(Model):
 {% endif %}
 
 {% for field in model.definition.fields|rejectattr("name", "in", ("apiVersion", "kind"))|sort %}
-    {{ field.name }} = Field({{ field.type }})
+    {{ field.name }} = Field({{ field.type.name }})
 {% endfor %}
 
 {% endfor %}
