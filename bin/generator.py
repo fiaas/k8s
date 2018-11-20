@@ -13,32 +13,46 @@ from jinja2 import Environment, FileSystemLoader
 
 SPEC_URL = "https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.12/api/openapi-spec/swagger.json"
 HTTP_CLIENT_SESSION = CacheControl(requests.session(), cache=FileCache(appdirs.user_cache_dir("k8s-generator")))
+TYPE_MAPPING = {
+    "integer": "int",
+    "float": "float",
+    "number": "float",
+    "long": "int",
+    "double": "float",
+    "array": "list",
+    "map": "dict",
+    "boolean": "bool",
+    "string": "str",
+    "date": "date",
+    "DateTime": "datetime",
+    "object": "dict",
+    "file": "file",
+    "binary": "bytes",
+    "ByteArray": "bytes",
+    "UUID": "str",
+}
 
 GVK = namedtuple("GVK", ("group", "version", "kind"))
 Field = namedtuple("Field", ("name", "description", "type", "ref"))
-Definition = namedtuple("Definition", ("package", "name", "description", "fields"))
+Definition = namedtuple("Definition", ("package", "name", "description", "fields", "gvks"))
 Operation = namedtuple("Operation", ("path", "action", "description"))
-Model = namedtuple("Model", ("gvk", "definition", "operations"))
+Model = namedtuple("Model", ("definition", "operations"))
 Import = namedtuple("Import", ("package", "name"))
 
 
 def _parse_definitions(definitions):
-    result = defaultdict(list)
+    result = {}
     for id, item in definitions.items():
-        package, kind = id[len("io.k8s."):].rsplit(".", 1)
+        package, name = id[len("io.k8s."):].rsplit(".", 1)
         package = package.replace("-", "_")
-        gvks = item.get("x-kubernetes-group-version-kind")
-        if not gvks:
-            continue
-        keys = (GVK(**x) for x in gvks)
+        gvks = [GVK(**x) for x in item.get("x-kubernetes-group-version-kind", [])]
         fields = []
-        for name, property in item["properties"].items():
-            fields.append(Field(name, property.get("description", ""), property.get("type"), property.get("$ref")))
-        definition = Definition(package, kind, item.get("description", ""), fields)
-        for key in keys:
-            result[key].append(definition)
-    total = sum(len(x) for x in result.values())
-    print("Extracted {} gvks, with {} definitions in total".format(len(result), total))
+        for field_name, property in item.get("properties", {}).items():
+            fields.append(Field(field_name, property.get("description", ""), property.get("type"), property.get("$ref")))
+        definition = Definition(package, name, item.get("description", ""), fields, gvks)
+        key = (package, name)
+        result[key] = definition
+    print("Extracted {} definitions in total".format(len(result)))
     return result
 
 
@@ -64,11 +78,12 @@ def _parse_paths(paths):
 
 def _make_models(definitions, operations):
     result = defaultdict(list)
-    for gvk in definitions.keys():
-        print("Generating model for {}, based on this definition:".format(gvk))
-        pprint(definitions[gvk])
-        definition = definitions[gvk][-1]
-        result[definition.package].append(Model(gvk, definition, operations[gvk]))
+    for key in definitions.keys():
+        package, name = key
+        print("Generating model for {}.{}, based on this definition:".format(package, name))
+        definition = definitions[key]
+        pprint(definition)
+        result[definition.package].append(Model(definition, None))
     print("Collected {} models in total".format(len(result)))
     return result
 
@@ -79,7 +94,7 @@ def _generate_package(package, models, imports, output_dir):
         trim_blocks=True,
         lstrip_blocks=True,
     )
-    file_path = os.path.join(output_dir, package.replace(".", os.sep))
+    file_path = os.path.join(output_dir, package.replace(".", os.sep)) + ".py"
     package_dir = os.path.dirname(file_path)
     if not os.path.isdir(package_dir):
         os.makedirs(package_dir)
@@ -105,11 +120,13 @@ def _resolve_types(package, models):
             if field.ref:
                 field_type = _resolve_ref(field.ref)
             else:
-                field_type = field.type
+                field_type = TYPE_MAPPING.get(field.type, field.type)
             if "." in field_type:
                 if not field_type.startswith(package):
                     field_package, field_type = field_type.rsplit(".", 1)
                     imports.add(Import(field_package, field_type))
+                else:
+                    field_type = field_type[len(package)+1:]
             new_fields.append(field._replace(type=field_type))
         model.definition.fields[:] = new_fields
     return imports
@@ -122,8 +139,8 @@ def main():
         print("Specification contains {} {}".format(len(spec.get(key, [])), key))
     pprint(spec["info"])
     definitions = _parse_definitions(spec["definitions"])
-    operations = _parse_paths(spec["paths"])
-    models = _make_models(definitions, operations)
+    #operations = _parse_paths(spec["paths"])
+    models = _make_models(definitions, None)
     for package, models in models.items():
         imports = _resolve_types(package, models)
         _generate_package(package, models, imports,
