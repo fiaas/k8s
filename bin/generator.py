@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
-
+import keyword
 import os
 from collections import namedtuple
 from pprint import pprint
@@ -11,7 +11,7 @@ from cachecontrol import CacheControl
 from cachecontrol.caches import FileCache
 from jinja2 import Environment, FileSystemLoader
 
-SPEC_URL = "https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.12/api/openapi-spec/swagger.json"
+SPEC_URL = "https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.6/api/openapi-spec/swagger.json"
 HTTP_CLIENT_SESSION = CacheControl(requests.session(), cache=FileCache(appdirs.user_cache_dir("k8s-generator")))
 TYPE_MAPPING = {
     "integer": "int",
@@ -92,9 +92,14 @@ class Parser(object):
             package_ref, module_name, def_name = _split_ref(id[len("io.k8s."):])
             package = self._get_package(package_ref)
             module = self._get_module(package, module_name)
-            gvks = [GVK(**x) for x in item.get("x-kubernetes-group-version-kind", [])]
+            gvks = []
+            for x in item.get("x-kubernetes-group-version-kind", []):
+                x = {k.lower(): v for k, v in x.items()}
+                gvks.append(GVK(**x))
             fields = []
             for field_name, property in item.get("properties", {}).items():
+                if keyword.iskeyword(field_name):
+                    field_name = "_{}".format(field_name)
                 fields.append(
                     Field(field_name, property.get("description", ""), property.get("type"), property.get("$ref")))
             definition = Definition(def_name, item.get("description", ""), fields, gvks)
