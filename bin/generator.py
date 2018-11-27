@@ -78,6 +78,7 @@ class Parser(object):
     _SPECIAL_TYPES = {
         "apimachinery.pkg.api.resource.Quantity": Primitive("string"),
         "apimachinery.pkg.apis.meta.v1.Time": Primitive("datetime.datetime"),
+        "apimachinery.pkg.apis.meta.v1.Patch": Primitive("string"),
     }
 
     def __init__(self, spec):
@@ -104,6 +105,9 @@ class Parser(object):
             fields = []
             for field_name, property in item.get("properties", {}).items():
                 fields.append(self._parse_field(field_name, property))
+            if not fields:
+                print("Model {}.{}.{} has no fields, skipping".format(package_ref, module_name, def_name))
+                continue
             definition = Definition(def_name, item.get("description", ""), fields, gvks)
             model = Model(_make_ref(package.ref, module.name, def_name), definition)
             module.models.append(model)
