@@ -3,9 +3,10 @@
 from __future__ import absolute_import
 
 import six
+import datetime
 
 from k8s.base import Model
-from k8s.fields import Field
+from k8s.fields import Field, ListField
 {% for import in module.imports %}
 from k8s.models.{{ import.module.ref }} import {{ import.names|join(", ") }}
 {% endfor %}
@@ -23,7 +24,9 @@ class {{ model.definition.name }}(Model):
 {% endif %}
 
 {% for field in model.definition.fields|rejectattr("name", "in", ("apiVersion", "kind"))|sort %}
-    {{ field.name }} = Field({{ field.type.name }})
+    {{ field.name }} = {{ field.cls }}({{ field.type.name }}{% if field.alt_type %}, alt_type={{ field.alt_type.name }}{% endif %})
+{% else %}
+    # Model has no fields
 {% endfor %}
 
 {% endfor %}

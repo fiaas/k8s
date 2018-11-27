@@ -33,7 +33,7 @@ TYPE_MAPPING = {
 }
 
 GVK = namedtuple("GVK", ("group", "version", "kind"))
-Field = namedtuple("Field", ("name", "description", "type", "ref"))
+Field = namedtuple("Field", ("name", "description", "type", "ref", "cls", "alt_type"))
 Definition = namedtuple("Definition", ("name", "description", "fields", "gvks"))
 
 
@@ -75,6 +75,11 @@ class Import(namedtuple("Import", ("module", "models"))):
 
 
 class Parser(object):
+    _SPECIAL_TYPES = {
+        "apimachinery.pkg.api.resource.Quantity": Primitive("string"),
+        "apimachinery.pkg.apis.meta.v1.Time": Primitive("datetime.datetime"),
+    }
+
     def __init__(self, spec):
         self._spec = spec.get("definitions", {})
         self._packages = {}
@@ -98,10 +103,7 @@ class Parser(object):
                 gvks.append(GVK(**x))
             fields = []
             for field_name, property in item.get("properties", {}).items():
-                if keyword.iskeyword(field_name):
-                    field_name = "_{}".format(field_name)
-                fields.append(
-                    Field(field_name, property.get("description", ""), property.get("type"), property.get("$ref")))
+                fields.append(self._parse_field(field_name, property))
             definition = Definition(def_name, item.get("description", ""), fields, gvks)
             model = Model(_make_ref(package.ref, module.name, def_name), definition)
             module.models.append(model)
@@ -109,6 +111,22 @@ class Parser(object):
         print("Completed parse. Parsed {} packages, {} modules and {} models.".format(len(self._packages),
                                                                                       len(self._modules),
                                                                                       len(self._models)))
+
+    def _parse_field(self, field_name, property):
+        # TODO: Handle the following special cases:
+        # * additionalProperties specifying an overriding type/$ref.
+        # * format with more detailed description of the object (bytes, date-time).
+        if keyword.iskeyword(field_name):
+            field_name = "_{}".format(field_name)
+        field_type = property.get("type")
+        field_ref = property.get("$ref")
+        field_cls = "Field"
+        if field_type == "array" and "items" in property:
+            field_type = property["items"].get("type")
+            field_ref = property["items"].get("$ref")
+            field_cls = "ListField"
+        field = Field(field_name, property.get("description", ""), field_type, field_ref, field_cls, None)
+        return field
 
     def _get_package(self, package_ref):
         if package_ref not in self._packages:
@@ -150,19 +168,30 @@ class Parser(object):
     def _resolve_fields(self, definition):
         new_fields = []
         for field in definition.fields:
-            if field.ref:
-                field_type = self._resolve_ref(field.ref)
+            if field.ref == "#/definitions/io.k8s.apimachinery.pkg.util.intstr.IntOrString":
+                new_fields.append(field._replace(type=Primitive("string"), alt_type=Primitive("integer")))
             else:
-                field_type = Primitive(field.type)
-            new_fields.append(field._replace(type=field_type))
+                if field.ref:
+                    field_type = self._resolve_ref(field.ref)
+                else:
+                    field_type = self._resolve_field(field.type)
+                new_fields.append(field._replace(type=field_type))
         definition.fields[:] = new_fields
 
     def _resolve_ref(self, ref):
-        package_ref, module_name, def_name = _split_ref(ref[len("#/definitions/io.k8s."):])
-        package = self._get_package(package_ref)
-        module = self._get_module(package, module_name)
-        model = self._get_model(package, module, def_name)
-        return model
+        if ref:
+            ref_name = ref[len("#/definitions/io.k8s."):]
+            if ref_name in self._SPECIAL_TYPES:
+                return self._SPECIAL_TYPES[ref_name]
+            package_ref, module_name, def_name = _split_ref(ref_name)
+            package = self._get_package(package_ref)
+            module = self._get_module(package, module_name)
+            model = self._get_model(package, module, def_name)
+            return model
+
+    def _resolve_field(self, type):
+        if type:
+            return Primitive(type)
 
     def _sort(self):
         for package in self._packages.values():
