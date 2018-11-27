@@ -113,9 +113,6 @@ class Parser(object):
                                                                                       len(self._models)))
 
     def _parse_field(self, field_name, property):
-        # TODO: Handle the following special cases:
-        # * additionalProperties specifying an overriding type/$ref.
-        # * format with more detailed description of the object (bytes, date-time).
         if keyword.iskeyword(field_name):
             field_name = "_{}".format(field_name)
         field_type = property.get("type")
