@@ -17,6 +17,13 @@ class {{ model.definition.name }}(Model):
     """
     {{ model.definition.description|replace('"', '\'')|wordwrap|indent }}
     """
+{% if model.operations %}
+    class Meta:
+{% for operation in model.operations %}
+        {{ operation.action }}_url = "{{ operation.path }}"
+{% endfor %}
+    
+{% endif %}
 {% if model.definition.gvks %}
 {% set gvk = model.definition.gvks[-1] %}
     apiVersion = Field(six.text_type, "{{ [gvk.group, gvk.version]|select|join("/") }}")
