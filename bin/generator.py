@@ -3,6 +3,7 @@
 import keyword
 import os
 import posixpath
+import re
 import shutil
 from collections import namedtuple, defaultdict, Counter
 from pprint import pprint
@@ -33,6 +34,7 @@ TYPE_MAPPING = {
     "ByteArray": "bytes",
     "UUID": "str",
 }
+REF_PATTERN = re.compile(r"io\.k8s\.(.+)\.pkg\.(.+)")
 
 GVK = namedtuple("GVK", ("group", "version", "kind"))
 Field = namedtuple("Field", ("name", "description", "type", "ref", "cls", "alt_type"))
@@ -78,11 +80,18 @@ class Import(namedtuple("Import", ("module", "models"))):
         return sorted(m.definition.name for m in self.models)
 
 
+def shorten_ref(id):
+    m = REF_PATTERN.search(id)
+    if not m:
+        raise RuntimeError("Invalid id: {}".format(id))
+    return ".".join(m.groups())
+
+
 class PackageParser(object):
     _SPECIAL_TYPES = {
-        "apimachinery.pkg.api.resource.Quantity": Primitive("string"),
-        "apimachinery.pkg.apis.meta.v1.Time": Primitive("datetime.datetime"),
-        "apimachinery.pkg.apis.meta.v1.Patch": Primitive("string"),
+        "apimachinery.api.resource.Quantity": Primitive("string"),
+        "apimachinery.apis.meta.v1.Time": Primitive("datetime.datetime"),
+        "apimachinery.apis.meta.v1.Patch": Primitive("string"),
     }
 
     def __init__(self, spec):
@@ -100,7 +109,8 @@ class PackageParser(object):
 
     def _parse_models(self):
         for id, item in self._spec.items():
-            package_ref, module_name, def_name = _split_ref(id[len("io.k8s."):])
+            id = shorten_ref(id)
+            package_ref, module_name, def_name = _split_ref(id)
             package = self.get_package(package_ref)
             module = self.get_module(package, module_name)
             gvks = []
@@ -189,7 +199,7 @@ class PackageParser(object):
 
     def resolve_ref(self, ref):
         if ref:
-            ref_name = ref[len("#/definitions/io.k8s."):]
+            ref_name = shorten_ref(ref)
             if ref_name in self._SPECIAL_TYPES:
                 return self._SPECIAL_TYPES[ref_name]
             package_ref, module_name, def_name = _split_ref(ref_name)
@@ -330,7 +340,7 @@ class Generator(object):
             os.makedirs(package_dir)
         generated = False
         for module in package.modules:
-            generated = generated or self._generate_module(module, package_dir)
+            generated = self._generate_module(module, package_dir) or generated
         if not generated:
             print("Package {} had no modules, skipping".format(package.ref))
             shutil.rmtree(package_dir)
