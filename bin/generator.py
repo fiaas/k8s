@@ -3,6 +3,7 @@
 import keyword
 import os
 import posixpath
+import shutil
 from collections import namedtuple, defaultdict, Counter
 from pprint import pprint
 
@@ -327,16 +328,25 @@ class Generator(object):
         package_dir = os.path.join(self._output_dir, package.path)
         if not os.path.isdir(package_dir):
             os.makedirs(package_dir)
-        print("Created package {}.".format(package.ref))
+        generated = False
         for module in package.modules:
-            self._generate_module(module, package_dir)
+            generated = generated or self._generate_module(module, package_dir)
+        if not generated:
+            print("Package {} had no modules, skipping".format(package.ref))
+            shutil.rmtree(package_dir)
+        else:
+            print("Created package {}.".format(package.ref))
 
     def _generate_module(self, module, package_dir):
+        if not module.models:
+            print("Skipping module {}, as there are no models".format(module.ref))
+            return False
         template = self._env.get_template("model.jinja2")
         module_path = os.path.join(package_dir, module.name) + ".py"
         with open(module_path, "w") as fobj:
             fobj.write(template.render(module=module))
         print("Generated module {}.".format(module.ref))
+        return True
 
 
 def _split_ref(s):
@@ -357,9 +367,6 @@ def main():
     output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "k8s", "models")
     package_parser = PackageParser(spec)
     packages = package_parser.parse()
-    # TODO:
-    # - Skip modules with no models
-    # - Skip packages with no modules
     action_parser = ActionParser(spec, package_parser)
     action_parser.parse()
     generator = Generator(packages, output_dir)
