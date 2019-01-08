@@ -8,7 +8,7 @@ import datetime
 from k8s.base import Model
 from k8s.fields import Field, ListField
 {% for import in module.imports %}
-from k8s.models.{{ import.module.ref }} import {{ import.names|join(", ") }}
+from k8s.models.{{ version }}.{{ import.module.ref }} import {{ import.names|join(", ") }}
 {% endfor %}
 
 {% for model in module.models %}

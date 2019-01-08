@@ -6,7 +6,6 @@ import posixpath
 import re
 import shutil
 from collections import namedtuple, defaultdict, Counter
-from pprint import pprint
 
 import appdirs
 import requests
@@ -14,7 +13,8 @@ from cachecontrol import CacheControl
 from cachecontrol.caches import FileCache
 from jinja2 import Environment, FileSystemLoader
 
-SPEC_URL = "https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.7/api/openapi-spec/swagger.json"
+URL_TEMPLATE = "https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.{}/api/openapi-spec/swagger.json"
+VERSION_RANGE = (6, 14)
 HTTP_CLIENT_SESSION = CacheControl(requests.session(), cache=FileCache(appdirs.user_cache_dir("k8s-generator")))
 TYPE_MAPPING = {
     "integer": "int",
@@ -34,7 +34,7 @@ TYPE_MAPPING = {
     "ByteArray": "bytes",
     "UUID": "str",
 }
-REF_PATTERN = re.compile(r"io\.k8s\.(.+)\.pkg\.(.+)")
+REF_PATTERN = re.compile(r"io\.k8s\.(.+)")
 
 GVK = namedtuple("GVK", ("group", "version", "kind"))
 Field = namedtuple("Field", ("name", "description", "type", "ref", "cls", "alt_type"))
@@ -84,14 +84,27 @@ def shorten_ref(id):
     m = REF_PATTERN.search(id)
     if not m:
         raise RuntimeError("Invalid id: {}".format(id))
-    return ".".join(m.groups())
+    return m.group(1)
 
 
 class PackageParser(object):
     _SPECIAL_TYPES = {
-        "apimachinery.api.resource.Quantity": Primitive("string"),
-        "apimachinery.apis.meta.v1.Time": Primitive("datetime.datetime"),
-        "apimachinery.apis.meta.v1.Patch": Primitive("string"),
+        shorten_ref("io.k8s.apimachinery.pkg.api.resource.Quantity"): Primitive("string"),
+        shorten_ref("io.k8s.apimachinery.pkg.apis.meta.v1.Time"): Primitive("datetime.datetime"),
+        shorten_ref("io.k8s.apimachinery.pkg.apis.meta.v1.MicroTime"): Primitive("datetime.datetime"),
+        shorten_ref("io.k8s.apimachinery.pkg.apis.meta.v1.Patch"): Primitive("string"),
+        shorten_ref("io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1beta1.CustomResourceSubresourceStatus"):
+            Primitive("object"),  # This might not be the right thing to do, but the spec is unclear
+        shorten_ref("io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1beta1.JSON"): Primitive("object"),
+    }
+    _UNION_TYPES = {
+        shorten_ref("io.k8s.apimachinery.pkg.util.intstr.IntOrString"): (Primitive("string"), Primitive("integer")),
+        shorten_ref("io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1beta1.JSONSchemaPropsOrArray"):
+            (Primitive("dict"), Primitive("array")),
+        shorten_ref("io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1beta1.JSONSchemaPropsOrBool"):
+            (Primitive("dict"), Primitive("boolean")),
+        shorten_ref("io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1beta1.JSONSchemaPropsOrStringArray"):
+            (Primitive("dict"), Primitive("array")),
     }
 
     def __init__(self, spec):
@@ -187,8 +200,9 @@ class PackageParser(object):
     def _resolve_fields(self, definition):
         new_fields = []
         for field in definition.fields:
-            if field.ref == "#/definitions/io.k8s.apimachinery.pkg.util.intstr.IntOrString":
-                new_fields.append(field._replace(type=Primitive("string"), alt_type=Primitive("integer")))
+            if field.ref and shorten_ref(field.ref) in self._UNION_TYPES:
+                new_type, new_alt_type = self._UNION_TYPES[shorten_ref(field.ref)]
+                new_fields.append(field._replace(type=new_type, alt_type=new_alt_type))
             else:
                 if field.ref:
                     field_type = self.resolve_ref(field.ref)
@@ -315,9 +329,10 @@ class ActionParser(object):
 
 
 class Generator(object):
-    def __init__(self, packages, output_dir):
+    def __init__(self, packages, output_dir, version):
         self._packages = packages
         self._output_dir = output_dir
+        self._version = version
         self._env = Environment(
             loader=FileSystemLoader(os.path.dirname(__file__)),
             trim_blocks=True,
@@ -354,7 +369,7 @@ class Generator(object):
         template = self._env.get_template("model.jinja2")
         module_path = os.path.join(package_dir, module.name) + ".py"
         with open(module_path, "w") as fobj:
-            fobj.write(template.render(module=module))
+            fobj.write(template.render(module=module, version=self._version))
         print("Generated module {}.".format(module.ref))
         return True
 
@@ -368,19 +383,25 @@ def _make_ref(*args):
     return ".".join(args)
 
 
-def main():
-    resp = HTTP_CLIENT_SESSION.get(SPEC_URL)
+def _generate_version(version, url):
+    print("=== Generating models for version {} ===".format(version))
+    print("Getting spec at {}".format(url))
+    resp = HTTP_CLIENT_SESSION.get(url)
     spec = resp.json()
-    for key in ("paths", "definitions", "parameters", "responses", "securityDefinitions", "security", "tags"):
-        print("Specification contains {} {}".format(len(spec.get(key, [])), key))
-    pprint(spec["info"])
-    output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "k8s", "models")
+    output_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "k8s", "models", version)
     package_parser = PackageParser(spec)
     packages = package_parser.parse()
     action_parser = ActionParser(spec, package_parser)
     action_parser.parse()
-    generator = Generator(packages, output_dir)
+    generator = Generator(packages, output_dir, version)
     generator.generate()
+
+
+def main():
+    for minor_version in range(*VERSION_RANGE):
+        version = "v1_{}".format(minor_version)
+        url = URL_TEMPLATE.format(minor_version)
+        _generate_version(version, url)
 
 
 if __name__ == "__main__":
