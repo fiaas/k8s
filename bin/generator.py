@@ -35,6 +35,9 @@ TYPE_MAPPING = {
     "UUID": "str",
 }
 REF_PATTERN = re.compile(r"io\.k8s\.(.+)")
+OPERATION_ID_TO_ACTION = {}
+OPERATION_ID_TO_GVK = {}
+
 
 GVK = namedtuple("GVK", ("group", "version", "kind"))
 Field = namedtuple("Field", ("name", "description", "type", "ref", "cls", "alt_type"))
@@ -285,8 +288,7 @@ class ActionParser(object):
             for method, operation in item.items():
                 if self._should_ignore_method(method):
                     continue
-                action = operation.get("x-kubernetes-action", "__undefined__")
-                action = self._rename_action(action, path)
+                action = self._resolve_action(operation, path)
                 if self._should_ignore_action(action):
                     continue
                 gvk = self._resolve_gvk(operation)
@@ -320,12 +322,24 @@ class ActionParser(object):
     def _should_ignore_action(action):
         return action in ("__undefined__", "patch", "deletecollection", "proxy", "connect")
 
+    def _resolve_action(self, operation, path):
+        op_id = operation.get("operationId")
+        action = operation.get("x-kubernetes-action", "__undefined__")
+        action = self._rename_action(action, path)
+        if action == "__undefined__":
+            return OPERATION_ID_TO_ACTION.get(op_id, action)
+        OPERATION_ID_TO_ACTION[op_id] = action
+        return action
+
     @staticmethod
     def _resolve_gvk(operation):
-        if not "x-kubernetes-group-version-kind" in operation:
-            return None
-        gvk = operation["x-kubernetes-group-version-kind"]
-        return GVK(gvk["group"], gvk["version"], gvk["kind"])
+        op_id = operation.get("operationId")
+        if "x-kubernetes-group-version-kind" not in operation:
+            return OPERATION_ID_TO_GVK.get(op_id)
+        gvk_data = operation["x-kubernetes-group-version-kind"]
+        gvk = GVK(gvk_data["group"], gvk_data["version"], gvk_data["kind"])
+        OPERATION_ID_TO_GVK[op_id] = gvk
+        return gvk
 
 
 class Generator(object):
@@ -398,7 +412,7 @@ def _generate_version(version, url):
 
 
 def main():
-    for minor_version in range(*VERSION_RANGE):
+    for minor_version in reversed(range(*VERSION_RANGE)):
         version = "v1_{}".format(minor_version)
         url = URL_TEMPLATE.format(minor_version)
         _generate_version(version, url)
