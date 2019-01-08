@@ -87,7 +87,8 @@ def shorten_ref(id):
     m = REF_PATTERN.search(id)
     if not m:
         raise RuntimeError("Invalid id: {}".format(id))
-    return m.group(1)
+    ref = m.group(1)
+    return ref.replace(".pkg", "")
 
 
 class PackageParser(object):
