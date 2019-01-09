@@ -147,6 +147,7 @@ class PackageParser(object):
             for x in item.get("x-kubernetes-group-version-kind", []):
                 x = {k.lower(): v for k, v in x.items()}
                 gvks.append(GVK(**x))
+            gvks = gvks[:1]
             fields = []
             required_fields = item.get("required", [])
             for field_name, property in item.get("properties", {}).items():

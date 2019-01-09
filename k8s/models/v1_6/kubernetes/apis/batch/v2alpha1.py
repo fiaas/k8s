@@ -71,7 +71,7 @@ class CronJob(Model):
         watchlist_ns_url = "/apis/batch/v2alpha1/watch/namespaces/{namespace}/cronjobs"
     
     apiVersion = Field(six.text_type, "batch/v2alpha1")
-    kind = Field(six.text_type, "ScheduledJob")
+    kind = Field(six.text_type, "CronJob")
 
     metadata = Field(ObjectMeta)
     spec = Field(CronJobSpec)
@@ -83,7 +83,7 @@ class CronJobList(Model):
     CronJobList is a collection of cron jobs.
     """
     apiVersion = Field(six.text_type, "batch/v2alpha1")
-    kind = Field(six.text_type, "ScheduledJobList")
+    kind = Field(six.text_type, "CronJobList")
 
     items = ListField(CronJob)
     metadata = Field(ListMeta)

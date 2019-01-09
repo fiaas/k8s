@@ -23,7 +23,7 @@ class WatchEvent(Model):
     """
     Event represents a single event to a watched resource.
     """
-    apiVersion = Field(six.text_type, "storage.k8s.io/v1beta1")
+    apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "WatchEvent")
 
     object = RequiredField(RawExtension)
@@ -92,7 +92,7 @@ class DeleteOptions(Model):
     """
     DeleteOptions may be provided when deleting an API object.
     """
-    apiVersion = Field(six.text_type, "storage.k8s.io/v1beta1")
+    apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "DeleteOptions")
 
     gracePeriodSeconds = Field(int)
