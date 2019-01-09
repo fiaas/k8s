@@ -5,7 +5,15 @@ from __future__ import absolute_import
 import six
 
 from k8s.base import Model
-from k8s.fields import Field
+from k8s.fields import RequiredField
+
+
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class Info(Model):
@@ -14,13 +22,13 @@ class Info(Model):
     information.
     """
 
-    buildDate = Field(six.text_type)
-    compiler = Field(six.text_type)
-    gitCommit = Field(six.text_type)
-    gitTreeState = Field(six.text_type)
-    gitVersion = Field(six.text_type)
-    goVersion = Field(six.text_type)
-    major = Field(six.text_type)
-    minor = Field(six.text_type)
-    platform = Field(six.text_type)
+    buildDate = RequiredField(six.text_type)
+    compiler = RequiredField(six.text_type)
+    gitCommit = RequiredField(six.text_type)
+    gitTreeState = RequiredField(six.text_type)
+    gitVersion = RequiredField(six.text_type)
+    goVersion = RequiredField(six.text_type)
+    major = RequiredField(six.text_type)
+    minor = RequiredField(six.text_type)
+    platform = RequiredField(six.text_type)
 

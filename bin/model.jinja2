@@ -2,11 +2,18 @@
 # -*- coding: utf-8
 from __future__ import absolute_import
 
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
+
 import six
 import datetime
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, ReadOnlyField, RequiredField
 {% for import in module.imports %}
 from k8s.models.{{ version }}.{{ import.module.ref }} import {{ import.names|join(", ") }}
 {% endfor %}

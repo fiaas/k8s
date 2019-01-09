@@ -9,7 +9,7 @@ from requests import Response
 
 from k8s.base import Model
 from k8s.client import Client
-from k8s.fields import Field, ListField, OnceField, ReadOnlyField
+from k8s.fields import Field, ListField, ReadOnlyField
 from k8s.models.v1_6.apimachinery.apis.meta.v1 import ObjectMeta
 
 
@@ -28,7 +28,6 @@ class ModelTest(Model):
     metadata = Field(ObjectMeta)
     field = Field(int)
     list_field = ListField(int)
-    once_field = OnceField(int)
     read_only_field = ReadOnlyField(int)
     alt_type_field = Field(int, alt_type=six.text_type)
     dict_field = Field(dict)
@@ -51,11 +50,10 @@ class TestModel(object):
 
     def test_change(self, mock_response):
         metadata = ObjectMeta(name="my-name", namespace="my-namespace")
-        mock_response.json.return_value = {"field": 1, "list_field": [1], "once_field": 1, "read_only_field": 1}
-        instance = ModelTest.get_or_create(metadata=metadata, field=2, list_field=[2], once_field=2, read_only_field=2)
+        mock_response.json.return_value = {"field": 1, "list_field": [1], "read_only_field": 1}
+        instance = ModelTest.get_or_create(metadata=metadata, field=2, list_field=[2], read_only_field=2)
         assert instance.field == 2
         assert instance.list_field == [2]
-        assert instance.once_field == 1
         assert instance.read_only_field == 1
 
     @pytest.mark.parametrize("value", (None, {}, {"key": "value"}), ids=("None", "Empty dict", "Key-Value"))
@@ -102,7 +100,6 @@ class TestModel(object):
         assert instance.metadata.annotations["will_overwrite"] == "that"
         assert "must_discard" not in instance.metadata.annotations
 
-    @pytest.mark.skip("Needs a generator to generate ReadOnlyFields when needed")
     def test_spec_merge(self, mock_response):
         mock_response.json.return_value = {
             "metadata": {

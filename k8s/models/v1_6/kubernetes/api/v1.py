@@ -7,97 +7,52 @@ import datetime
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, ReadOnlyField, RequiredField
 from k8s.models.v1_6.apimachinery.apis.meta.v1 import LabelSelector, ListMeta, ObjectMeta
 
 
-class ContainerStateTerminated(Model):
-    """
-    ContainerStateTerminated is a terminated state of a container.
-    """
-
-    containerID = Field(six.text_type)
-    exitCode = Field(int)
-    finishedAt = Field(datetime.datetime)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-    signal = Field(int)
-    startedAt = Field(datetime.datetime)
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
-class HTTPHeader(Model):
+class ISCSIVolumeSource(Model):
     """
-    HTTPHeader describes a custom header to be used in HTTP probes
+    Represents an ISCSI disk. ISCSI volumes can only be mounted as read/write once.
+    ISCSI volumes support ownership management and SELinux relabeling.
     """
 
-    name = Field(six.text_type)
-    value = Field(six.text_type)
+    fsType = Field(six.text_type)
+    iqn = RequiredField(six.text_type)
+    iscsiInterface = Field(six.text_type)
+    lun = RequiredField(int)
+    portals = ListField(six.text_type)
+    readOnly = Field(bool)
+    targetPortal = RequiredField(six.text_type)
 
 
-class HTTPGetAction(Model):
+class FCVolumeSource(Model):
     """
-    HTTPGetAction describes an action based on HTTP Get requests.
-    """
-
-    host = Field(six.text_type)
-    httpHeaders = ListField(HTTPHeader)
-    path = Field(six.text_type)
-    port = Field(six.text_type, alt_type=int)
-    scheme = Field(six.text_type)
-
-
-class PodAffinityTerm(Model):
-    """
-    Defines a set of pods (namely those matching the labelSelector relative to the
-    given namespace(s)) that this pod should be co-located (affinity) or not co-
-    located (anti-affinity) with, where co-located is defined as running on a node
-    whose value of the label with key <topologyKey> tches that of any node on which
-    a pod of the set of pods is running
+    Represents a Fibre Channel volume. Fibre Channel volumes can only be mounted as
+    read/write once. Fibre Channel volumes support ownership management and SELinux
+    relabeling.
     """
 
-    labelSelector = Field(LabelSelector)
-    namespaces = ListField(six.text_type)
-    topologyKey = Field(six.text_type)
+    fsType = Field(six.text_type)
+    lun = RequiredField(int)
+    readOnly = Field(bool)
+    targetWWNs = ListField(six.text_type)
 
 
-class WeightedPodAffinityTerm(Model):
+class ObjectFieldSelector(Model):
     """
-    The weights of all of the matched WeightedPodAffinityTerm fields are added per-
-    node to find the most preferred node(s)
-    """
-
-    podAffinityTerm = Field(PodAffinityTerm)
-    weight = Field(int)
-
-
-class PodAffinity(Model):
-    """
-    Pod affinity is a group of inter pod affinity scheduling rules.
+    ObjectFieldSelector selects an APIVersioned field of an object.
     """
 
-    preferredDuringSchedulingIgnoredDuringExecution = ListField(WeightedPodAffinityTerm)
-    requiredDuringSchedulingIgnoredDuringExecution = ListField(PodAffinityTerm)
-
-
-class PodAntiAffinity(Model):
-    """
-    Pod anti affinity is a group of inter pod anti affinity scheduling rules.
-    """
-
-    preferredDuringSchedulingIgnoredDuringExecution = ListField(WeightedPodAffinityTerm)
-    requiredDuringSchedulingIgnoredDuringExecution = ListField(PodAffinityTerm)
-
-
-class GitRepoVolumeSource(Model):
-    """
-    Represents a volume that is populated with the contents of a git repository.
-    Git repo volumes do not support ownership management. Git repo volumes support
-    SELinux relabeling.
-    """
-
-    directory = Field(six.text_type)
-    repository = Field(six.text_type)
-    revision = Field(six.text_type)
+    fieldPath = RequiredField(six.text_type)
 
 
 class LoadBalancerIngress(Model):
@@ -126,265 +81,47 @@ class ServiceStatus(Model):
     loadBalancer = Field(LoadBalancerStatus)
 
 
-class PersistentVolumeClaimVolumeSource(Model):
+class HTTPHeader(Model):
     """
-    PersistentVolumeClaimVolumeSource references the user's PVC in the same
-    namespace. This volume finds the bound PV and mounts that volume for the pod. A
-    PersistentVolumeClaimVolumeSource is, essentially, a wrapper around another
-    type of volume that is owned by someone else (the system).
+    HTTPHeader describes a custom header to be used in HTTP probes
     """
 
-    claimName = Field(six.text_type)
-    readOnly = Field(bool)
+    name = RequiredField(six.text_type)
+    value = RequiredField(six.text_type)
 
 
-class DaemonEndpoint(Model):
+class HTTPGetAction(Model):
     """
-    DaemonEndpoint contains information about a single Daemon endpoint.
-    """
-
-    Port = Field(int)
-
-
-class NodeDaemonEndpoints(Model):
-    """
-    NodeDaemonEndpoints lists ports opened by daemons running on the Node.
+    HTTPGetAction describes an action based on HTTP Get requests.
     """
 
-    kubeletEndpoint = Field(DaemonEndpoint)
+    host = Field(six.text_type)
+    httpHeaders = ListField(HTTPHeader)
+    path = Field(six.text_type)
+    port = RequiredField(six.text_type, alt_type=int)
+    scheme = Field(six.text_type)
 
 
-class ResourceQuotaSpec(Model):
+class ContainerStateWaiting(Model):
     """
-    ResourceQuotaSpec defines the desired hard limits to enforce for Quota.
-    """
-
-    hard = Field(dict)
-    scopes = ListField(six.text_type)
-
-
-class ContainerStateRunning(Model):
-    """
-    ContainerStateRunning is a running state of a container.
+    ContainerStateWaiting is a waiting state of a container.
     """
 
-    startedAt = Field(datetime.datetime)
-
-
-class AzureDiskVolumeSource(Model):
-    """
-    AzureDisk represents an Azure Data Disk mount on the host and bind mount to the
-    pod.
-    """
-
-    cachingMode = Field(six.text_type)
-    diskName = Field(six.text_type)
-    diskURI = Field(six.text_type)
-    fsType = Field(six.text_type)
-    readOnly = Field(bool)
-
-
-class FCVolumeSource(Model):
-    """
-    Represents a Fibre Channel volume. Fibre Channel volumes can only be mounted as
-    read/write once. Fibre Channel volumes support ownership management and SELinux
-    relabeling.
-    """
-
-    fsType = Field(six.text_type)
-    lun = Field(int)
-    readOnly = Field(bool)
-    targetWWNs = ListField(six.text_type)
-
-
-class CinderVolumeSource(Model):
-    """
-    Represents a cinder volume resource in Openstack. A Cinder volume must exist
-    before mounting to a container. The volume must also be in the same region as
-    the kubelet. Cinder volumes support ownership management and SELinux
-    relabeling.
-    """
-
-    fsType = Field(six.text_type)
-    readOnly = Field(bool)
-    volumeID = Field(six.text_type)
-
-
-class ContainerPort(Model):
-    """
-    ContainerPort represents a network port in a single container.
-    """
-
-    containerPort = Field(int)
-    hostIP = Field(six.text_type)
-    hostPort = Field(int)
-    name = Field(six.text_type)
-    protocol = Field(six.text_type)
-
-
-class NodeSelectorRequirement(Model):
-    """
-    A node selector requirement is a selector that contains values, a key, and an
-    operator that relates the key and values.
-    """
-
-    key = Field(six.text_type)
-    operator = Field(six.text_type)
-    values = ListField(six.text_type)
-
-
-class NodeSelectorTerm(Model):
-    """
-    A null or empty node selector term matches no objects.
-    """
-
-    matchExpressions = ListField(NodeSelectorRequirement)
-
-
-class PreferredSchedulingTerm(Model):
-    """
-    An empty preferred scheduling term matches all objects with implicit weight 0
-    (i.e. it's a no-op). A null preferred scheduling term matches no objects (i.e.
-    is also a no-op).
-    """
-
-    preference = Field(NodeSelectorTerm)
-    weight = Field(int)
-
-
-class NodeSelector(Model):
-    """
-    A node selector represents the union of the results of one or more label
-    queries over a set of nodes; that is, it represents the OR of the selectors
-    represented by the node selector terms.
-    """
-
-    nodeSelectorTerms = ListField(NodeSelectorTerm)
-
-
-class NodeAffinity(Model):
-    """
-    Node affinity is a group of node affinity scheduling rules.
-    """
-
-    preferredDuringSchedulingIgnoredDuringExecution = ListField(PreferredSchedulingTerm)
-    requiredDuringSchedulingIgnoredDuringExecution = Field(NodeSelector)
-
-
-class Affinity(Model):
-    """
-    Affinity is a group of affinity scheduling rules.
-    """
-
-    nodeAffinity = Field(NodeAffinity)
-    podAffinity = Field(PodAffinity)
-    podAntiAffinity = Field(PodAntiAffinity)
-
-
-class VsphereVirtualDiskVolumeSource(Model):
-    """
-    Represents a vSphere volume resource.
-    """
-
-    fsType = Field(six.text_type)
-    volumePath = Field(six.text_type)
-
-
-class NamespaceStatus(Model):
-    """
-    NamespaceStatus is information about the current status of a Namespace.
-    """
-
-    phase = Field(six.text_type)
-
-
-class ExecAction(Model):
-    """
-    ExecAction describes a 'run in container' action.
-    """
-
-    command = ListField(six.text_type)
-
-
-class ReplicationControllerCondition(Model):
-    """
-    ReplicationControllerCondition describes the state of a replication controller
-    at a certain point.
-    """
-
-    lastTransitionTime = Field(datetime.datetime)
     message = Field(six.text_type)
     reason = Field(six.text_type)
-    status = Field(six.text_type)
-    type = Field(six.text_type)
 
 
-class ReplicationControllerStatus(Model):
+class QuobyteVolumeSource(Model):
     """
-    ReplicationControllerStatus represents the current status of a replication
-    controller.
+    Represents a Quobyte mount that lasts the lifetime of a pod. Quobyte volumes do
+    not support ownership management or SELinux relabeling.
     """
 
-    availableReplicas = Field(int)
-    conditions = ListField(ReplicationControllerCondition)
-    fullyLabeledReplicas = Field(int)
-    observedGeneration = Field(int)
-    readyReplicas = Field(int)
-    replicas = Field(int)
-
-
-class NodeAddress(Model):
-    """
-    NodeAddress contains information for the node's address.
-    """
-
-    address = Field(six.text_type)
-    type = Field(six.text_type)
-
-
-class PortworxVolumeSource(Model):
-    """
-    PortworxVolumeSource represents a Portworx volume resource.
-    """
-
-    fsType = Field(six.text_type)
+    group = Field(six.text_type)
     readOnly = Field(bool)
-    volumeID = Field(six.text_type)
-
-
-class NodeCondition(Model):
-    """
-    NodeCondition contains condition information for a node.
-    """
-
-    lastHeartbeatTime = Field(datetime.datetime)
-    lastTransitionTime = Field(datetime.datetime)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-    status = Field(six.text_type)
-    type = Field(six.text_type)
-
-
-class ResourceRequirements(Model):
-    """
-    ResourceRequirements describes the compute resource requirements.
-    """
-
-    limits = Field(dict)
-    requests = Field(dict)
-
-
-class PersistentVolumeClaimSpec(Model):
-    """
-    PersistentVolumeClaimSpec describes the common attributes of storage devices
-    and allows a Source for provider-specific attributes
-    """
-
-    accessModes = ListField(six.text_type)
-    resources = Field(ResourceRequirements)
-    selector = Field(LabelSelector)
-    storageClassName = Field(six.text_type)
-    volumeName = Field(six.text_type)
+    registry = RequiredField(six.text_type)
+    user = Field(six.text_type)
+    volume = RequiredField(six.text_type)
 
 
 class LocalObjectReference(Model):
@@ -396,50 +133,21 @@ class LocalObjectReference(Model):
     name = Field(six.text_type)
 
 
-class FlexVolumeSource(Model):
-    """
-    FlexVolume represents a generic volume resource that is provisioned/attached
-    using an exec based plugin. This is an alpha feature and may change in future.
-    """
-
-    driver = Field(six.text_type)
-    fsType = Field(six.text_type)
-    options = Field(dict)
-    readOnly = Field(bool)
-    secretRef = Field(LocalObjectReference)
-
-
 class ScaleIOVolumeSource(Model):
     """
     ScaleIOVolumeSource represents a persistent ScaleIO volume
     """
 
     fsType = Field(six.text_type)
-    gateway = Field(six.text_type)
+    gateway = RequiredField(six.text_type)
     protectionDomain = Field(six.text_type)
     readOnly = Field(bool)
-    secretRef = Field(LocalObjectReference)
+    secretRef = RequiredField(LocalObjectReference)
     sslEnabled = Field(bool)
     storageMode = Field(six.text_type)
     storagePool = Field(six.text_type)
-    system = Field(six.text_type)
+    system = RequiredField(six.text_type)
     volumeName = Field(six.text_type)
-
-
-class RBDVolumeSource(Model):
-    """
-    Represents a Rados Block Device mount that lasts the lifetime of a pod. RBD
-    volumes support ownership management and SELinux relabeling.
-    """
-
-    fsType = Field(six.text_type)
-    image = Field(six.text_type)
-    keyring = Field(six.text_type)
-    monitors = ListField(six.text_type)
-    pool = Field(six.text_type)
-    readOnly = Field(bool)
-    secretRef = Field(LocalObjectReference)
-    user = Field(six.text_type)
 
 
 class CephFSVolumeSource(Model):
@@ -456,13 +164,255 @@ class CephFSVolumeSource(Model):
     user = Field(six.text_type)
 
 
-class HostPathVolumeSource(Model):
+class FlexVolumeSource(Model):
     """
-    Represents a host path mapped into a pod. Host path volumes do not support
-    ownership management or SELinux relabeling.
+    FlexVolume represents a generic volume resource that is provisioned/attached
+    using an exec based plugin. This is an alpha feature and may change in future.
     """
 
-    path = Field(six.text_type)
+    driver = RequiredField(six.text_type)
+    fsType = Field(six.text_type)
+    options = Field(dict)
+    readOnly = Field(bool)
+    secretRef = Field(LocalObjectReference)
+
+
+class RBDVolumeSource(Model):
+    """
+    Represents a Rados Block Device mount that lasts the lifetime of a pod. RBD
+    volumes support ownership management and SELinux relabeling.
+    """
+
+    fsType = Field(six.text_type)
+    image = RequiredField(six.text_type)
+    keyring = Field(six.text_type)
+    monitors = ListField(six.text_type)
+    pool = Field(six.text_type)
+    readOnly = Field(bool)
+    secretRef = Field(LocalObjectReference)
+    user = Field(six.text_type)
+
+
+class Taint(Model):
+    """
+    The node this Taint is attached to has the effect 'effect' on any pod that that
+    does not tolerate the Taint.
+    """
+
+    effect = RequiredField(six.text_type)
+    key = RequiredField(six.text_type)
+    timeAdded = Field(datetime.datetime)
+    value = Field(six.text_type)
+
+
+class NodeSpec(Model):
+    """
+    NodeSpec describes the attributes that a node is created with.
+    """
+
+    externalID = Field(six.text_type)
+    podCIDR = Field(six.text_type)
+    providerID = Field(six.text_type)
+    taints = ListField(Taint)
+    unschedulable = Field(bool)
+
+
+class AzureFileVolumeSource(Model):
+    """
+    AzureFile represents an Azure File Service mount on the host and bind mount to
+    the pod.
+    """
+
+    readOnly = Field(bool)
+    secretName = RequiredField(six.text_type)
+    shareName = RequiredField(six.text_type)
+
+
+class PortworxVolumeSource(Model):
+    """
+    PortworxVolumeSource represents a Portworx volume resource.
+    """
+
+    fsType = Field(six.text_type)
+    readOnly = Field(bool)
+    volumeID = RequiredField(six.text_type)
+
+
+class ResourceQuotaStatus(Model):
+    """
+    ResourceQuotaStatus defines the enforced hard limits and observed use.
+    """
+
+    hard = Field(dict)
+    used = Field(dict)
+
+
+class Capabilities(Model):
+    """
+    Adds and removes POSIX capabilities from running containers.
+    """
+
+    add = ListField(six.text_type)
+    drop = ListField(six.text_type)
+
+
+class ContainerImage(Model):
+    """
+    Describe a container image
+    """
+
+    names = ListField(six.text_type)
+    sizeBytes = Field(int)
+
+
+class AttachedVolume(Model):
+    """
+    AttachedVolume describes a volume attached to a node
+    """
+
+    devicePath = RequiredField(six.text_type)
+    name = RequiredField(six.text_type)
+
+
+class EndpointPort(Model):
+    """
+    EndpointPort is a tuple that describes a single port.
+    """
+
+    name = Field(six.text_type)
+    port = RequiredField(int)
+    protocol = Field(six.text_type)
+
+
+class PersistentVolumeStatus(Model):
+    """
+    PersistentVolumeStatus is the current status of a persistent volume.
+    """
+
+    message = Field(six.text_type)
+    phase = Field(six.text_type)
+    reason = Field(six.text_type)
+
+
+class ResourceQuotaSpec(Model):
+    """
+    ResourceQuotaSpec defines the desired hard limits to enforce for Quota.
+    """
+
+    hard = Field(dict)
+    scopes = ListField(six.text_type)
+
+
+class ResourceQuota(Model):
+    """
+    ResourceQuota sets aggregate quota restrictions enforced per namespace
+    """
+    class Meta:
+        create_url = "/api/v1/namespaces/{namespace}/resourcequotas"
+        delete_url = "/api/v1/namespaces/{namespace}/resourcequotas/{name}"
+        get_url = "/api/v1/namespaces/{namespace}/resourcequotas/{name}"
+        list_all_url = "/api/v1/resourcequotas"
+        list_ns_url = "/api/v1/namespaces/{namespace}/resourcequotas"
+        update_url = "/api/v1/namespaces/{namespace}/resourcequotas/{name}"
+        watch_url = "/api/v1/watch/namespaces/{namespace}/resourcequotas/{name}"
+        watchlist_all_url = "/api/v1/watch/resourcequotas"
+        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/resourcequotas"
+    
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "ResourceQuota")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(ResourceQuotaSpec)
+    status = Field(ResourceQuotaStatus)
+
+
+class ResourceQuotaList(Model):
+    """
+    ResourceQuotaList is a list of ResourceQuota items.
+    """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "ResourceQuotaList")
+
+    items = ListField(ResourceQuota)
+    metadata = Field(ListMeta)
+
+
+class VsphereVirtualDiskVolumeSource(Model):
+    """
+    Represents a vSphere volume resource.
+    """
+
+    fsType = Field(six.text_type)
+    volumePath = RequiredField(six.text_type)
+
+
+class ComponentCondition(Model):
+    """
+    Information about the condition of a component.
+    """
+
+    error = Field(six.text_type)
+    message = Field(six.text_type)
+    status = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
+
+
+class ComponentStatus(Model):
+    """
+    ComponentStatus (and ComponentStatusList) holds the cluster validation info.
+    """
+    class Meta:
+        get_url = "/api/v1/componentstatuses/{name}"
+        list_all_url = "/api/v1/componentstatuses"
+    
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "ComponentStatus")
+
+    conditions = ListField(ComponentCondition)
+    metadata = Field(ObjectMeta)
+
+
+class ComponentStatusList(Model):
+    """
+    Status of all the conditions for the component as a list of ComponentStatus
+    objects.
+    """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "ComponentStatusList")
+
+    items = ListField(ComponentStatus)
+    metadata = Field(ListMeta)
+
+
+class EmptyDirVolumeSource(Model):
+    """
+    Represents an empty directory for a pod. Empty directory volumes support
+    ownership management and SELinux relabeling.
+    """
+
+    medium = Field(six.text_type)
+
+
+class ExecAction(Model):
+    """
+    ExecAction describes a 'run in container' action.
+    """
+
+    command = ListField(six.text_type)
+
+
+class ContainerStateTerminated(Model):
+    """
+    ContainerStateTerminated is a terminated state of a container.
+    """
+
+    containerID = Field(six.text_type)
+    exitCode = RequiredField(int)
+    finishedAt = Field(datetime.datetime)
+    message = Field(six.text_type)
+    reason = Field(six.text_type)
+    signal = Field(int)
+    startedAt = Field(datetime.datetime)
 
 
 class ObjectReference(Model):
@@ -478,74 +428,15 @@ class ObjectReference(Model):
     uid = Field(six.text_type)
 
 
-class Binding(Model):
-    """
-    Binding ties one object to another. For example, a pod is bound to a node by a
-    scheduler.
-    """
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "Binding")
-
-    metadata = Field(ObjectMeta)
-    target = Field(ObjectReference)
-
-
-class ServiceAccount(Model):
-    """
-    ServiceAccount binds together: * a name, understood by users, and perhaps by
-    peripheral systems, for an identity * a principal that can be authenticated and
-    authorized * a set of secrets
-    """
-    class Meta:
-        create_url = "/api/v1/namespaces/{namespace}/serviceaccounts"
-        delete_url = "/api/v1/namespaces/{namespace}/serviceaccounts/{name}"
-        get_url = "/api/v1/namespaces/{namespace}/serviceaccounts/{name}"
-        list_all_url = "/api/v1/serviceaccounts"
-        list_ns_url = "/api/v1/namespaces/{namespace}/serviceaccounts"
-        update_url = "/api/v1/namespaces/{namespace}/serviceaccounts/{name}"
-        watch_url = "/api/v1/watch/namespaces/{namespace}/serviceaccounts/{name}"
-        watchlist_all_url = "/api/v1/watch/serviceaccounts"
-        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/serviceaccounts"
-    
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "ServiceAccount")
-
-    automountServiceAccountToken = Field(bool)
-    imagePullSecrets = ListField(LocalObjectReference)
-    metadata = Field(ObjectMeta)
-    secrets = ListField(ObjectReference)
-
-
-class ServiceAccountList(Model):
-    """
-    ServiceAccountList is a list of ServiceAccount objects
-    """
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "ServiceAccountList")
-
-    items = ListField(ServiceAccount)
-    metadata = Field(ListMeta)
-
-
 class EndpointAddress(Model):
     """
     EndpointAddress is a tuple that describes single IP address.
     """
 
     hostname = Field(six.text_type)
-    ip = Field(six.text_type)
+    ip = RequiredField(six.text_type)
     nodeName = Field(six.text_type)
     targetRef = Field(ObjectReference)
-
-
-class EndpointPort(Model):
-    """
-    EndpointPort is a tuple that describes a single port.
-    """
-
-    name = Field(six.text_type)
-    port = Field(int)
-    protocol = Field(six.text_type)
 
 
 class EndpointSubset(Model):
@@ -618,129 +509,53 @@ class EndpointsList(Model):
     metadata = Field(ListMeta)
 
 
-class PhotonPersistentDiskVolumeSource(Model):
+class ServiceAccount(Model):
     """
-    Represents a Photon Controller persistent disk resource.
+    ServiceAccount binds together: * a name, understood by users, and perhaps by
+    peripheral systems, for an identity * a principal that can be authenticated and
+    authorized * a set of secrets
     """
+    class Meta:
+        create_url = "/api/v1/namespaces/{namespace}/serviceaccounts"
+        delete_url = "/api/v1/namespaces/{namespace}/serviceaccounts/{name}"
+        get_url = "/api/v1/namespaces/{namespace}/serviceaccounts/{name}"
+        list_all_url = "/api/v1/serviceaccounts"
+        list_ns_url = "/api/v1/namespaces/{namespace}/serviceaccounts"
+        update_url = "/api/v1/namespaces/{namespace}/serviceaccounts/{name}"
+        watch_url = "/api/v1/watch/namespaces/{namespace}/serviceaccounts/{name}"
+        watchlist_all_url = "/api/v1/watch/serviceaccounts"
+        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/serviceaccounts"
+    
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "ServiceAccount")
 
-    fsType = Field(six.text_type)
-    pdID = Field(six.text_type)
+    automountServiceAccountToken = Field(bool)
+    imagePullSecrets = ListField(LocalObjectReference)
+    metadata = Field(ObjectMeta)
+    secrets = ListField(ObjectReference)
 
 
-class Toleration(Model):
+class ServiceAccountList(Model):
     """
-    The pod this Toleration is attached to tolerates any taint that matches the
-    triple <key,value,effect> using the matching operator <operator>.
+    ServiceAccountList is a list of ServiceAccount objects
     """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "ServiceAccountList")
 
-    effect = Field(six.text_type)
-    key = Field(six.text_type)
-    operator = Field(six.text_type)
-    tolerationSeconds = Field(int)
-    value = Field(six.text_type)
+    items = ListField(ServiceAccount)
+    metadata = Field(ListMeta)
 
 
-class SecretKeySelector(Model):
+class Binding(Model):
     """
-    SecretKeySelector selects a key of a Secret.
+    Binding ties one object to another. For example, a pod is bound to a node by a
+    scheduler.
     """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "Binding")
 
-    key = Field(six.text_type)
-    name = Field(six.text_type)
-    optional = Field(bool)
-
-
-class ResourceFieldSelector(Model):
-    """
-    ResourceFieldSelector represents container resources (cpu, memory) and their
-    output format
-    """
-
-    containerName = Field(six.text_type)
-    divisor = Field(six.text_type)
-    resource = Field(six.text_type)
-
-
-class ContainerImage(Model):
-    """
-    Describe a container image
-    """
-
-    names = ListField(six.text_type)
-    sizeBytes = Field(int)
-
-
-class KeyToPath(Model):
-    """
-    Maps a string key to a path within a volume.
-    """
-
-    key = Field(six.text_type)
-    mode = Field(int)
-    path = Field(six.text_type)
-
-
-class ConfigMapVolumeSource(Model):
-    """
-    Adapts a ConfigMap into a volume.
-
-    The contents of the target ConfigMap's Data
-    field will be presented in a volume as files using the keys in the Data field
-    as the file names, unless the items element is populated with specific mappings
-    of keys to paths. ConfigMap volumes support ownership management and SELinux
-    relabeling.
-    """
-
-    defaultMode = Field(int)
-    items = ListField(KeyToPath)
-    name = Field(six.text_type)
-    optional = Field(bool)
-
-
-class ConfigMapProjection(Model):
-    """
-    Adapts a ConfigMap into a projected volume.
-
-    The contents of the target
-    ConfigMap's Data field will be presented in a projected volume as files using
-    the keys in the Data field as the file names, unless the items element is
-    populated with specific mappings of keys to paths. Note that this is identical
-    to a configmap volume source without the default mode.
-    """
-
-    items = ListField(KeyToPath)
-    name = Field(six.text_type)
-    optional = Field(bool)
-
-
-class SecretVolumeSource(Model):
-    """
-    Adapts a Secret into a volume.
-
-    The contents of the target Secret's Data field
-    will be presented in a volume as files using the keys in the Data field as the
-    file names. Secret volumes support ownership management and SELinux relabeling.
-    """
-
-    defaultMode = Field(int)
-    items = ListField(KeyToPath)
-    optional = Field(bool)
-    secretName = Field(six.text_type)
-
-
-class SecretProjection(Model):
-    """
-    Adapts a secret into a projected volume.
-
-    The contents of the target Secret's
-    Data field will be presented in a projected volume as files using the keys in
-    the Data field as the file names. Note that this is identical to a secret
-    volume source without the default mode.
-    """
-
-    items = ListField(KeyToPath)
-    name = Field(six.text_type)
-    optional = Field(bool)
+    metadata = Field(ObjectMeta)
+    target = RequiredField(ObjectReference)
 
 
 class TCPSocketAction(Model):
@@ -748,7 +563,7 @@ class TCPSocketAction(Model):
     TCPSocketAction describes an action based on opening a socket
     """
 
-    port = Field(six.text_type, alt_type=int)
+    port = RequiredField(six.text_type, alt_type=int)
 
 
 class Handler(Model):
@@ -789,411 +604,45 @@ class Probe(Model):
     timeoutSeconds = Field(int)
 
 
-class ContainerStateWaiting(Model):
+class NamespaceStatus(Model):
     """
-    ContainerStateWaiting is a waiting state of a container.
-    """
-
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-
-
-class ContainerState(Model):
-    """
-    ContainerState holds a possible state of container. Only one of its members may
-    be specified. If none of them is specified, the default one is
-    ContainerStateWaiting.
+    NamespaceStatus is information about the current status of a Namespace.
     """
 
-    running = Field(ContainerStateRunning)
-    terminated = Field(ContainerStateTerminated)
-    waiting = Field(ContainerStateWaiting)
+    phase = Field(six.text_type)
 
 
-class ContainerStatus(Model):
+class CinderVolumeSource(Model):
     """
-    ContainerStatus contains details for the current status of this container.
-    """
-
-    containerID = Field(six.text_type)
-    image = Field(six.text_type)
-    imageID = Field(six.text_type)
-    lastState = Field(ContainerState)
-    name = Field(six.text_type)
-    ready = Field(bool)
-    restartCount = Field(int)
-    state = Field(ContainerState)
-
-
-class NamespaceSpec(Model):
-    """
-    NamespaceSpec describes the attributes on a Namespace.
-    """
-
-    finalizers = ListField(six.text_type)
-
-
-class Namespace(Model):
-    """
-    Namespace provides a scope for Names. Use of multiple namespaces is optional.
-    """
-    class Meta:
-        create_url = "/api/v1/namespaces"
-        delete_url = "/api/v1/namespaces/{name}"
-        get_url = "/api/v1/namespaces/{name}"
-        list_all_url = "/api/v1/namespaces"
-        update_url = "/api/v1/namespaces/{name}"
-        update_url = "/api/v1/namespaces/{name}/finalize"
-        watch_url = "/api/v1/watch/namespaces/{name}"
-        watchlist_all_url = "/api/v1/watch/namespaces"
-    
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "Namespace")
-
-    metadata = Field(ObjectMeta)
-    spec = Field(NamespaceSpec)
-    status = Field(NamespaceStatus)
-
-
-class NamespaceList(Model):
-    """
-    NamespaceList is a list of Namespaces.
-    """
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "NamespaceList")
-
-    items = ListField(Namespace)
-    metadata = Field(ListMeta)
-
-
-class VolumeMount(Model):
-    """
-    VolumeMount describes a mounting of a Volume within a container.
-    """
-
-    mountPath = Field(six.text_type)
-    name = Field(six.text_type)
-    readOnly = Field(bool)
-    subPath = Field(six.text_type)
-
-
-class NFSVolumeSource(Model):
-    """
-    Represents an NFS mount that lasts the lifetime of a pod. NFS volumes do not
-    support ownership management or SELinux relabeling.
-    """
-
-    path = Field(six.text_type)
-    readOnly = Field(bool)
-    server = Field(six.text_type)
-
-
-class EventSource(Model):
-    """
-    EventSource contains information for an event.
-    """
-
-    component = Field(six.text_type)
-    host = Field(six.text_type)
-
-
-class Event(Model):
-    """
-    Event is a report of an event somewhere in the cluster.
-    """
-    class Meta:
-        create_url = "/api/v1/namespaces/{namespace}/events"
-        delete_url = "/api/v1/namespaces/{namespace}/events/{name}"
-        get_url = "/api/v1/namespaces/{namespace}/events/{name}"
-        list_all_url = "/api/v1/events"
-        list_ns_url = "/api/v1/namespaces/{namespace}/events"
-        update_url = "/api/v1/namespaces/{namespace}/events/{name}"
-        watch_url = "/api/v1/watch/namespaces/{namespace}/events/{name}"
-        watchlist_all_url = "/api/v1/watch/events"
-        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/events"
-    
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "Event")
-
-    count = Field(int)
-    firstTimestamp = Field(datetime.datetime)
-    involvedObject = Field(ObjectReference)
-    lastTimestamp = Field(datetime.datetime)
-    message = Field(six.text_type)
-    metadata = Field(ObjectMeta)
-    reason = Field(six.text_type)
-    source = Field(EventSource)
-    type = Field(six.text_type)
-
-
-class EventList(Model):
-    """
-    EventList is a list of events.
-    """
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "EventList")
-
-    items = ListField(Event)
-    metadata = Field(ListMeta)
-
-
-class ConfigMap(Model):
-    """
-    ConfigMap holds configuration data for pods to consume.
-    """
-    class Meta:
-        create_url = "/api/v1/namespaces/{namespace}/configmaps"
-        delete_url = "/api/v1/namespaces/{namespace}/configmaps/{name}"
-        get_url = "/api/v1/namespaces/{namespace}/configmaps/{name}"
-        list_all_url = "/api/v1/configmaps"
-        list_ns_url = "/api/v1/namespaces/{namespace}/configmaps"
-        update_url = "/api/v1/namespaces/{namespace}/configmaps/{name}"
-        watch_url = "/api/v1/watch/namespaces/{namespace}/configmaps/{name}"
-        watchlist_all_url = "/api/v1/watch/configmaps"
-        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/configmaps"
-    
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "ConfigMap")
-
-    data = Field(dict)
-    metadata = Field(ObjectMeta)
-
-
-class ConfigMapList(Model):
-    """
-    ConfigMapList is a resource containing a list of ConfigMap objects.
-    """
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "ConfigMapList")
-
-    items = ListField(ConfigMap)
-    metadata = Field(ListMeta)
-
-
-class ConfigMapKeySelector(Model):
-    """
-    Selects a key from a ConfigMap.
-    """
-
-    key = Field(six.text_type)
-    name = Field(six.text_type)
-    optional = Field(bool)
-
-
-class ISCSIVolumeSource(Model):
-    """
-    Represents an ISCSI disk. ISCSI volumes can only be mounted as read/write once.
-    ISCSI volumes support ownership management and SELinux relabeling.
+    Represents a cinder volume resource in Openstack. A Cinder volume must exist
+    before mounting to a container. The volume must also be in the same region as
+    the kubelet. Cinder volumes support ownership management and SELinux
+    relabeling.
     """
 
     fsType = Field(six.text_type)
-    iqn = Field(six.text_type)
-    iscsiInterface = Field(six.text_type)
-    lun = Field(int)
-    portals = ListField(six.text_type)
     readOnly = Field(bool)
-    targetPortal = Field(six.text_type)
+    volumeID = RequiredField(six.text_type)
 
 
-class ResourceQuotaStatus(Model):
+class HostPathVolumeSource(Model):
     """
-    ResourceQuotaStatus defines the enforced hard limits and observed use.
-    """
-
-    hard = Field(dict)
-    used = Field(dict)
-
-
-class ResourceQuota(Model):
-    """
-    ResourceQuota sets aggregate quota restrictions enforced per namespace
-    """
-    class Meta:
-        create_url = "/api/v1/namespaces/{namespace}/resourcequotas"
-        delete_url = "/api/v1/namespaces/{namespace}/resourcequotas/{name}"
-        get_url = "/api/v1/namespaces/{namespace}/resourcequotas/{name}"
-        list_all_url = "/api/v1/resourcequotas"
-        list_ns_url = "/api/v1/namespaces/{namespace}/resourcequotas"
-        update_url = "/api/v1/namespaces/{namespace}/resourcequotas/{name}"
-        watch_url = "/api/v1/watch/namespaces/{namespace}/resourcequotas/{name}"
-        watchlist_all_url = "/api/v1/watch/resourcequotas"
-        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/resourcequotas"
-    
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "ResourceQuota")
-
-    metadata = Field(ObjectMeta)
-    spec = Field(ResourceQuotaSpec)
-    status = Field(ResourceQuotaStatus)
-
-
-class ResourceQuotaList(Model):
-    """
-    ResourceQuotaList is a list of ResourceQuota items.
-    """
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "ResourceQuotaList")
-
-    items = ListField(ResourceQuota)
-    metadata = Field(ListMeta)
-
-
-class PodCondition(Model):
-    """
-    PodCondition contains details for the current condition of this pod.
+    Represents a host path mapped into a pod. Host path volumes do not support
+    ownership management or SELinux relabeling.
     """
 
-    lastProbeTime = Field(datetime.datetime)
-    lastTransitionTime = Field(datetime.datetime)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-    status = Field(six.text_type)
-    type = Field(six.text_type)
+    path = RequiredField(six.text_type)
 
 
-class PodStatus(Model):
+class FlockerVolumeSource(Model):
     """
-    PodStatus represents information about the status of a pod. Status may trail
-    the actual state of a system.
+    Represents a Flocker volume mounted by the Flocker agent. One and only one of
+    datasetName and datasetUUID should be set. Flocker volumes do not support
+    ownership management or SELinux relabeling.
     """
 
-    conditions = ListField(PodCondition)
-    containerStatuses = ListField(ContainerStatus)
-    hostIP = Field(six.text_type)
-    initContainerStatuses = ListField(ContainerStatus)
-    message = Field(six.text_type)
-    phase = Field(six.text_type)
-    podIP = Field(six.text_type)
-    qosClass = Field(six.text_type)
-    reason = Field(six.text_type)
-    startTime = Field(datetime.datetime)
-
-
-class ConfigMapEnvSource(Model):
-    """
-    ConfigMapEnvSource selects a ConfigMap to populate the environment variables
-    with.
-
-    The contents of the target ConfigMap's Data field will represent the
-    key-value pairs as environment variables.
-    """
-
-    name = Field(six.text_type)
-    optional = Field(bool)
-
-
-class AttachedVolume(Model):
-    """
-    AttachedVolume describes a volume attached to a node
-    """
-
-    devicePath = Field(six.text_type)
-    name = Field(six.text_type)
-
-
-class QuobyteVolumeSource(Model):
-    """
-    Represents a Quobyte mount that lasts the lifetime of a pod. Quobyte volumes do
-    not support ownership management or SELinux relabeling.
-    """
-
-    group = Field(six.text_type)
-    readOnly = Field(bool)
-    registry = Field(six.text_type)
-    user = Field(six.text_type)
-    volume = Field(six.text_type)
-
-
-class PersistentVolumeStatus(Model):
-    """
-    PersistentVolumeStatus is the current status of a persistent volume.
-    """
-
-    message = Field(six.text_type)
-    phase = Field(six.text_type)
-    reason = Field(six.text_type)
-
-
-class ComponentCondition(Model):
-    """
-    Information about the condition of a component.
-    """
-
-    error = Field(six.text_type)
-    message = Field(six.text_type)
-    status = Field(six.text_type)
-    type = Field(six.text_type)
-
-
-class ComponentStatus(Model):
-    """
-    ComponentStatus (and ComponentStatusList) holds the cluster validation info.
-    """
-    class Meta:
-        get_url = "/api/v1/componentstatuses/{name}"
-        list_all_url = "/api/v1/componentstatuses"
-    
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "ComponentStatus")
-
-    conditions = ListField(ComponentCondition)
-    metadata = Field(ObjectMeta)
-
-
-class ComponentStatusList(Model):
-    """
-    Status of all the conditions for the component as a list of ComponentStatus
-    objects.
-    """
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "ComponentStatusList")
-
-    items = ListField(ComponentStatus)
-    metadata = Field(ListMeta)
-
-
-class PersistentVolumeClaimStatus(Model):
-    """
-    PersistentVolumeClaimStatus is the current status of a persistent volume claim.
-    """
-
-    accessModes = ListField(six.text_type)
-    capacity = Field(dict)
-    phase = Field(six.text_type)
-
-
-class PersistentVolumeClaim(Model):
-    """
-    PersistentVolumeClaim is a user's request for and claim to a persistent volume
-    """
-    class Meta:
-        create_url = "/api/v1/namespaces/{namespace}/persistentvolumeclaims"
-        delete_url = "/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}"
-        get_url = "/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}"
-        list_all_url = "/api/v1/persistentvolumeclaims"
-        list_ns_url = "/api/v1/namespaces/{namespace}/persistentvolumeclaims"
-        update_url = "/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}"
-        watch_url = "/api/v1/watch/namespaces/{namespace}/persistentvolumeclaims/{name}"
-        watchlist_all_url = "/api/v1/watch/persistentvolumeclaims"
-        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/persistentvolumeclaims"
-    
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "PersistentVolumeClaim")
-
-    metadata = Field(ObjectMeta)
-    spec = Field(PersistentVolumeClaimSpec)
-    status = Field(PersistentVolumeClaimStatus)
-
-
-class PersistentVolumeClaimList(Model):
-    """
-    PersistentVolumeClaimList is a list of PersistentVolumeClaim items.
-    """
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "PersistentVolumeClaimList")
-
-    items = ListField(PersistentVolumeClaim)
-    metadata = Field(ListMeta)
+    datasetName = Field(six.text_type)
+    datasetUUID = Field(six.text_type)
 
 
 class Secret(Model):
@@ -1230,308 +679,6 @@ class SecretList(Model):
 
     items = ListField(Secret)
     metadata = Field(ListMeta)
-
-
-class ObjectFieldSelector(Model):
-    """
-    ObjectFieldSelector selects an APIVersioned field of an object.
-    """
-
-    fieldPath = Field(six.text_type)
-
-
-class DownwardAPIVolumeFile(Model):
-    """
-    DownwardAPIVolumeFile represents information to create the file containing the
-    pod field
-    """
-
-    fieldRef = Field(ObjectFieldSelector)
-    mode = Field(int)
-    path = Field(six.text_type)
-    resourceFieldRef = Field(ResourceFieldSelector)
-
-
-class DownwardAPIProjection(Model):
-    """
-    Represents downward API info for projecting into a projected volume. Note that
-    this is identical to a downwardAPI volume source without the default mode.
-    """
-
-    items = ListField(DownwardAPIVolumeFile)
-
-
-class VolumeProjection(Model):
-    """
-    Projection that may be projected along with other supported volume types
-    """
-
-    configMap = Field(ConfigMapProjection)
-    downwardAPI = Field(DownwardAPIProjection)
-    secret = Field(SecretProjection)
-
-
-class ProjectedVolumeSource(Model):
-    """
-    Represents a projected volume source
-    """
-
-    defaultMode = Field(int)
-    sources = ListField(VolumeProjection)
-
-
-class DownwardAPIVolumeSource(Model):
-    """
-    DownwardAPIVolumeSource represents a volume containing downward API info.
-    Downward API volumes support ownership management and SELinux relabeling.
-    """
-
-    defaultMode = Field(int)
-    items = ListField(DownwardAPIVolumeFile)
-
-
-class EnvVarSource(Model):
-    """
-    EnvVarSource represents a source for the value of an EnvVar.
-    """
-
-    configMapKeyRef = Field(ConfigMapKeySelector)
-    fieldRef = Field(ObjectFieldSelector)
-    resourceFieldRef = Field(ResourceFieldSelector)
-    secretKeyRef = Field(SecretKeySelector)
-
-
-class EnvVar(Model):
-    """
-    EnvVar represents an environment variable present in a Container.
-    """
-
-    name = Field(six.text_type)
-    value = Field(six.text_type)
-    valueFrom = Field(EnvVarSource)
-
-
-class EmptyDirVolumeSource(Model):
-    """
-    Represents an empty directory for a pod. Empty directory volumes support
-    ownership management and SELinux relabeling.
-    """
-
-    medium = Field(six.text_type)
-
-
-class FlockerVolumeSource(Model):
-    """
-    Represents a Flocker volume mounted by the Flocker agent. One and only one of
-    datasetName and datasetUUID should be set. Flocker volumes do not support
-    ownership management or SELinux relabeling.
-    """
-
-    datasetName = Field(six.text_type)
-    datasetUUID = Field(six.text_type)
-
-
-class SecretEnvSource(Model):
-    """
-    SecretEnvSource selects a Secret to populate the environment variables with.
-    The contents of the target Secret's Data field will represent the key-value
-    pairs as environment variables.
-    """
-
-    name = Field(six.text_type)
-    optional = Field(bool)
-
-
-class EnvFromSource(Model):
-    """
-    EnvFromSource represents the source of a set of ConfigMaps
-    """
-
-    configMapRef = Field(ConfigMapEnvSource)
-    prefix = Field(six.text_type)
-    secretRef = Field(SecretEnvSource)
-
-
-class AWSElasticBlockStoreVolumeSource(Model):
-    """
-    Represents a Persistent Disk resource in AWS.
-
-    An AWS EBS disk must exist
-    before mounting to a container. The disk must also be in the same AWS zone as
-    the kubelet. An AWS EBS disk can only be mounted as read/write once. AWS EBS
-    volumes support ownership management and SELinux relabeling.
-    """
-
-    fsType = Field(six.text_type)
-    partition = Field(int)
-    readOnly = Field(bool)
-    volumeID = Field(six.text_type)
-
-
-class Capabilities(Model):
-    """
-    Adds and removes POSIX capabilities from running containers.
-    """
-
-    add = ListField(six.text_type)
-    drop = ListField(six.text_type)
-
-
-class ServicePort(Model):
-    """
-    ServicePort contains information on service's port.
-    """
-
-    name = Field(six.text_type)
-    nodePort = Field(int)
-    port = Field(int)
-    protocol = Field(six.text_type)
-    targetPort = Field(six.text_type, alt_type=int)
-
-
-class ServiceSpec(Model):
-    """
-    ServiceSpec describes the attributes that a user creates on a service.
-    """
-
-    clusterIP = Field(six.text_type)
-    deprecatedPublicIPs = ListField(six.text_type)
-    externalIPs = ListField(six.text_type)
-    externalName = Field(six.text_type)
-    loadBalancerIP = Field(six.text_type)
-    loadBalancerSourceRanges = ListField(six.text_type)
-    ports = ListField(ServicePort)
-    selector = Field(dict)
-    sessionAffinity = Field(six.text_type)
-    type = Field(six.text_type)
-
-
-class Service(Model):
-    """
-    Service is a named abstraction of software service (for example, mysql)
-    consisting of local port (for example 3306) that the proxy listens on, and the
-    selector that determines which pods will answer requests sent through the
-    proxy.
-    """
-    class Meta:
-        create_url = "/api/v1/namespaces/{namespace}/services"
-        delete_url = "/api/v1/namespaces/{namespace}/services/{name}"
-        get_url = "/api/v1/namespaces/{namespace}/services/{name}"
-        list_all_url = "/api/v1/services"
-        list_ns_url = "/api/v1/namespaces/{namespace}/services"
-        update_url = "/api/v1/namespaces/{namespace}/services/{name}"
-        watch_url = "/api/v1/watch/namespaces/{namespace}/services/{name}"
-        watchlist_all_url = "/api/v1/watch/services"
-        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/services"
-    
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "Service")
-
-    metadata = Field(ObjectMeta)
-    spec = Field(ServiceSpec)
-    status = Field(ServiceStatus)
-
-
-class ServiceList(Model):
-    """
-    ServiceList holds a list of services.
-    """
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "ServiceList")
-
-    items = ListField(Service)
-    metadata = Field(ListMeta)
-
-
-class SELinuxOptions(Model):
-    """
-    SELinuxOptions are the labels to be applied to the container
-    """
-
-    level = Field(six.text_type)
-    role = Field(six.text_type)
-    type = Field(six.text_type)
-    user = Field(six.text_type)
-
-
-class SecurityContext(Model):
-    """
-    SecurityContext holds security configuration that will be applied to a
-    container. Some fields are present in both SecurityContext and
-    PodSecurityContext.  When both are set, the values in SecurityContext take
-    precedence.
-    """
-
-    capabilities = Field(Capabilities)
-    privileged = Field(bool)
-    readOnlyRootFilesystem = Field(bool)
-    runAsNonRoot = Field(bool)
-    runAsUser = Field(int)
-    seLinuxOptions = Field(SELinuxOptions)
-
-
-class Container(Model):
-    """
-    A single application container that you want to run within a pod.
-    """
-
-    args = ListField(six.text_type)
-    command = ListField(six.text_type)
-    env = ListField(EnvVar)
-    envFrom = ListField(EnvFromSource)
-    image = Field(six.text_type)
-    imagePullPolicy = Field(six.text_type)
-    lifecycle = Field(Lifecycle)
-    livenessProbe = Field(Probe)
-    name = Field(six.text_type)
-    ports = ListField(ContainerPort)
-    readinessProbe = Field(Probe)
-    resources = Field(ResourceRequirements)
-    securityContext = Field(SecurityContext)
-    stdin = Field(bool)
-    stdinOnce = Field(bool)
-    terminationMessagePath = Field(six.text_type)
-    terminationMessagePolicy = Field(six.text_type)
-    tty = Field(bool)
-    volumeMounts = ListField(VolumeMount)
-    workingDir = Field(six.text_type)
-
-
-class PodSecurityContext(Model):
-    """
-    PodSecurityContext holds pod-level security attributes and common container
-    settings. Some fields are also present in container.securityContext.  Field
-    values of container.securityContext take precedence over field values of
-    PodSecurityContext.
-    """
-
-    fsGroup = Field(int)
-    runAsNonRoot = Field(bool)
-    runAsUser = Field(int)
-    seLinuxOptions = Field(SELinuxOptions)
-    supplementalGroups = ListField(int)
-
-
-class GlusterfsVolumeSource(Model):
-    """
-    Represents a Glusterfs mount that lasts the lifetime of a pod. Glusterfs
-    volumes do not support ownership management or SELinux relabeling.
-    """
-
-    endpoints = Field(six.text_type)
-    path = Field(six.text_type)
-    readOnly = Field(bool)
-
-
-class AzureFileVolumeSource(Model):
-    """
-    AzureFile represents an Azure File Service mount on the host and bind mount to
-    the pod.
-    """
-
-    readOnly = Field(bool)
-    secretName = Field(six.text_type)
-    shareName = Field(six.text_type)
 
 
 class LimitRangeItem(Model):
@@ -1589,21 +736,601 @@ class LimitRangeList(Model):
     metadata = Field(ListMeta)
 
 
+class SecretKeySelector(Model):
+    """
+    SecretKeySelector selects a key of a Secret.
+    """
+
+    key = RequiredField(six.text_type)
+    name = Field(six.text_type)
+    optional = Field(bool)
+
+
+class GCEPersistentDiskVolumeSource(Model):
+    """
+    Represents a Persistent Disk resource in Google Compute Engine.
+
+    A GCE PD must
+    exist before mounting to a container. The disk must also be in the same GCE
+    project and zone as the kubelet. A GCE PD can only be mounted as read/write
+    once or read-only many times. GCE PDs support ownership management and SELinux
+    relabeling.
+    """
+
+    fsType = Field(six.text_type)
+    partition = Field(int)
+    pdName = RequiredField(six.text_type)
+    readOnly = Field(bool)
+
+
+class NodeAddress(Model):
+    """
+    NodeAddress contains information for the node's address.
+    """
+
+    address = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
+
+
+class ContainerPort(Model):
+    """
+    ContainerPort represents a network port in a single container.
+    """
+
+    containerPort = RequiredField(int)
+    hostIP = Field(six.text_type)
+    hostPort = Field(int)
+    name = Field(six.text_type)
+    protocol = Field(six.text_type)
+
+
+class PersistentVolumeClaimStatus(Model):
+    """
+    PersistentVolumeClaimStatus is the current status of a persistent volume claim.
+    """
+
+    accessModes = ListField(six.text_type)
+    capacity = Field(dict)
+    phase = Field(six.text_type)
+
+
+class EventSource(Model):
+    """
+    EventSource contains information for an event.
+    """
+
+    component = Field(six.text_type)
+    host = Field(six.text_type)
+
+
+class Event(Model):
+    """
+    Event is a report of an event somewhere in the cluster.
+    """
+    class Meta:
+        create_url = "/api/v1/namespaces/{namespace}/events"
+        delete_url = "/api/v1/namespaces/{namespace}/events/{name}"
+        get_url = "/api/v1/namespaces/{namespace}/events/{name}"
+        list_all_url = "/api/v1/events"
+        list_ns_url = "/api/v1/namespaces/{namespace}/events"
+        update_url = "/api/v1/namespaces/{namespace}/events/{name}"
+        watch_url = "/api/v1/watch/namespaces/{namespace}/events/{name}"
+        watchlist_all_url = "/api/v1/watch/events"
+        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/events"
+    
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "Event")
+
+    count = Field(int)
+    firstTimestamp = Field(datetime.datetime)
+    involvedObject = RequiredField(ObjectReference)
+    lastTimestamp = Field(datetime.datetime)
+    message = Field(six.text_type)
+    metadata = RequiredField(ObjectMeta)
+    reason = Field(six.text_type)
+    source = Field(EventSource)
+    type = Field(six.text_type)
+
+
+class EventList(Model):
+    """
+    EventList is a list of events.
+    """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "EventList")
+
+    items = ListField(Event)
+    metadata = Field(ListMeta)
+
+
+class NodeCondition(Model):
+    """
+    NodeCondition contains condition information for a node.
+    """
+
+    lastHeartbeatTime = Field(datetime.datetime)
+    lastTransitionTime = Field(datetime.datetime)
+    message = Field(six.text_type)
+    reason = Field(six.text_type)
+    status = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
+
+
+class PhotonPersistentDiskVolumeSource(Model):
+    """
+    Represents a Photon Controller persistent disk resource.
+    """
+
+    fsType = Field(six.text_type)
+    pdID = RequiredField(six.text_type)
+
+
+class KeyToPath(Model):
+    """
+    Maps a string key to a path within a volume.
+    """
+
+    key = RequiredField(six.text_type)
+    mode = Field(int)
+    path = RequiredField(six.text_type)
+
+
+class ConfigMapProjection(Model):
+    """
+    Adapts a ConfigMap into a projected volume.
+
+    The contents of the target
+    ConfigMap's Data field will be presented in a projected volume as files using
+    the keys in the Data field as the file names, unless the items element is
+    populated with specific mappings of keys to paths. Note that this is identical
+    to a configmap volume source without the default mode.
+    """
+
+    items = ListField(KeyToPath)
+    name = Field(six.text_type)
+    optional = Field(bool)
+
+
+class ConfigMapVolumeSource(Model):
+    """
+    Adapts a ConfigMap into a volume.
+
+    The contents of the target ConfigMap's Data
+    field will be presented in a volume as files using the keys in the Data field
+    as the file names, unless the items element is populated with specific mappings
+    of keys to paths. ConfigMap volumes support ownership management and SELinux
+    relabeling.
+    """
+
+    defaultMode = Field(int)
+    items = ListField(KeyToPath)
+    name = Field(six.text_type)
+    optional = Field(bool)
+
+
+class SecretProjection(Model):
+    """
+    Adapts a secret into a projected volume.
+
+    The contents of the target Secret's
+    Data field will be presented in a projected volume as files using the keys in
+    the Data field as the file names. Note that this is identical to a secret
+    volume source without the default mode.
+    """
+
+    items = ListField(KeyToPath)
+    name = Field(six.text_type)
+    optional = Field(bool)
+
+
+class SecretVolumeSource(Model):
+    """
+    Adapts a Secret into a volume.
+
+    The contents of the target Secret's Data field
+    will be presented in a volume as files using the keys in the Data field as the
+    file names. Secret volumes support ownership management and SELinux relabeling.
+    """
+
+    defaultMode = Field(int)
+    items = ListField(KeyToPath)
+    optional = Field(bool)
+    secretName = Field(six.text_type)
+
+
+class SecretEnvSource(Model):
+    """
+    SecretEnvSource selects a Secret to populate the environment variables with.
+    The contents of the target Secret's Data field will represent the key-value
+    pairs as environment variables.
+    """
+
+    name = Field(six.text_type)
+    optional = Field(bool)
+
+
+class VolumeMount(Model):
+    """
+    VolumeMount describes a mounting of a Volume within a container.
+    """
+
+    mountPath = RequiredField(six.text_type)
+    name = RequiredField(six.text_type)
+    readOnly = Field(bool)
+    subPath = Field(six.text_type)
+
+
+class AWSElasticBlockStoreVolumeSource(Model):
+    """
+    Represents a Persistent Disk resource in AWS.
+
+    An AWS EBS disk must exist
+    before mounting to a container. The disk must also be in the same AWS zone as
+    the kubelet. An AWS EBS disk can only be mounted as read/write once. AWS EBS
+    volumes support ownership management and SELinux relabeling.
+    """
+
+    fsType = Field(six.text_type)
+    partition = Field(int)
+    readOnly = Field(bool)
+    volumeID = RequiredField(six.text_type)
+
+
+class ConfigMap(Model):
+    """
+    ConfigMap holds configuration data for pods to consume.
+    """
+    class Meta:
+        create_url = "/api/v1/namespaces/{namespace}/configmaps"
+        delete_url = "/api/v1/namespaces/{namespace}/configmaps/{name}"
+        get_url = "/api/v1/namespaces/{namespace}/configmaps/{name}"
+        list_all_url = "/api/v1/configmaps"
+        list_ns_url = "/api/v1/namespaces/{namespace}/configmaps"
+        update_url = "/api/v1/namespaces/{namespace}/configmaps/{name}"
+        watch_url = "/api/v1/watch/namespaces/{namespace}/configmaps/{name}"
+        watchlist_all_url = "/api/v1/watch/configmaps"
+        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/configmaps"
+    
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "ConfigMap")
+
+    data = Field(dict)
+    metadata = Field(ObjectMeta)
+
+
+class ConfigMapList(Model):
+    """
+    ConfigMapList is a resource containing a list of ConfigMap objects.
+    """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "ConfigMapList")
+
+    items = ListField(ConfigMap)
+    metadata = Field(ListMeta)
+
+
+class SELinuxOptions(Model):
+    """
+    SELinuxOptions are the labels to be applied to the container
+    """
+
+    level = Field(six.text_type)
+    role = Field(six.text_type)
+    type = Field(six.text_type)
+    user = Field(six.text_type)
+
+
+class PodSecurityContext(Model):
+    """
+    PodSecurityContext holds pod-level security attributes and common container
+    settings. Some fields are also present in container.securityContext.  Field
+    values of container.securityContext take precedence over field values of
+    PodSecurityContext.
+    """
+
+    fsGroup = Field(int)
+    runAsNonRoot = Field(bool)
+    runAsUser = Field(int)
+    seLinuxOptions = Field(SELinuxOptions)
+    supplementalGroups = ListField(int)
+
+
+class SecurityContext(Model):
+    """
+    SecurityContext holds security configuration that will be applied to a
+    container. Some fields are present in both SecurityContext and
+    PodSecurityContext.  When both are set, the values in SecurityContext take
+    precedence.
+    """
+
+    capabilities = Field(Capabilities)
+    privileged = Field(bool)
+    readOnlyRootFilesystem = Field(bool)
+    runAsNonRoot = Field(bool)
+    runAsUser = Field(int)
+    seLinuxOptions = Field(SELinuxOptions)
+
+
+class Toleration(Model):
+    """
+    The pod this Toleration is attached to tolerates any taint that matches the
+    triple <key,value,effect> using the matching operator <operator>.
+    """
+
+    effect = Field(six.text_type)
+    key = Field(six.text_type)
+    operator = Field(six.text_type)
+    tolerationSeconds = Field(int)
+    value = Field(six.text_type)
+
+
+class PodAffinityTerm(Model):
+    """
+    Defines a set of pods (namely those matching the labelSelector relative to the
+    given namespace(s)) that this pod should be co-located (affinity) or not co-
+    located (anti-affinity) with, where co-located is defined as running on a node
+    whose value of the label with key <topologyKey> tches that of any node on which
+    a pod of the set of pods is running
+    """
+
+    labelSelector = Field(LabelSelector)
+    namespaces = ListField(six.text_type)
+    topologyKey = Field(six.text_type)
+
+
+class WeightedPodAffinityTerm(Model):
+    """
+    The weights of all of the matched WeightedPodAffinityTerm fields are added per-
+    node to find the most preferred node(s)
+    """
+
+    podAffinityTerm = RequiredField(PodAffinityTerm)
+    weight = RequiredField(int)
+
+
+class PodAffinity(Model):
+    """
+    Pod affinity is a group of inter pod affinity scheduling rules.
+    """
+
+    preferredDuringSchedulingIgnoredDuringExecution = ListField(WeightedPodAffinityTerm)
+    requiredDuringSchedulingIgnoredDuringExecution = ListField(PodAffinityTerm)
+
+
+class PodAntiAffinity(Model):
+    """
+    Pod anti affinity is a group of inter pod anti affinity scheduling rules.
+    """
+
+    preferredDuringSchedulingIgnoredDuringExecution = ListField(WeightedPodAffinityTerm)
+    requiredDuringSchedulingIgnoredDuringExecution = ListField(PodAffinityTerm)
+
+
+class DaemonEndpoint(Model):
+    """
+    DaemonEndpoint contains information about a single Daemon endpoint.
+    """
+
+    Port = RequiredField(int)
+
+
+class NodeDaemonEndpoints(Model):
+    """
+    NodeDaemonEndpoints lists ports opened by daemons running on the Node.
+    """
+
+    kubeletEndpoint = Field(DaemonEndpoint)
+
+
+class ServicePort(Model):
+    """
+    ServicePort contains information on service's port.
+    """
+
+    name = Field(six.text_type)
+    nodePort = Field(int)
+    port = RequiredField(int)
+    protocol = Field(six.text_type)
+    targetPort = Field(six.text_type, alt_type=int)
+
+
+class ServiceSpec(Model):
+    """
+    ServiceSpec describes the attributes that a user creates on a service.
+    """
+
+    clusterIP = Field(six.text_type)
+    deprecatedPublicIPs = ListField(six.text_type)
+    externalIPs = ListField(six.text_type)
+    externalName = Field(six.text_type)
+    loadBalancerIP = Field(six.text_type)
+    loadBalancerSourceRanges = ListField(six.text_type)
+    ports = ListField(ServicePort)
+    selector = Field(dict)
+    sessionAffinity = Field(six.text_type)
+    type = Field(six.text_type)
+
+
+class Service(Model):
+    """
+    Service is a named abstraction of software service (for example, mysql)
+    consisting of local port (for example 3306) that the proxy listens on, and the
+    selector that determines which pods will answer requests sent through the
+    proxy.
+    """
+    class Meta:
+        create_url = "/api/v1/namespaces/{namespace}/services"
+        delete_url = "/api/v1/namespaces/{namespace}/services/{name}"
+        get_url = "/api/v1/namespaces/{namespace}/services/{name}"
+        list_all_url = "/api/v1/services"
+        list_ns_url = "/api/v1/namespaces/{namespace}/services"
+        update_url = "/api/v1/namespaces/{namespace}/services/{name}"
+        watch_url = "/api/v1/watch/namespaces/{namespace}/services/{name}"
+        watchlist_all_url = "/api/v1/watch/services"
+        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/services"
+    
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "Service")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(ServiceSpec)
+    status = ReadOnlyField(ServiceStatus)
+
+
+class ServiceList(Model):
+    """
+    ServiceList holds a list of services.
+    """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "ServiceList")
+
+    items = ListField(Service)
+    metadata = Field(ListMeta)
+
+
+class PodCondition(Model):
+    """
+    PodCondition contains details for the current condition of this pod.
+    """
+
+    lastProbeTime = Field(datetime.datetime)
+    lastTransitionTime = Field(datetime.datetime)
+    message = Field(six.text_type)
+    reason = Field(six.text_type)
+    status = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
+
+
+class PersistentVolumeClaimVolumeSource(Model):
+    """
+    PersistentVolumeClaimVolumeSource references the user's PVC in the same
+    namespace. This volume finds the bound PV and mounts that volume for the pod. A
+    PersistentVolumeClaimVolumeSource is, essentially, a wrapper around another
+    type of volume that is owned by someone else (the system).
+    """
+
+    claimName = RequiredField(six.text_type)
+    readOnly = Field(bool)
+
+
+class ConfigMapEnvSource(Model):
+    """
+    ConfigMapEnvSource selects a ConfigMap to populate the environment variables
+    with.
+
+    The contents of the target ConfigMap's Data field will represent the
+    key-value pairs as environment variables.
+    """
+
+    name = Field(six.text_type)
+    optional = Field(bool)
+
+
+class EnvFromSource(Model):
+    """
+    EnvFromSource represents the source of a set of ConfigMaps
+    """
+
+    configMapRef = Field(ConfigMapEnvSource)
+    prefix = Field(six.text_type)
+    secretRef = Field(SecretEnvSource)
+
+
+class GlusterfsVolumeSource(Model):
+    """
+    Represents a Glusterfs mount that lasts the lifetime of a pod. Glusterfs
+    volumes do not support ownership management or SELinux relabeling.
+    """
+
+    endpoints = RequiredField(six.text_type)
+    path = RequiredField(six.text_type)
+    readOnly = Field(bool)
+
+
+class ConfigMapKeySelector(Model):
+    """
+    Selects a key from a ConfigMap.
+    """
+
+    key = RequiredField(six.text_type)
+    name = Field(six.text_type)
+    optional = Field(bool)
+
+
+class NodeSelectorRequirement(Model):
+    """
+    A node selector requirement is a selector that contains values, a key, and an
+    operator that relates the key and values.
+    """
+
+    key = RequiredField(six.text_type)
+    operator = RequiredField(six.text_type)
+    values = ListField(six.text_type)
+
+
+class NodeSelectorTerm(Model):
+    """
+    A null or empty node selector term matches no objects.
+    """
+
+    matchExpressions = ListField(NodeSelectorRequirement)
+
+
+class NodeSelector(Model):
+    """
+    A node selector represents the union of the results of one or more label
+    queries over a set of nodes; that is, it represents the OR of the selectors
+    represented by the node selector terms.
+    """
+
+    nodeSelectorTerms = ListField(NodeSelectorTerm)
+
+
+class PreferredSchedulingTerm(Model):
+    """
+    An empty preferred scheduling term matches all objects with implicit weight 0
+    (i.e. it's a no-op). A null preferred scheduling term matches no objects (i.e.
+    is also a no-op).
+    """
+
+    preference = RequiredField(NodeSelectorTerm)
+    weight = RequiredField(int)
+
+
+class NodeAffinity(Model):
+    """
+    Node affinity is a group of node affinity scheduling rules.
+    """
+
+    preferredDuringSchedulingIgnoredDuringExecution = ListField(PreferredSchedulingTerm)
+    requiredDuringSchedulingIgnoredDuringExecution = Field(NodeSelector)
+
+
+class Affinity(Model):
+    """
+    Affinity is a group of affinity scheduling rules.
+    """
+
+    nodeAffinity = Field(NodeAffinity)
+    podAffinity = Field(PodAffinity)
+    podAntiAffinity = Field(PodAntiAffinity)
+
+
 class NodeSystemInfo(Model):
     """
     NodeSystemInfo is a set of ids/uuids to uniquely identify the node.
     """
 
-    architecture = Field(six.text_type)
-    bootID = Field(six.text_type)
-    containerRuntimeVersion = Field(six.text_type)
-    kernelVersion = Field(six.text_type)
-    kubeProxyVersion = Field(six.text_type)
-    kubeletVersion = Field(six.text_type)
-    machineID = Field(six.text_type)
-    operatingSystem = Field(six.text_type)
-    osImage = Field(six.text_type)
-    systemUUID = Field(six.text_type)
+    architecture = RequiredField(six.text_type)
+    bootID = RequiredField(six.text_type)
+    containerRuntimeVersion = RequiredField(six.text_type)
+    kernelVersion = RequiredField(six.text_type)
+    kubeProxyVersion = RequiredField(six.text_type)
+    kubeletVersion = RequiredField(six.text_type)
+    machineID = RequiredField(six.text_type)
+    operatingSystem = RequiredField(six.text_type)
+    osImage = RequiredField(six.text_type)
+    systemUUID = RequiredField(six.text_type)
 
 
 class NodeStatus(Model):
@@ -1621,30 +1348,6 @@ class NodeStatus(Model):
     phase = Field(six.text_type)
     volumesAttached = ListField(AttachedVolume)
     volumesInUse = ListField(six.text_type)
-
-
-class Taint(Model):
-    """
-    The node this Taint is attached to has the effect 'effect' on any pod that that
-    does not tolerate the Taint.
-    """
-
-    effect = Field(six.text_type)
-    key = Field(six.text_type)
-    timeAdded = Field(datetime.datetime)
-    value = Field(six.text_type)
-
-
-class NodeSpec(Model):
-    """
-    NodeSpec describes the attributes that a node is created with.
-    """
-
-    externalID = Field(six.text_type)
-    podCIDR = Field(six.text_type)
-    providerID = Field(six.text_type)
-    taints = ListField(Taint)
-    unschedulable = Field(bool)
 
 
 class Node(Model):
@@ -1666,7 +1369,7 @@ class Node(Model):
 
     metadata = Field(ObjectMeta)
     spec = Field(NodeSpec)
-    status = Field(NodeStatus)
+    status = ReadOnlyField(NodeStatus)
 
 
 class NodeList(Model):
@@ -1680,21 +1383,278 @@ class NodeList(Model):
     metadata = Field(ListMeta)
 
 
-class GCEPersistentDiskVolumeSource(Model):
+class NamespaceSpec(Model):
     """
-    Represents a Persistent Disk resource in Google Compute Engine.
-
-    A GCE PD must
-    exist before mounting to a container. The disk must also be in the same GCE
-    project and zone as the kubelet. A GCE PD can only be mounted as read/write
-    once or read-only many times. GCE PDs support ownership management and SELinux
-    relabeling.
+    NamespaceSpec describes the attributes on a Namespace.
     """
 
+    finalizers = ListField(six.text_type)
+
+
+class Namespace(Model):
+    """
+    Namespace provides a scope for Names. Use of multiple namespaces is optional.
+    """
+    class Meta:
+        create_url = "/api/v1/namespaces"
+        delete_url = "/api/v1/namespaces/{name}"
+        get_url = "/api/v1/namespaces/{name}"
+        list_all_url = "/api/v1/namespaces"
+        update_url = "/api/v1/namespaces/{name}/finalize"
+        update_url = "/api/v1/namespaces/{name}"
+        watch_url = "/api/v1/watch/namespaces/{name}"
+        watchlist_all_url = "/api/v1/watch/namespaces"
+    
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "Namespace")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(NamespaceSpec)
+    status = Field(NamespaceStatus)
+
+
+class NamespaceList(Model):
+    """
+    NamespaceList is a list of Namespaces.
+    """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "NamespaceList")
+
+    items = ListField(Namespace)
+    metadata = Field(ListMeta)
+
+
+class AzureDiskVolumeSource(Model):
+    """
+    AzureDisk represents an Azure Data Disk mount on the host and bind mount to the
+    pod.
+    """
+
+    cachingMode = Field(six.text_type)
+    diskName = RequiredField(six.text_type)
+    diskURI = RequiredField(six.text_type)
     fsType = Field(six.text_type)
-    partition = Field(int)
-    pdName = Field(six.text_type)
     readOnly = Field(bool)
+
+
+class ReplicationControllerCondition(Model):
+    """
+    ReplicationControllerCondition describes the state of a replication controller
+    at a certain point.
+    """
+
+    lastTransitionTime = Field(datetime.datetime)
+    message = Field(six.text_type)
+    reason = Field(six.text_type)
+    status = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
+
+
+class ReplicationControllerStatus(Model):
+    """
+    ReplicationControllerStatus represents the current status of a replication
+    controller.
+    """
+
+    availableReplicas = Field(int)
+    conditions = ListField(ReplicationControllerCondition)
+    fullyLabeledReplicas = Field(int)
+    observedGeneration = Field(int)
+    readyReplicas = Field(int)
+    replicas = RequiredField(int)
+
+
+class ContainerStateRunning(Model):
+    """
+    ContainerStateRunning is a running state of a container.
+    """
+
+    startedAt = Field(datetime.datetime)
+
+
+class ContainerState(Model):
+    """
+    ContainerState holds a possible state of container. Only one of its members may
+    be specified. If none of them is specified, the default one is
+    ContainerStateWaiting.
+    """
+
+    running = Field(ContainerStateRunning)
+    terminated = Field(ContainerStateTerminated)
+    waiting = Field(ContainerStateWaiting)
+
+
+class ContainerStatus(Model):
+    """
+    ContainerStatus contains details for the current status of this container.
+    """
+
+    containerID = Field(six.text_type)
+    image = RequiredField(six.text_type)
+    imageID = RequiredField(six.text_type)
+    lastState = Field(ContainerState)
+    name = RequiredField(six.text_type)
+    ready = RequiredField(bool)
+    restartCount = RequiredField(int)
+    state = Field(ContainerState)
+
+
+class PodStatus(Model):
+    """
+    PodStatus represents information about the status of a pod. Status may trail
+    the actual state of a system.
+    """
+
+    conditions = ListField(PodCondition)
+    containerStatuses = ListField(ContainerStatus)
+    hostIP = Field(six.text_type)
+    initContainerStatuses = ListField(ContainerStatus)
+    message = Field(six.text_type)
+    phase = Field(six.text_type)
+    podIP = Field(six.text_type)
+    qosClass = Field(six.text_type)
+    reason = Field(six.text_type)
+    startTime = Field(datetime.datetime)
+
+
+class GitRepoVolumeSource(Model):
+    """
+    Represents a volume that is populated with the contents of a git repository.
+    Git repo volumes do not support ownership management. Git repo volumes support
+    SELinux relabeling.
+    """
+
+    directory = Field(six.text_type)
+    repository = RequiredField(six.text_type)
+    revision = Field(six.text_type)
+
+
+class ResourceFieldSelector(Model):
+    """
+    ResourceFieldSelector represents container resources (cpu, memory) and their
+    output format
+    """
+
+    containerName = Field(six.text_type)
+    divisor = Field(six.text_type)
+    resource = RequiredField(six.text_type)
+
+
+class EnvVarSource(Model):
+    """
+    EnvVarSource represents a source for the value of an EnvVar.
+    """
+
+    configMapKeyRef = Field(ConfigMapKeySelector)
+    fieldRef = Field(ObjectFieldSelector)
+    resourceFieldRef = Field(ResourceFieldSelector)
+    secretKeyRef = Field(SecretKeySelector)
+
+
+class EnvVar(Model):
+    """
+    EnvVar represents an environment variable present in a Container.
+    """
+
+    name = RequiredField(six.text_type)
+    value = Field(six.text_type)
+    valueFrom = Field(EnvVarSource)
+
+
+class DownwardAPIVolumeFile(Model):
+    """
+    DownwardAPIVolumeFile represents information to create the file containing the
+    pod field
+    """
+
+    fieldRef = Field(ObjectFieldSelector)
+    mode = Field(int)
+    path = RequiredField(six.text_type)
+    resourceFieldRef = Field(ResourceFieldSelector)
+
+
+class DownwardAPIProjection(Model):
+    """
+    Represents downward API info for projecting into a projected volume. Note that
+    this is identical to a downwardAPI volume source without the default mode.
+    """
+
+    items = ListField(DownwardAPIVolumeFile)
+
+
+class VolumeProjection(Model):
+    """
+    Projection that may be projected along with other supported volume types
+    """
+
+    configMap = Field(ConfigMapProjection)
+    downwardAPI = Field(DownwardAPIProjection)
+    secret = Field(SecretProjection)
+
+
+class ProjectedVolumeSource(Model):
+    """
+    Represents a projected volume source
+    """
+
+    defaultMode = Field(int)
+    sources = ListField(VolumeProjection)
+
+
+class DownwardAPIVolumeSource(Model):
+    """
+    DownwardAPIVolumeSource represents a volume containing downward API info.
+    Downward API volumes support ownership management and SELinux relabeling.
+    """
+
+    defaultMode = Field(int)
+    items = ListField(DownwardAPIVolumeFile)
+
+
+class NFSVolumeSource(Model):
+    """
+    Represents an NFS mount that lasts the lifetime of a pod. NFS volumes do not
+    support ownership management or SELinux relabeling.
+    """
+
+    path = RequiredField(six.text_type)
+    readOnly = Field(bool)
+    server = RequiredField(six.text_type)
+
+
+class Volume(Model):
+    """
+    Volume represents a named volume in a pod that may be accessed by any container
+    in the pod.
+    """
+
+    awsElasticBlockStore = Field(AWSElasticBlockStoreVolumeSource)
+    azureDisk = Field(AzureDiskVolumeSource)
+    azureFile = Field(AzureFileVolumeSource)
+    cephfs = Field(CephFSVolumeSource)
+    cinder = Field(CinderVolumeSource)
+    configMap = Field(ConfigMapVolumeSource)
+    downwardAPI = Field(DownwardAPIVolumeSource)
+    emptyDir = Field(EmptyDirVolumeSource)
+    fc = Field(FCVolumeSource)
+    flexVolume = Field(FlexVolumeSource)
+    flocker = Field(FlockerVolumeSource)
+    gcePersistentDisk = Field(GCEPersistentDiskVolumeSource)
+    gitRepo = Field(GitRepoVolumeSource)
+    glusterfs = Field(GlusterfsVolumeSource)
+    hostPath = Field(HostPathVolumeSource)
+    iscsi = Field(ISCSIVolumeSource)
+    name = RequiredField(six.text_type)
+    nfs = Field(NFSVolumeSource)
+    persistentVolumeClaim = Field(PersistentVolumeClaimVolumeSource)
+    photonPersistentDisk = Field(PhotonPersistentDiskVolumeSource)
+    portworxVolume = Field(PortworxVolumeSource)
+    projected = Field(ProjectedVolumeSource)
+    quobyte = Field(QuobyteVolumeSource)
+    rbd = Field(RBDVolumeSource)
+    scaleIO = Field(ScaleIOVolumeSource)
+    secret = Field(SecretVolumeSource)
+    vsphereVolume = Field(VsphereVirtualDiskVolumeSource)
 
 
 class PersistentVolumeSpec(Model):
@@ -1748,7 +1708,7 @@ class PersistentVolume(Model):
 
     metadata = Field(ObjectMeta)
     spec = Field(PersistentVolumeSpec)
-    status = Field(PersistentVolumeStatus)
+    status = ReadOnlyField(PersistentVolumeStatus)
 
 
 class PersistentVolumeList(Model):
@@ -1762,39 +1722,87 @@ class PersistentVolumeList(Model):
     metadata = Field(ListMeta)
 
 
-class Volume(Model):
+class ResourceRequirements(Model):
     """
-    Volume represents a named volume in a pod that may be accessed by any container
-    in the pod.
+    ResourceRequirements describes the compute resource requirements.
     """
 
-    awsElasticBlockStore = Field(AWSElasticBlockStoreVolumeSource)
-    azureDisk = Field(AzureDiskVolumeSource)
-    azureFile = Field(AzureFileVolumeSource)
-    cephfs = Field(CephFSVolumeSource)
-    cinder = Field(CinderVolumeSource)
-    configMap = Field(ConfigMapVolumeSource)
-    downwardAPI = Field(DownwardAPIVolumeSource)
-    emptyDir = Field(EmptyDirVolumeSource)
-    fc = Field(FCVolumeSource)
-    flexVolume = Field(FlexVolumeSource)
-    flocker = Field(FlockerVolumeSource)
-    gcePersistentDisk = Field(GCEPersistentDiskVolumeSource)
-    gitRepo = Field(GitRepoVolumeSource)
-    glusterfs = Field(GlusterfsVolumeSource)
-    hostPath = Field(HostPathVolumeSource)
-    iscsi = Field(ISCSIVolumeSource)
-    name = Field(six.text_type)
-    nfs = Field(NFSVolumeSource)
-    persistentVolumeClaim = Field(PersistentVolumeClaimVolumeSource)
-    photonPersistentDisk = Field(PhotonPersistentDiskVolumeSource)
-    portworxVolume = Field(PortworxVolumeSource)
-    projected = Field(ProjectedVolumeSource)
-    quobyte = Field(QuobyteVolumeSource)
-    rbd = Field(RBDVolumeSource)
-    scaleIO = Field(ScaleIOVolumeSource)
-    secret = Field(SecretVolumeSource)
-    vsphereVolume = Field(VsphereVirtualDiskVolumeSource)
+    limits = Field(dict)
+    requests = Field(dict)
+
+
+class PersistentVolumeClaimSpec(Model):
+    """
+    PersistentVolumeClaimSpec describes the common attributes of storage devices
+    and allows a Source for provider-specific attributes
+    """
+
+    accessModes = ListField(six.text_type)
+    resources = Field(ResourceRequirements)
+    selector = Field(LabelSelector)
+    storageClassName = Field(six.text_type)
+    volumeName = Field(six.text_type)
+
+
+class PersistentVolumeClaim(Model):
+    """
+    PersistentVolumeClaim is a user's request for and claim to a persistent volume
+    """
+    class Meta:
+        create_url = "/api/v1/namespaces/{namespace}/persistentvolumeclaims"
+        delete_url = "/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}"
+        get_url = "/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}"
+        list_all_url = "/api/v1/persistentvolumeclaims"
+        list_ns_url = "/api/v1/namespaces/{namespace}/persistentvolumeclaims"
+        update_url = "/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}"
+        watch_url = "/api/v1/watch/namespaces/{namespace}/persistentvolumeclaims/{name}"
+        watchlist_all_url = "/api/v1/watch/persistentvolumeclaims"
+        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/persistentvolumeclaims"
+    
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "PersistentVolumeClaim")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(PersistentVolumeClaimSpec)
+    status = ReadOnlyField(PersistentVolumeClaimStatus)
+
+
+class PersistentVolumeClaimList(Model):
+    """
+    PersistentVolumeClaimList is a list of PersistentVolumeClaim items.
+    """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "PersistentVolumeClaimList")
+
+    items = ListField(PersistentVolumeClaim)
+    metadata = Field(ListMeta)
+
+
+class Container(Model):
+    """
+    A single application container that you want to run within a pod.
+    """
+
+    args = ListField(six.text_type)
+    command = ListField(six.text_type)
+    env = ListField(EnvVar)
+    envFrom = ListField(EnvFromSource)
+    image = Field(six.text_type)
+    imagePullPolicy = Field(six.text_type)
+    lifecycle = Field(Lifecycle)
+    livenessProbe = Field(Probe)
+    name = RequiredField(six.text_type)
+    ports = ListField(ContainerPort)
+    readinessProbe = Field(Probe)
+    resources = Field(ResourceRequirements)
+    securityContext = Field(SecurityContext)
+    stdin = Field(bool)
+    stdinOnce = Field(bool)
+    terminationMessagePath = Field(six.text_type)
+    terminationMessagePolicy = Field(six.text_type)
+    tty = Field(bool)
+    volumeMounts = ListField(VolumeMount)
+    workingDir = Field(six.text_type)
 
 
 class PodSpec(Model):
@@ -1824,6 +1832,41 @@ class PodSpec(Model):
     terminationGracePeriodSeconds = Field(int)
     tolerations = ListField(Toleration)
     volumes = ListField(Volume)
+
+
+class Pod(Model):
+    """
+    Pod is a collection of containers that can run on a host. This resource is
+    created by clients and scheduled onto hosts.
+    """
+    class Meta:
+        create_url = "/api/v1/namespaces/{namespace}/pods"
+        delete_url = "/api/v1/namespaces/{namespace}/pods/{name}"
+        get_url = "/api/v1/namespaces/{namespace}/pods/{name}"
+        list_all_url = "/api/v1/pods"
+        list_ns_url = "/api/v1/namespaces/{namespace}/pods"
+        update_url = "/api/v1/namespaces/{namespace}/pods/{name}"
+        watch_url = "/api/v1/watch/namespaces/{namespace}/pods/{name}"
+        watchlist_all_url = "/api/v1/watch/pods"
+        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/pods"
+    
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "Pod")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(PodSpec)
+    status = ReadOnlyField(PodStatus)
+
+
+class PodList(Model):
+    """
+    PodList is a list of Pods.
+    """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "PodList")
+
+    items = ListField(Pod)
+    metadata = Field(ListMeta)
 
 
 class PodTemplateSpec(Model):
@@ -1867,7 +1910,7 @@ class ReplicationController(Model):
 
     metadata = Field(ObjectMeta)
     spec = Field(ReplicationControllerSpec)
-    status = Field(ReplicationControllerStatus)
+    status = ReadOnlyField(ReplicationControllerStatus)
 
 
 class ReplicationControllerList(Model):
@@ -1911,40 +1954,5 @@ class PodTemplateList(Model):
     kind = Field(six.text_type, "PodTemplateList")
 
     items = ListField(PodTemplate)
-    metadata = Field(ListMeta)
-
-
-class Pod(Model):
-    """
-    Pod is a collection of containers that can run on a host. This resource is
-    created by clients and scheduled onto hosts.
-    """
-    class Meta:
-        create_url = "/api/v1/namespaces/{namespace}/pods"
-        delete_url = "/api/v1/namespaces/{namespace}/pods/{name}"
-        get_url = "/api/v1/namespaces/{namespace}/pods/{name}"
-        list_all_url = "/api/v1/pods"
-        list_ns_url = "/api/v1/namespaces/{namespace}/pods"
-        update_url = "/api/v1/namespaces/{namespace}/pods/{name}"
-        watch_url = "/api/v1/watch/namespaces/{namespace}/pods/{name}"
-        watchlist_all_url = "/api/v1/watch/pods"
-        watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/pods"
-    
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "Pod")
-
-    metadata = Field(ObjectMeta)
-    spec = Field(PodSpec)
-    status = Field(PodStatus)
-
-
-class PodList(Model):
-    """
-    PodList is a list of Pods.
-    """
-    apiVersion = Field(six.text_type, "v1")
-    kind = Field(six.text_type, "PodList")
-
-    items = ListField(Pod)
     metadata = Field(ListMeta)
 

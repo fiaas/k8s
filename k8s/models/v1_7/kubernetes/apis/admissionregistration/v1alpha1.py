@@ -5,20 +5,16 @@ from __future__ import absolute_import
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_7.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
 
 
-class RuleWithOperations(Model):
-    """
-    RuleWithOperations is a tuple of Operations and Resources. It is recommended to
-    make sure that all the tuple expansions are valid.
-    """
-
-    apiGroups = ListField(six.text_type)
-    apiVersions = ListField(six.text_type)
-    operations = ListField(six.text_type)
-    resources = ListField(six.text_type)
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class Rule(Model):
@@ -39,7 +35,7 @@ class Initializer(Model):
     """
 
     failurePolicy = Field(six.text_type)
-    name = Field(six.text_type)
+    name = RequiredField(six.text_type)
     rules = ListField(Rule)
 
 
@@ -74,13 +70,25 @@ class InitializerConfigurationList(Model):
     metadata = Field(ListMeta)
 
 
+class RuleWithOperations(Model):
+    """
+    RuleWithOperations is a tuple of Operations and Resources. It is recommended to
+    make sure that all the tuple expansions are valid.
+    """
+
+    apiGroups = ListField(six.text_type)
+    apiVersions = ListField(six.text_type)
+    operations = ListField(six.text_type)
+    resources = ListField(six.text_type)
+
+
 class ServiceReference(Model):
     """
     ServiceReference holds a reference to Service.legacy.k8s.io
     """
 
-    name = Field(six.text_type)
-    namespace = Field(six.text_type)
+    name = RequiredField(six.text_type)
+    namespace = RequiredField(six.text_type)
 
 
 class AdmissionHookClientConfig(Model):
@@ -89,8 +97,8 @@ class AdmissionHookClientConfig(Model):
     with the webhook
     """
 
-    caBundle = Field(six.text_type)
-    service = Field(ServiceReference)
+    caBundle = RequiredField(six.text_type)
+    service = RequiredField(ServiceReference)
 
 
 class ExternalAdmissionHook(Model):
@@ -99,9 +107,9 @@ class ExternalAdmissionHook(Model):
     and operations it applies to.
     """
 
-    clientConfig = Field(AdmissionHookClientConfig)
+    clientConfig = RequiredField(AdmissionHookClientConfig)
     failurePolicy = Field(six.text_type)
-    name = Field(six.text_type)
+    name = RequiredField(six.text_type)
     rules = ListField(RuleWithOperations)
 
 

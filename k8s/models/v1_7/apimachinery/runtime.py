@@ -5,7 +5,15 @@ from __future__ import absolute_import
 import six
 
 from k8s.base import Model
-from k8s.fields import Field
+from k8s.fields import RequiredField
+
+
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class RawExtension(Model):
@@ -54,5 +62,5 @@ class RawExtension(Model):
     runtime.Unknown object will be created and stored.)
     """
 
-    Raw = Field(six.text_type)
+    Raw = RequiredField(six.text_type)
 

@@ -137,8 +137,9 @@ class PackageParser(object):
                 x = {k.lower(): v for k, v in x.items()}
                 gvks.append(GVK(**x))
             fields = []
+            required_fields = item.get("required", [])
             for field_name, property in item.get("properties", {}).items():
-                fields.append(self._parse_field(field_name, property))
+                fields.append(self._parse_field(field_name, property, required_fields))
             if not fields:
                 print("Model {}.{}.{} has no fields, skipping".format(package_ref, module_name, def_name))
                 continue
@@ -153,17 +154,22 @@ class PackageParser(object):
                                                                                                len(self._models),
                                                                                                len(self._gvk_lookup)))
 
-    def _parse_field(self, field_name, property):
-        if keyword.iskeyword(field_name):
-            field_name = "_{}".format(field_name)
+    def _parse_field(self, field_name, property, required_fields):
         field_type = property.get("type")
         field_ref = property.get("$ref")
         field_cls = "Field"
+        description = property.get("description", "")
         if field_type == "array" and "items" in property:
             field_type = property["items"].get("type")
             field_ref = property["items"].get("$ref")
             field_cls = "ListField"
-        field = Field(field_name, property.get("description", ""), field_type, field_ref, field_cls, None)
+        elif ". Read-only." in description:
+            field_cls = "ReadOnlyField"
+        elif field_name in required_fields:
+            field_cls = "RequiredField"
+        if keyword.iskeyword(field_name):
+            field_name = "_{}".format(field_name)
+        field = Field(field_name, description, field_type, field_ref, field_cls, None)
         return field
 
     def get_package(self, package_ref):

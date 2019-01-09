@@ -7,63 +7,17 @@ import datetime
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, ReadOnlyField, RequiredField
 from k8s.models.v1_6.apimachinery.apis.meta.v1 import LabelSelector, ListMeta, ObjectMeta
 from k8s.models.v1_6.kubernetes.api.v1 import PersistentVolumeClaim, PodTemplateSpec
 
 
-class RollbackConfig(Model):
-    """
-    
-    """
-
-    revision = Field(int)
-
-
-class DeploymentRollback(Model):
-    """
-    DeploymentRollback stores the information required to rollback a deployment.
-    """
-    apiVersion = Field(six.text_type, "apps/v1beta1")
-    kind = Field(six.text_type, "DeploymentRollback")
-
-    name = Field(six.text_type)
-    rollbackTo = Field(RollbackConfig)
-    updatedAnnotations = Field(dict)
-
-
-class RollingUpdateDeployment(Model):
-    """
-    Spec to control the desired behavior of rolling update.
-    """
-
-    maxSurge = Field(six.text_type, alt_type=int)
-    maxUnavailable = Field(six.text_type, alt_type=int)
-
-
-class DeploymentStrategy(Model):
-    """
-    DeploymentStrategy describes how to replace existing pods with new ones.
-    """
-
-    rollingUpdate = Field(RollingUpdateDeployment)
-    type = Field(six.text_type)
-
-
-class DeploymentSpec(Model):
-    """
-    DeploymentSpec is the specification of the desired behavior of the Deployment.
-    """
-
-    minReadySeconds = Field(int)
-    paused = Field(bool)
-    progressDeadlineSeconds = Field(int)
-    replicas = Field(int)
-    revisionHistoryLimit = Field(int)
-    rollbackTo = Field(RollbackConfig)
-    selector = Field(LabelSelector)
-    strategy = Field(DeploymentStrategy)
-    template = Field(PodTemplateSpec)
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class StatefulSetSpec(Model):
@@ -73,17 +27,46 @@ class StatefulSetSpec(Model):
 
     replicas = Field(int)
     selector = Field(LabelSelector)
-    serviceName = Field(six.text_type)
-    template = Field(PodTemplateSpec)
+    serviceName = RequiredField(six.text_type)
+    template = RequiredField(PodTemplateSpec)
     volumeClaimTemplates = ListField(PersistentVolumeClaim)
 
 
-class ScaleSpec(Model):
+class ScaleStatus(Model):
     """
-    ScaleSpec describes the attributes of a scale subresource
+    ScaleStatus represents the current status of a scale subresource.
     """
 
+    replicas = RequiredField(int)
+    selector = Field(dict)
+    targetSelector = Field(six.text_type)
+
+
+class DeploymentCondition(Model):
+    """
+    DeploymentCondition describes the state of a deployment at a certain point.
+    """
+
+    lastTransitionTime = Field(datetime.datetime)
+    lastUpdateTime = Field(datetime.datetime)
+    message = Field(six.text_type)
+    reason = Field(six.text_type)
+    status = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
+
+
+class DeploymentStatus(Model):
+    """
+    DeploymentStatus is the most recently observed status of the Deployment.
+    """
+
+    availableReplicas = Field(int)
+    conditions = ListField(DeploymentCondition)
+    observedGeneration = Field(int)
+    readyReplicas = Field(int)
     replicas = Field(int)
+    unavailableReplicas = Field(int)
+    updatedReplicas = Field(int)
 
 
 class StatefulSetStatus(Model):
@@ -92,7 +75,7 @@ class StatefulSetStatus(Model):
     """
 
     observedGeneration = Field(int)
-    replicas = Field(int)
+    replicas = RequiredField(int)
 
 
 class StatefulSet(Model):
@@ -135,31 +118,78 @@ class StatefulSetList(Model):
     metadata = Field(ListMeta)
 
 
-class DeploymentCondition(Model):
+class RollbackConfig(Model):
     """
-    DeploymentCondition describes the state of a deployment at a certain point.
+    
     """
 
-    lastTransitionTime = Field(datetime.datetime)
-    lastUpdateTime = Field(datetime.datetime)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-    status = Field(six.text_type)
+    revision = Field(int)
+
+
+class DeploymentRollback(Model):
+    """
+    DeploymentRollback stores the information required to rollback a deployment.
+    """
+    apiVersion = Field(six.text_type, "apps/v1beta1")
+    kind = Field(six.text_type, "DeploymentRollback")
+
+    name = RequiredField(six.text_type)
+    rollbackTo = RequiredField(RollbackConfig)
+    updatedAnnotations = Field(dict)
+
+
+class ScaleSpec(Model):
+    """
+    ScaleSpec describes the attributes of a scale subresource
+    """
+
+    replicas = Field(int)
+
+
+class Scale(Model):
+    """
+    Scale represents a scaling request for a resource.
+    """
+    apiVersion = Field(six.text_type, "apps/v1beta1")
+    kind = Field(six.text_type, "Scale")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(ScaleSpec)
+    status = ReadOnlyField(ScaleStatus)
+
+
+class RollingUpdateDeployment(Model):
+    """
+    Spec to control the desired behavior of rolling update.
+    """
+
+    maxSurge = Field(six.text_type, alt_type=int)
+    maxUnavailable = Field(six.text_type, alt_type=int)
+
+
+class DeploymentStrategy(Model):
+    """
+    DeploymentStrategy describes how to replace existing pods with new ones.
+    """
+
+    rollingUpdate = Field(RollingUpdateDeployment)
     type = Field(six.text_type)
 
 
-class DeploymentStatus(Model):
+class DeploymentSpec(Model):
     """
-    DeploymentStatus is the most recently observed status of the Deployment.
+    DeploymentSpec is the specification of the desired behavior of the Deployment.
     """
 
-    availableReplicas = Field(int)
-    conditions = ListField(DeploymentCondition)
-    observedGeneration = Field(int)
-    readyReplicas = Field(int)
+    minReadySeconds = Field(int)
+    paused = Field(bool)
+    progressDeadlineSeconds = Field(int)
     replicas = Field(int)
-    unavailableReplicas = Field(int)
-    updatedReplicas = Field(int)
+    revisionHistoryLimit = Field(int)
+    rollbackTo = Field(RollbackConfig)
+    selector = Field(LabelSelector)
+    strategy = Field(DeploymentStrategy)
+    template = RequiredField(PodTemplateSpec)
 
 
 class Deployment(Model):
@@ -194,26 +224,4 @@ class DeploymentList(Model):
 
     items = ListField(Deployment)
     metadata = Field(ListMeta)
-
-
-class ScaleStatus(Model):
-    """
-    ScaleStatus represents the current status of a scale subresource.
-    """
-
-    replicas = Field(int)
-    selector = Field(dict)
-    targetSelector = Field(six.text_type)
-
-
-class Scale(Model):
-    """
-    Scale represents a scaling request for a resource.
-    """
-    apiVersion = Field(six.text_type, "apps/v1beta1")
-    kind = Field(six.text_type, "Scale")
-
-    metadata = Field(ObjectMeta)
-    spec = Field(ScaleSpec)
-    status = Field(ScaleStatus)
 

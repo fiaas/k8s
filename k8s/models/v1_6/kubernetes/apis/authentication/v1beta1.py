@@ -5,8 +5,24 @@ from __future__ import absolute_import
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_6.apimachinery.apis.meta.v1 import ObjectMeta
+
+
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
+
+
+class TokenReviewSpec(Model):
+    """
+    TokenReviewSpec is a description of the token authentication request.
+    """
+
+    token = Field(six.text_type)
 
 
 class UserInfo(Model):
@@ -31,14 +47,6 @@ class TokenReviewStatus(Model):
     user = Field(UserInfo)
 
 
-class TokenReviewSpec(Model):
-    """
-    TokenReviewSpec is a description of the token authentication request.
-    """
-
-    token = Field(six.text_type)
-
-
 class TokenReview(Model):
     """
     TokenReview attempts to authenticate a token to a known user. Note: TokenReview
@@ -52,6 +60,6 @@ class TokenReview(Model):
     kind = Field(six.text_type, "TokenReview")
 
     metadata = Field(ObjectMeta)
-    spec = Field(TokenReviewSpec)
+    spec = RequiredField(TokenReviewSpec)
     status = Field(TokenReviewStatus)
 

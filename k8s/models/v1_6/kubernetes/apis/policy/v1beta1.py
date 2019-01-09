@@ -5,8 +5,29 @@ from __future__ import absolute_import
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_6.apimachinery.apis.meta.v1 import DeleteOptions, LabelSelector, ListMeta, ObjectMeta
+
+
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
+
+
+class Eviction(Model):
+    """
+    Eviction evicts a pod from its node subject to certain policies and safety
+    constraints. This is a subresource of Pod.  A request to cause such an eviction
+    is created by POSTing to .../pods/<pod name>/evictions.
+    """
+    apiVersion = Field(six.text_type, "policy/v1beta1")
+    kind = Field(six.text_type, "Eviction")
+
+    deleteOptions = Field(DeleteOptions)
+    metadata = Field(ObjectMeta)
 
 
 class PodDisruptionBudgetStatus(Model):
@@ -15,11 +36,11 @@ class PodDisruptionBudgetStatus(Model):
     PodDisruptionBudget. Status may trail the actual state of a system.
     """
 
-    currentHealthy = Field(int)
-    desiredHealthy = Field(int)
-    disruptedPods = Field(dict)
-    disruptionsAllowed = Field(int)
-    expectedPods = Field(int)
+    currentHealthy = RequiredField(int)
+    desiredHealthy = RequiredField(int)
+    disruptedPods = RequiredField(dict)
+    disruptionsAllowed = RequiredField(int)
+    expectedPods = RequiredField(int)
     observedGeneration = Field(int)
 
 
@@ -65,17 +86,4 @@ class PodDisruptionBudgetList(Model):
 
     items = ListField(PodDisruptionBudget)
     metadata = Field(ListMeta)
-
-
-class Eviction(Model):
-    """
-    Eviction evicts a pod from its node subject to certain policies and safety
-    constraints. This is a subresource of Pod.  A request to cause such an eviction
-    is created by POSTing to .../pods/<pod name>/evictions.
-    """
-    apiVersion = Field(six.text_type, "policy/v1beta1")
-    kind = Field(six.text_type, "Eviction")
-
-    deleteOptions = Field(DeleteOptions)
-    metadata = Field(ObjectMeta)
 

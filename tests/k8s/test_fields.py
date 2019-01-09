@@ -7,7 +7,7 @@ import six
 
 from k8s import config
 from k8s.base import Model
-from k8s.fields import Field, ListField, OnceField, ReadOnlyField, RequiredField
+from k8s.fields import Field, ListField, ReadOnlyField, RequiredField
 from k8s.models.v1_6.kubernetes.api.v1 import ObjectMeta
 
 
@@ -18,7 +18,6 @@ class ModelTest(Model):
     metadata = Field(ObjectMeta)
     field = Field(int)
     list_field = ListField(int)
-    once_field = OnceField(int)
     read_only_field = ReadOnlyField(int)
     alt_type_field = Field(int, alt_type=six.text_type)
     dict_field = Field(dict)
@@ -34,7 +33,6 @@ class TestFields(object):
     @pytest.mark.parametrize("field_name,initial_value,other_value", (
         ("field", 1, 2),
         ("list_field", [1], [1, 2]),
-        ("once_field", 1, 2),
         ("_exec", 1, 2)
     ))
     def test_field_new(self, field_name, initial_value, other_value):
@@ -53,12 +51,6 @@ class TestFields(object):
         assert getattr(model, field_name) == initial_value
         setattr(model, field_name, other_value)
         assert getattr(model, field_name) == other_value
-
-    def test_once_field_old(self):
-        model = ModelTest.from_dict({"once_field": 1})
-        assert model.once_field == 1
-        model.once_field = 2
-        assert model.once_field == 1
 
     def test_exec_field_old(self):
         model = ModelTest.from_dict({"exec": 1})

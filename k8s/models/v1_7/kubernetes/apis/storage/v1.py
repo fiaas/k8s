@@ -5,8 +5,16 @@ from __future__ import absolute_import
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_7.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
+
+
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class StorageClass(Model):
@@ -32,7 +40,7 @@ class StorageClass(Model):
 
     metadata = Field(ObjectMeta)
     parameters = Field(dict)
-    provisioner = Field(six.text_type)
+    provisioner = RequiredField(six.text_type)
 
 
 class StorageClassList(Model):

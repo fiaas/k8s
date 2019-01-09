@@ -7,8 +7,51 @@ import datetime
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_6.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
+
+
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
+
+
+class PodsMetricStatus(Model):
+    """
+    PodsMetricStatus indicates the current value of a metric describing each pod in
+    the current scale target (for example, transactions-processed-per-second).
+    """
+
+    currentAverageValue = RequiredField(six.text_type)
+    metricName = RequiredField(six.text_type)
+
+
+class ResourceMetricStatus(Model):
+    """
+    ResourceMetricStatus indicates the current value of a resource metric known to
+    Kubernetes, as specified in requests and limits, describing each pod in the
+    current scale target (e.g. CPU or memory).  Such metrics are built in to
+    Kubernetes, and have special scaling options on top of those available to
+    normal per-pod metrics using the 'pods' source.
+    """
+
+    currentAverageUtilization = Field(int)
+    currentAverageValue = RequiredField(six.text_type)
+    name = RequiredField(six.text_type)
+
+
+class PodsMetricSource(Model):
+    """
+    PodsMetricSource indicates how to scale on a metric describing each pod in the
+    current scale target (for example, transactions-processed-per-second). The
+    values will be averaged together before being compared to the target value.
+    """
+
+    metricName = RequiredField(six.text_type)
+    targetAverageValue = RequiredField(six.text_type)
 
 
 class CrossVersionObjectReference(Model):
@@ -17,7 +60,7 @@ class CrossVersionObjectReference(Model):
     referred resource.
     """
 
-    name = Field(six.text_type)
+    name = RequiredField(six.text_type)
 
 
 class ObjectMetricStatus(Model):
@@ -26,9 +69,33 @@ class ObjectMetricStatus(Model):
     kubernetes object (for example, hits-per-second on an Ingress object).
     """
 
-    currentValue = Field(six.text_type)
-    metricName = Field(six.text_type)
-    target = Field(CrossVersionObjectReference)
+    currentValue = RequiredField(six.text_type)
+    metricName = RequiredField(six.text_type)
+    target = RequiredField(CrossVersionObjectReference)
+
+
+class MetricStatus(Model):
+    """
+    MetricStatus describes the last-read state of a single metric.
+    """
+
+    object = Field(ObjectMetricStatus)
+    pods = Field(PodsMetricStatus)
+    resource = Field(ResourceMetricStatus)
+    type = RequiredField(six.text_type)
+
+
+class HorizontalPodAutoscalerStatus(Model):
+    """
+    HorizontalPodAutoscalerStatus describes the current status of a horizontal pod
+    autoscaler.
+    """
+
+    currentMetrics = ListField(MetricStatus)
+    currentReplicas = RequiredField(int)
+    desiredReplicas = RequiredField(int)
+    lastScaleTime = Field(datetime.datetime)
+    observedGeneration = Field(int)
 
 
 class ObjectMetricSource(Model):
@@ -37,9 +104,9 @@ class ObjectMetricSource(Model):
     object (for example, hits-per-second on an Ingress object).
     """
 
-    metricName = Field(six.text_type)
-    target = Field(CrossVersionObjectReference)
-    targetValue = Field(six.text_type)
+    metricName = RequiredField(six.text_type)
+    target = RequiredField(CrossVersionObjectReference)
+    targetValue = RequiredField(six.text_type)
 
 
 class ResourceMetricSource(Model):
@@ -53,33 +120,8 @@ class ResourceMetricSource(Model):
     be set.
     """
 
-    name = Field(six.text_type)
+    name = RequiredField(six.text_type)
     targetAverageUtilization = Field(int)
-    targetAverageValue = Field(six.text_type)
-
-
-class ResourceMetricStatus(Model):
-    """
-    ResourceMetricStatus indicates the current value of a resource metric known to
-    Kubernetes, as specified in requests and limits, describing each pod in the
-    current scale target (e.g. CPU or memory).  Such metrics are built in to
-    Kubernetes, and have special scaling options on top of those available to
-    normal per-pod metrics using the 'pods' source.
-    """
-
-    currentAverageUtilization = Field(int)
-    currentAverageValue = Field(six.text_type)
-    name = Field(six.text_type)
-
-
-class PodsMetricSource(Model):
-    """
-    PodsMetricSource indicates how to scale on a metric describing each pod in the
-    current scale target (for example, transactions-processed-per-second). The
-    values will be averaged together before being compared to the target value.
-    """
-
-    metricName = Field(six.text_type)
     targetAverageValue = Field(six.text_type)
 
 
@@ -92,7 +134,7 @@ class MetricSpec(Model):
     object = Field(ObjectMetricSource)
     pods = Field(PodsMetricSource)
     resource = Field(ResourceMetricSource)
-    type = Field(six.text_type)
+    type = RequiredField(six.text_type)
 
 
 class HorizontalPodAutoscalerSpec(Model):
@@ -101,44 +143,10 @@ class HorizontalPodAutoscalerSpec(Model):
     HorizontalPodAutoscaler.
     """
 
-    maxReplicas = Field(int)
+    maxReplicas = RequiredField(int)
     metrics = ListField(MetricSpec)
     minReplicas = Field(int)
-    scaleTargetRef = Field(CrossVersionObjectReference)
-
-
-class PodsMetricStatus(Model):
-    """
-    PodsMetricStatus indicates the current value of a metric describing each pod in
-    the current scale target (for example, transactions-processed-per-second).
-    """
-
-    currentAverageValue = Field(six.text_type)
-    metricName = Field(six.text_type)
-
-
-class MetricStatus(Model):
-    """
-    MetricStatus describes the last-read state of a single metric.
-    """
-
-    object = Field(ObjectMetricStatus)
-    pods = Field(PodsMetricStatus)
-    resource = Field(ResourceMetricStatus)
-    type = Field(six.text_type)
-
-
-class HorizontalPodAutoscalerStatus(Model):
-    """
-    HorizontalPodAutoscalerStatus describes the current status of a horizontal pod
-    autoscaler.
-    """
-
-    currentMetrics = ListField(MetricStatus)
-    currentReplicas = Field(int)
-    desiredReplicas = Field(int)
-    lastScaleTime = Field(datetime.datetime)
-    observedGeneration = Field(int)
+    scaleTargetRef = RequiredField(CrossVersionObjectReference)
 
 
 class HorizontalPodAutoscaler(Model):

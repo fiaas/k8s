@@ -7,28 +7,16 @@ import datetime
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_7.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
 
 
-class CertificateSigningRequestCondition(Model):
-    """
-    
-    """
-
-    lastUpdateTime = Field(datetime.datetime)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-    type = Field(six.text_type)
-
-
-class CertificateSigningRequestStatus(Model):
-    """
-    
-    """
-
-    certificate = Field(six.text_type)
-    conditions = ListField(CertificateSigningRequestCondition)
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class CertificateSigningRequestSpec(Model):
@@ -40,10 +28,30 @@ class CertificateSigningRequestSpec(Model):
 
     extra = Field(dict)
     groups = ListField(six.text_type)
-    request = Field(six.text_type)
+    request = RequiredField(six.text_type)
     uid = Field(six.text_type)
     usages = ListField(six.text_type)
     username = Field(six.text_type)
+
+
+class CertificateSigningRequestCondition(Model):
+    """
+    
+    """
+
+    lastUpdateTime = Field(datetime.datetime)
+    message = Field(six.text_type)
+    reason = Field(six.text_type)
+    type = RequiredField(six.text_type)
+
+
+class CertificateSigningRequestStatus(Model):
+    """
+    
+    """
+
+    certificate = Field(six.text_type)
+    conditions = ListField(CertificateSigningRequestCondition)
 
 
 class CertificateSigningRequest(Model):
@@ -55,8 +63,8 @@ class CertificateSigningRequest(Model):
         delete_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}"
         get_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}"
         list_all_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests"
-        update_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}/approval"
         update_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}"
+        update_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}/approval"
         watch_url = "/apis/certificates.k8s.io/v1beta1/watch/certificatesigningrequests/{name}"
         watchlist_all_url = "/apis/certificates.k8s.io/v1beta1/watch/certificatesigningrequests"
     

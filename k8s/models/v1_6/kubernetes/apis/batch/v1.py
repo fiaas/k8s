@@ -7,9 +7,30 @@ import datetime
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_6.apimachinery.apis.meta.v1 import LabelSelector, ListMeta, ObjectMeta
 from k8s.models.v1_6.kubernetes.api.v1 import PodTemplateSpec
+
+
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
+
+
+class JobSpec(Model):
+    """
+    JobSpec describes how the job execution will look like.
+    """
+
+    activeDeadlineSeconds = Field(int)
+    completions = Field(int)
+    manualSelector = Field(bool)
+    parallelism = Field(int)
+    selector = Field(LabelSelector)
+    template = RequiredField(PodTemplateSpec)
 
 
 class JobCondition(Model):
@@ -21,8 +42,8 @@ class JobCondition(Model):
     lastTransitionTime = Field(datetime.datetime)
     message = Field(six.text_type)
     reason = Field(six.text_type)
-    status = Field(six.text_type)
-    type = Field(six.text_type)
+    status = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
 
 
 class JobStatus(Model):
@@ -36,19 +57,6 @@ class JobStatus(Model):
     failed = Field(int)
     startTime = Field(datetime.datetime)
     succeeded = Field(int)
-
-
-class JobSpec(Model):
-    """
-    JobSpec describes how the job execution will look like.
-    """
-
-    activeDeadlineSeconds = Field(int)
-    completions = Field(int)
-    manualSelector = Field(bool)
-    parallelism = Field(int)
-    selector = Field(LabelSelector)
-    template = Field(PodTemplateSpec)
 
 
 class Job(Model):

@@ -7,8 +7,111 @@ import datetime
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, ReadOnlyField, RequiredField
 from k8s.models.v1_6.apimachinery.runtime import RawExtension
+
+
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
+
+
+class ServerAddressByClientCIDR(Model):
+    """
+    ServerAddressByClientCIDR helps the client to determine the server address that
+    they should use, depending on the clientCIDR that they match.
+    """
+
+    clientCIDR = RequiredField(six.text_type)
+    serverAddress = RequiredField(six.text_type)
+
+
+class APIVersions(Model):
+    """
+    APIVersions lists the versions that are available, to allow clients to discover
+    the API at /api, which is the root path of the legacy v1 API.
+    """
+
+    serverAddressByClientCIDRs = ListField(ServerAddressByClientCIDR)
+    versions = ListField(six.text_type)
+
+
+class GroupVersionForDiscovery(Model):
+    """
+    GroupVersion contains the 'group/version' and 'version' string of a version. It
+    is made a struct to keep extensibility.
+    """
+
+    groupVersion = RequiredField(six.text_type)
+    version = RequiredField(six.text_type)
+
+
+class APIGroup(Model):
+    """
+    APIGroup contains the name, the supported versions, and the preferred version
+    of a group.
+    """
+
+    name = RequiredField(six.text_type)
+    preferredVersion = Field(GroupVersionForDiscovery)
+    serverAddressByClientCIDRs = ListField(ServerAddressByClientCIDR)
+    versions = ListField(GroupVersionForDiscovery)
+
+
+class APIGroupList(Model):
+    """
+    APIGroupList is a list of APIGroup, to allow clients to discover the API at
+    /apis.
+    """
+
+    groups = ListField(APIGroup)
+
+
+class LabelSelectorRequirement(Model):
+    """
+    A label selector requirement is a selector that contains values, a key, and an
+    operator that relates the key and values.
+    """
+
+    key = RequiredField(six.text_type)
+    operator = RequiredField(six.text_type)
+    values = ListField(six.text_type)
+
+
+class LabelSelector(Model):
+    """
+    A label selector is a label query over a set of resources. The result of
+    matchLabels and matchExpressions are ANDed. An empty label selector matches all
+    objects. A null label selector matches no objects.
+    """
+
+    matchExpressions = ListField(LabelSelectorRequirement)
+    matchLabels = Field(dict)
+
+
+class APIResource(Model):
+    """
+    APIResource specifies the name of a resource and whether it is namespaced.
+    """
+
+    name = RequiredField(six.text_type)
+    namespaced = RequiredField(bool)
+    shortNames = ListField(six.text_type)
+    verbs = ListField(six.text_type)
+
+
+class APIResourceList(Model):
+    """
+    APIResourceList is a list of APIResource, it is used to expose the name of the
+    resources supported in a specific group and version, and if the resource is
+    namespaced.
+    """
+
+    groupVersion = RequiredField(six.text_type)
+    resources = ListField(APIResource)
 
 
 class ListMeta(Model):
@@ -18,8 +121,8 @@ class ListMeta(Model):
     ListMeta}.
     """
 
-    resourceVersion = Field(six.text_type)
-    selfLink = Field(six.text_type)
+    resourceVersion = ReadOnlyField(six.text_type)
+    selfLink = ReadOnlyField(six.text_type)
 
 
 class WatchEvent(Model):
@@ -27,8 +130,64 @@ class WatchEvent(Model):
     Event represents a single event to a watched resource.
     """
 
-    object = Field(RawExtension)
-    type = Field(six.text_type)
+    object = RequiredField(RawExtension)
+    type = RequiredField(six.text_type)
+
+
+class OwnerReference(Model):
+    """
+    OwnerReference contains enough information to let you identify an owning
+    object. Currently, an owning object must be in the same namespace, so there is
+    no namespace field.
+    """
+
+    blockOwnerDeletion = Field(bool)
+    controller = Field(bool)
+    name = RequiredField(six.text_type)
+    uid = RequiredField(six.text_type)
+
+
+class ObjectMeta(Model):
+    """
+    ObjectMeta is metadata that all persisted resources must have, which includes
+    all objects users must create.
+    """
+
+    annotations = Field(dict)
+    clusterName = Field(six.text_type)
+    creationTimestamp = ReadOnlyField(datetime.datetime)
+    deletionGracePeriodSeconds = ReadOnlyField(int)
+    deletionTimestamp = ReadOnlyField(datetime.datetime)
+    finalizers = ListField(six.text_type)
+    generateName = Field(six.text_type)
+    generation = ReadOnlyField(int)
+    labels = Field(dict)
+    name = Field(six.text_type)
+    namespace = Field(six.text_type)
+    ownerReferences = ListField(OwnerReference)
+    resourceVersion = ReadOnlyField(six.text_type)
+    selfLink = ReadOnlyField(six.text_type)
+    uid = ReadOnlyField(six.text_type)
+
+
+class Preconditions(Model):
+    """
+    Preconditions must be fulfilled before an operation (update, delete, etc.) is
+    carried out.
+    """
+
+    uid = Field(six.text_type)
+
+
+class DeleteOptions(Model):
+    """
+    DeleteOptions may be provided when deleting an API object.
+    """
+
+    gracePeriodSeconds = Field(int)
+    orphanDependents = Field(bool)
+    preconditions = Field(Preconditions)
+    propagationPolicy = Field(six.text_type)
 
 
 class StatusCause(Model):
@@ -68,155 +227,4 @@ class Status(Model):
     metadata = Field(ListMeta)
     reason = Field(six.text_type)
     status = Field(six.text_type)
-
-
-class GroupVersionForDiscovery(Model):
-    """
-    GroupVersion contains the 'group/version' and 'version' string of a version. It
-    is made a struct to keep extensibility.
-    """
-
-    groupVersion = Field(six.text_type)
-    version = Field(six.text_type)
-
-
-class ServerAddressByClientCIDR(Model):
-    """
-    ServerAddressByClientCIDR helps the client to determine the server address that
-    they should use, depending on the clientCIDR that they match.
-    """
-
-    clientCIDR = Field(six.text_type)
-    serverAddress = Field(six.text_type)
-
-
-class APIGroup(Model):
-    """
-    APIGroup contains the name, the supported versions, and the preferred version
-    of a group.
-    """
-
-    name = Field(six.text_type)
-    preferredVersion = Field(GroupVersionForDiscovery)
-    serverAddressByClientCIDRs = ListField(ServerAddressByClientCIDR)
-    versions = ListField(GroupVersionForDiscovery)
-
-
-class APIGroupList(Model):
-    """
-    APIGroupList is a list of APIGroup, to allow clients to discover the API at
-    /apis.
-    """
-
-    groups = ListField(APIGroup)
-
-
-class APIVersions(Model):
-    """
-    APIVersions lists the versions that are available, to allow clients to discover
-    the API at /api, which is the root path of the legacy v1 API.
-    """
-
-    serverAddressByClientCIDRs = ListField(ServerAddressByClientCIDR)
-    versions = ListField(six.text_type)
-
-
-class APIResource(Model):
-    """
-    APIResource specifies the name of a resource and whether it is namespaced.
-    """
-
-    name = Field(six.text_type)
-    namespaced = Field(bool)
-    shortNames = ListField(six.text_type)
-    verbs = ListField(six.text_type)
-
-
-class APIResourceList(Model):
-    """
-    APIResourceList is a list of APIResource, it is used to expose the name of the
-    resources supported in a specific group and version, and if the resource is
-    namespaced.
-    """
-
-    groupVersion = Field(six.text_type)
-    resources = ListField(APIResource)
-
-
-class Preconditions(Model):
-    """
-    Preconditions must be fulfilled before an operation (update, delete, etc.) is
-    carried out.
-    """
-
-    uid = Field(six.text_type)
-
-
-class DeleteOptions(Model):
-    """
-    DeleteOptions may be provided when deleting an API object.
-    """
-
-    gracePeriodSeconds = Field(int)
-    orphanDependents = Field(bool)
-    preconditions = Field(Preconditions)
-    propagationPolicy = Field(six.text_type)
-
-
-class OwnerReference(Model):
-    """
-    OwnerReference contains enough information to let you identify an owning
-    object. Currently, an owning object must be in the same namespace, so there is
-    no namespace field.
-    """
-
-    blockOwnerDeletion = Field(bool)
-    controller = Field(bool)
-    name = Field(six.text_type)
-    uid = Field(six.text_type)
-
-
-class ObjectMeta(Model):
-    """
-    ObjectMeta is metadata that all persisted resources must have, which includes
-    all objects users must create.
-    """
-
-    annotations = Field(dict)
-    clusterName = Field(six.text_type)
-    creationTimestamp = Field(datetime.datetime)
-    deletionGracePeriodSeconds = Field(int)
-    deletionTimestamp = Field(datetime.datetime)
-    finalizers = ListField(six.text_type)
-    generateName = Field(six.text_type)
-    generation = Field(int)
-    labels = Field(dict)
-    name = Field(six.text_type)
-    namespace = Field(six.text_type)
-    ownerReferences = ListField(OwnerReference)
-    resourceVersion = Field(six.text_type)
-    selfLink = Field(six.text_type)
-    uid = Field(six.text_type)
-
-
-class LabelSelectorRequirement(Model):
-    """
-    A label selector requirement is a selector that contains values, a key, and an
-    operator that relates the key and values.
-    """
-
-    key = Field(six.text_type)
-    operator = Field(six.text_type)
-    values = ListField(six.text_type)
-
-
-class LabelSelector(Model):
-    """
-    A label selector is a label query over a set of resources. The result of
-    matchLabels and matchExpressions are ANDed. An empty label selector matches all
-    objects. A null label selector matches no objects.
-    """
-
-    matchExpressions = ListField(LabelSelectorRequirement)
-    matchLabels = Field(dict)
 

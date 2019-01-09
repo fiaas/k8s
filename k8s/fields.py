@@ -81,7 +81,8 @@ class Field(object):
             return self.default_value
         try:
             return self.type.from_dict(value)
-        except AttributeError:
+        except AttributeError as e:
+            print(e)
             if isinstance(value, self.type) or (self.alt_type and isinstance(value, self.alt_type)):
                 return value
             if self.type is datetime:
@@ -103,14 +104,6 @@ class ReadOnlyField(Field):
 
     def __set__(self, instance, value):
         pass
-
-
-class OnceField(Field):
-    """OnceField can only be set on new instances, and is immutable after creation on the server"""
-
-    def __set__(self, instance, value):
-        if instance._new:
-            super(OnceField, self).__set__(instance, value)
 
 
 class ListField(Field):

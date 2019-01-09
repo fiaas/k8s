@@ -10,6 +10,14 @@ from k8s.models.v1_7.apimachinery.apis.meta.v1 import LabelSelector, ListMeta, O
 from k8s.models.v1_7.kubernetes.api.v1 import EnvFromSource, EnvVar, Volume, VolumeMount
 
 
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
+
+
 class PodPresetSpec(Model):
     """
     PodPresetSpec is a description of a pod preset.

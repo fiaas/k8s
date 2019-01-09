@@ -7,10 +7,18 @@ import datetime
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_6.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
 from k8s.models.v1_6.kubernetes.api.v1 import ObjectReference
 from k8s.models.v1_6.kubernetes.apis.batch.v1 import JobSpec
+
+
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class CronJobStatus(Model):
@@ -40,8 +48,8 @@ class CronJobSpec(Model):
 
     concurrencyPolicy = Field(six.text_type)
     failedJobsHistoryLimit = Field(int)
-    jobTemplate = Field(JobTemplateSpec)
-    schedule = Field(six.text_type)
+    jobTemplate = RequiredField(JobTemplateSpec)
+    schedule = RequiredField(six.text_type)
     startingDeadlineSeconds = Field(int)
     successfulJobsHistoryLimit = Field(int)
     suspend = Field(bool)

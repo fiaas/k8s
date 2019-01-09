@@ -7,8 +7,16 @@ import datetime
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_6.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
+
+
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class CertificateSigningRequestSpec(Model):
@@ -20,7 +28,7 @@ class CertificateSigningRequestSpec(Model):
 
     extra = Field(dict)
     groups = ListField(six.text_type)
-    request = Field(six.text_type)
+    request = RequiredField(six.text_type)
     uid = Field(six.text_type)
     usages = ListField(six.text_type)
     username = Field(six.text_type)
@@ -34,7 +42,7 @@ class CertificateSigningRequestCondition(Model):
     lastUpdateTime = Field(datetime.datetime)
     message = Field(six.text_type)
     reason = Field(six.text_type)
-    type = Field(six.text_type)
+    type = RequiredField(six.text_type)
 
 
 class CertificateSigningRequestStatus(Model):

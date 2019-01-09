@@ -5,28 +5,16 @@ from __future__ import absolute_import
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_6.apimachinery.apis.meta.v1 import ObjectMeta
 
 
-class SubjectAccessReviewStatus(Model):
-    """
-    SubjectAccessReviewStatus
-    """
-
-    allowed = Field(bool)
-    evaluationError = Field(six.text_type)
-    reason = Field(six.text_type)
-
-
-class NonResourceAttributes(Model):
-    """
-    NonResourceAttributes includes the authorization attributes available for non-
-    resource requests to the Authorizer interface
-    """
-
-    path = Field(six.text_type)
-    verb = Field(six.text_type)
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class ResourceAttributes(Model):
@@ -44,6 +32,27 @@ class ResourceAttributes(Model):
     version = Field(six.text_type)
 
 
+class NonResourceAttributes(Model):
+    """
+    NonResourceAttributes includes the authorization attributes available for non-
+    resource requests to the Authorizer interface
+    """
+
+    path = Field(six.text_type)
+    verb = Field(six.text_type)
+
+
+class SelfSubjectAccessReviewSpec(Model):
+    """
+    SelfSubjectAccessReviewSpec is a description of the access request.  Exactly
+    one of ResourceAuthorizationAttributes and NonResourceAuthorizationAttributes
+    must be set
+    """
+
+    nonResourceAttributes = Field(NonResourceAttributes)
+    resourceAttributes = Field(ResourceAttributes)
+
+
 class SubjectAccessReviewSpec(Model):
     """
     SubjectAccessReviewSpec is a description of the access request.  Exactly one of
@@ -58,20 +67,14 @@ class SubjectAccessReviewSpec(Model):
     user = Field(six.text_type)
 
 
-class SubjectAccessReview(Model):
+class SubjectAccessReviewStatus(Model):
     """
-    SubjectAccessReview checks whether or not a user or group can perform an
-    action.
+    SubjectAccessReviewStatus
     """
-    class Meta:
-        create_url = "/apis/authorization.k8s.io/v1beta1/subjectaccessreviews"
-    
-    apiVersion = Field(six.text_type, "authorization.k8s.io/v1beta1")
-    kind = Field(six.text_type, "SubjectAccessReview")
 
-    metadata = Field(ObjectMeta)
-    spec = Field(SubjectAccessReviewSpec)
-    status = Field(SubjectAccessReviewStatus)
+    allowed = RequiredField(bool)
+    evaluationError = Field(six.text_type)
+    reason = Field(six.text_type)
 
 
 class LocalSubjectAccessReview(Model):
@@ -87,19 +90,24 @@ class LocalSubjectAccessReview(Model):
     kind = Field(six.text_type, "LocalSubjectAccessReview")
 
     metadata = Field(ObjectMeta)
-    spec = Field(SubjectAccessReviewSpec)
+    spec = RequiredField(SubjectAccessReviewSpec)
     status = Field(SubjectAccessReviewStatus)
 
 
-class SelfSubjectAccessReviewSpec(Model):
+class SubjectAccessReview(Model):
     """
-    SelfSubjectAccessReviewSpec is a description of the access request.  Exactly
-    one of ResourceAuthorizationAttributes and NonResourceAuthorizationAttributes
-    must be set
+    SubjectAccessReview checks whether or not a user or group can perform an
+    action.
     """
+    class Meta:
+        create_url = "/apis/authorization.k8s.io/v1beta1/subjectaccessreviews"
+    
+    apiVersion = Field(six.text_type, "authorization.k8s.io/v1beta1")
+    kind = Field(six.text_type, "SubjectAccessReview")
 
-    nonResourceAttributes = Field(NonResourceAttributes)
-    resourceAttributes = Field(ResourceAttributes)
+    metadata = Field(ObjectMeta)
+    spec = RequiredField(SubjectAccessReviewSpec)
+    status = Field(SubjectAccessReviewStatus)
 
 
 class SelfSubjectAccessReview(Model):
@@ -116,6 +124,6 @@ class SelfSubjectAccessReview(Model):
     kind = Field(six.text_type, "SelfSubjectAccessReview")
 
     metadata = Field(ObjectMeta)
-    spec = Field(SelfSubjectAccessReviewSpec)
+    spec = RequiredField(SelfSubjectAccessReviewSpec)
     status = Field(SubjectAccessReviewStatus)
 

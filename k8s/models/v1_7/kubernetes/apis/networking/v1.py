@@ -5,17 +5,16 @@ from __future__ import absolute_import
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_7.apimachinery.apis.meta.v1 import LabelSelector, ListMeta, ObjectMeta
 
 
-class NetworkPolicyPort(Model):
-    """
-    NetworkPolicyPort describes a port to allow traffic on
-    """
-
-    port = Field(six.text_type, alt_type=int)
-    protocol = Field(six.text_type)
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class NetworkPolicyPeer(Model):
@@ -26,6 +25,15 @@ class NetworkPolicyPeer(Model):
 
     namespaceSelector = Field(LabelSelector)
     podSelector = Field(LabelSelector)
+
+
+class NetworkPolicyPort(Model):
+    """
+    NetworkPolicyPort describes a port to allow traffic on
+    """
+
+    port = Field(six.text_type, alt_type=int)
+    protocol = Field(six.text_type)
 
 
 class NetworkPolicyIngressRule(Model):
@@ -45,7 +53,7 @@ class NetworkPolicySpec(Model):
     """
 
     ingress = ListField(NetworkPolicyIngressRule)
-    podSelector = Field(LabelSelector)
+    podSelector = RequiredField(LabelSelector)
 
 
 class NetworkPolicy(Model):

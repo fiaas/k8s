@@ -7,8 +7,16 @@ import datetime
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, ReadOnlyField, RequiredField
 from k8s.models.v1_7.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
+
+
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class ScaleSpec(Model):
@@ -25,7 +33,7 @@ class CrossVersionObjectReference(Model):
     referred resource.
     """
 
-    name = Field(six.text_type)
+    name = RequiredField(six.text_type)
 
 
 class HorizontalPodAutoscalerSpec(Model):
@@ -33,10 +41,31 @@ class HorizontalPodAutoscalerSpec(Model):
     specification of a horizontal pod autoscaler.
     """
 
-    maxReplicas = Field(int)
+    maxReplicas = RequiredField(int)
     minReplicas = Field(int)
-    scaleTargetRef = Field(CrossVersionObjectReference)
+    scaleTargetRef = RequiredField(CrossVersionObjectReference)
     targetCPUUtilizationPercentage = Field(int)
+
+
+class ScaleStatus(Model):
+    """
+    ScaleStatus represents the current status of a scale subresource.
+    """
+
+    replicas = RequiredField(int)
+    selector = Field(six.text_type)
+
+
+class Scale(Model):
+    """
+    Scale represents a scaling request for a resource.
+    """
+    apiVersion = Field(six.text_type, "autoscaling/v1")
+    kind = Field(six.text_type, "Scale")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(ScaleSpec)
+    status = ReadOnlyField(ScaleStatus)
 
 
 class HorizontalPodAutoscalerStatus(Model):
@@ -45,8 +74,8 @@ class HorizontalPodAutoscalerStatus(Model):
     """
 
     currentCPUUtilizationPercentage = Field(int)
-    currentReplicas = Field(int)
-    desiredReplicas = Field(int)
+    currentReplicas = RequiredField(int)
+    desiredReplicas = RequiredField(int)
     lastScaleTime = Field(datetime.datetime)
     observedGeneration = Field(int)
 
@@ -83,25 +112,4 @@ class HorizontalPodAutoscalerList(Model):
 
     items = ListField(HorizontalPodAutoscaler)
     metadata = Field(ListMeta)
-
-
-class ScaleStatus(Model):
-    """
-    ScaleStatus represents the current status of a scale subresource.
-    """
-
-    replicas = Field(int)
-    selector = Field(six.text_type)
-
-
-class Scale(Model):
-    """
-    Scale represents a scaling request for a resource.
-    """
-    apiVersion = Field(six.text_type, "autoscaling/v1")
-    kind = Field(six.text_type, "Scale")
-
-    metadata = Field(ObjectMeta)
-    spec = Field(ScaleSpec)
-    status = Field(ScaleStatus)
 

@@ -7,414 +7,17 @@ import datetime
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, ReadOnlyField, RequiredField
 from k8s.models.v1_7.apimachinery.apis.meta.v1 import LabelSelector, ListMeta, ObjectMeta
 from k8s.models.v1_7.kubernetes.api.v1 import LoadBalancerStatus, PodTemplateSpec, SELinuxOptions
 
 
-class IngressBackend(Model):
-    """
-    IngressBackend describes all endpoints for a given service and port.
-    """
-
-    serviceName = Field(six.text_type)
-    servicePort = Field(six.text_type, alt_type=int)
-
-
-class HTTPIngressPath(Model):
-    """
-    HTTPIngressPath associates a path regex with a backend. Incoming urls matching
-    the path are forwarded to the backend.
-    """
-
-    backend = Field(IngressBackend)
-    path = Field(six.text_type)
-
-
-class HTTPIngressRuleValue(Model):
-    """
-    HTTPIngressRuleValue is a list of http selectors pointing to backends. In the
-    example: http://<host>/<path>?<searchpart> -> backend where where parts of the
-    url correspond to RFC 3986, this resource will be used to match against
-    everything after the last '/' and before the first '?' or '#'.
-    """
-
-    paths = ListField(HTTPIngressPath)
-
-
-class IngressRule(Model):
-    """
-    IngressRule represents the rules mapping the paths under a specified host to
-    the related backend services. Incoming requests are first evaluated for a host
-    match, then routed to the backend associated with the matching
-    IngressRuleValue.
-    """
-
-    host = Field(six.text_type)
-    http = Field(HTTPIngressRuleValue)
-
-
-class RollbackConfig(Model):
-    """
-    
-    """
-
-    revision = Field(int)
-
-
-class DeploymentRollback(Model):
-    """
-    DeploymentRollback stores the information required to rollback a deployment.
-    """
-    apiVersion = Field(six.text_type, "extensions/v1beta1")
-    kind = Field(six.text_type, "DeploymentRollback")
-
-    name = Field(six.text_type)
-    rollbackTo = Field(RollbackConfig)
-    updatedAnnotations = Field(dict)
-
-
-class NetworkPolicyPeer(Model):
-    """
-    
-    """
-
-    namespaceSelector = Field(LabelSelector)
-    podSelector = Field(LabelSelector)
-
-
-class DeploymentCondition(Model):
-    """
-    DeploymentCondition describes the state of a deployment at a certain point.
-    """
-
-    lastTransitionTime = Field(datetime.datetime)
-    lastUpdateTime = Field(datetime.datetime)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-    status = Field(six.text_type)
-    type = Field(six.text_type)
-
-
-class DeploymentStatus(Model):
-    """
-    DeploymentStatus is the most recently observed status of the Deployment.
-    """
-
-    availableReplicas = Field(int)
-    collisionCount = Field(int)
-    conditions = ListField(DeploymentCondition)
-    observedGeneration = Field(int)
-    readyReplicas = Field(int)
-    replicas = Field(int)
-    unavailableReplicas = Field(int)
-    updatedReplicas = Field(int)
-
-
-class HostPortRange(Model):
-    """
-    Host Port Range defines a range of host ports that will be enabled by a policy
-    for pods to use.  It requires both the start and end to be defined.
-    """
-
-    max = Field(int)
-    min = Field(int)
-
-
-class RollingUpdateDaemonSet(Model):
-    """
-    Spec to control the desired behavior of daemon set rolling update.
-    """
-
-    maxUnavailable = Field(six.text_type, alt_type=int)
-
-
-class DaemonSetUpdateStrategy(Model):
-    """
-    
-    """
-
-    rollingUpdate = Field(RollingUpdateDaemonSet)
-    type = Field(six.text_type)
-
-
-class DaemonSetSpec(Model):
-    """
-    DaemonSetSpec is the specification of a daemon set.
-    """
-
-    minReadySeconds = Field(int)
-    revisionHistoryLimit = Field(int)
-    selector = Field(LabelSelector)
-    template = Field(PodTemplateSpec)
-    templateGeneration = Field(int)
-    updateStrategy = Field(DaemonSetUpdateStrategy)
-
-
-class ReplicaSetCondition(Model):
-    """
-    ReplicaSetCondition describes the state of a replica set at a certain point.
-    """
-
-    lastTransitionTime = Field(datetime.datetime)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-    status = Field(six.text_type)
-    type = Field(six.text_type)
-
-
-class ReplicaSetStatus(Model):
-    """
-    ReplicaSetStatus represents the current status of a ReplicaSet.
-    """
-
-    availableReplicas = Field(int)
-    conditions = ListField(ReplicaSetCondition)
-    fullyLabeledReplicas = Field(int)
-    observedGeneration = Field(int)
-    readyReplicas = Field(int)
-    replicas = Field(int)
-
-
-class ScaleStatus(Model):
-    """
-    represents the current status of a scale subresource.
-    """
-
-    replicas = Field(int)
-    selector = Field(dict)
-    targetSelector = Field(six.text_type)
-
-
-class SELinuxStrategyOptions(Model):
-    """
-    SELinux  Strategy Options defines the strategy type and any options used to
-    create the strategy.
-    """
-
-    rule = Field(six.text_type)
-    seLinuxOptions = Field(SELinuxOptions)
-
-
-class IDRange(Model):
-    """
-    ID Range provides a min/max of an allowed range of IDs.
-    """
-
-    max = Field(int)
-    min = Field(int)
-
-
-class RunAsUserStrategyOptions(Model):
-    """
-    Run A sUser Strategy Options defines the strategy type and any options used to
-    create the strategy.
-    """
-
-    ranges = ListField(IDRange)
-    rule = Field(six.text_type)
-
-
-class SupplementalGroupsStrategyOptions(Model):
-    """
-    SupplementalGroupsStrategyOptions defines the strategy type and options used to
-    create the strategy.
-    """
-
-    ranges = ListField(IDRange)
-    rule = Field(six.text_type)
-
-
-class FSGroupStrategyOptions(Model):
-    """
-    FSGroupStrategyOptions defines the strategy type and options used to create the
-    strategy.
-    """
-
-    ranges = ListField(IDRange)
-    rule = Field(six.text_type)
-
-
-class PodSecurityPolicySpec(Model):
-    """
-    Pod Security Policy Spec defines the policy enforced.
-    """
-
-    allowedCapabilities = ListField(six.text_type)
-    defaultAddCapabilities = ListField(six.text_type)
-    fsGroup = Field(FSGroupStrategyOptions)
-    hostIPC = Field(bool)
-    hostNetwork = Field(bool)
-    hostPID = Field(bool)
-    hostPorts = ListField(HostPortRange)
-    privileged = Field(bool)
-    readOnlyRootFilesystem = Field(bool)
-    requiredDropCapabilities = ListField(six.text_type)
-    runAsUser = Field(RunAsUserStrategyOptions)
-    seLinux = Field(SELinuxStrategyOptions)
-    supplementalGroups = Field(SupplementalGroupsStrategyOptions)
-    volumes = ListField(six.text_type)
-
-
-class PodSecurityPolicy(Model):
-    """
-    Pod Security Policy governs the ability to make requests that affect the
-    Security Context that will be applied to a pod and container.
-    """
-    class Meta:
-        create_url = "/apis/extensions/v1beta1/podsecuritypolicies"
-        delete_url = "/apis/extensions/v1beta1/podsecuritypolicies/{name}"
-        get_url = "/apis/extensions/v1beta1/podsecuritypolicies/{name}"
-        list_all_url = "/apis/extensions/v1beta1/podsecuritypolicies"
-        update_url = "/apis/extensions/v1beta1/podsecuritypolicies/{name}"
-        watch_url = "/apis/extensions/v1beta1/watch/podsecuritypolicies/{name}"
-        watchlist_all_url = "/apis/extensions/v1beta1/watch/podsecuritypolicies"
-    
-    apiVersion = Field(six.text_type, "extensions/v1beta1")
-    kind = Field(six.text_type, "PodSecurityPolicy")
-
-    metadata = Field(ObjectMeta)
-    spec = Field(PodSecurityPolicySpec)
-
-
-class PodSecurityPolicyList(Model):
-    """
-    Pod Security Policy List is a list of PodSecurityPolicy objects.
-    """
-    apiVersion = Field(six.text_type, "extensions/v1beta1")
-    kind = Field(six.text_type, "PodSecurityPolicyList")
-
-    items = ListField(PodSecurityPolicy)
-    metadata = Field(ListMeta)
-
-
-class NetworkPolicyPort(Model):
-    """
-    
-    """
-
-    port = Field(six.text_type, alt_type=int)
-    protocol = Field(six.text_type)
-
-
-class NetworkPolicyIngressRule(Model):
-    """
-    This NetworkPolicyIngressRule matches traffic if and only if the traffic
-    matches both ports AND from.
-    """
-
-    _from = ListField(NetworkPolicyPeer)
-    ports = ListField(NetworkPolicyPort)
-
-
-class NetworkPolicySpec(Model):
-    """
-    
-    """
-
-    ingress = ListField(NetworkPolicyIngressRule)
-    podSelector = Field(LabelSelector)
-
-
-class NetworkPolicy(Model):
-    """
-    NetworkPolicy describes what network traffic is allowed for a set of Pods
-    """
-    class Meta:
-        create_url = "/apis/extensions/v1beta1/namespaces/{namespace}/networkpolicies"
-        delete_url = "/apis/extensions/v1beta1/namespaces/{namespace}/networkpolicies/{name}"
-        get_url = "/apis/extensions/v1beta1/namespaces/{namespace}/networkpolicies/{name}"
-        list_all_url = "/apis/extensions/v1beta1/networkpolicies"
-        list_ns_url = "/apis/extensions/v1beta1/namespaces/{namespace}/networkpolicies"
-        update_url = "/apis/extensions/v1beta1/namespaces/{namespace}/networkpolicies/{name}"
-        watch_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/networkpolicies/{name}"
-        watchlist_all_url = "/apis/extensions/v1beta1/watch/networkpolicies"
-        watchlist_ns_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/networkpolicies"
-    
-    apiVersion = Field(six.text_type, "extensions/v1beta1")
-    kind = Field(six.text_type, "NetworkPolicy")
-
-    metadata = Field(ObjectMeta)
-    spec = Field(NetworkPolicySpec)
-
-
-class NetworkPolicyList(Model):
-    """
-    Network Policy List is a list of NetworkPolicy objects.
-    """
-    apiVersion = Field(six.text_type, "extensions/v1beta1")
-    kind = Field(six.text_type, "NetworkPolicyList")
-
-    items = ListField(NetworkPolicy)
-    metadata = Field(ListMeta)
-
-
-class RollingUpdateDeployment(Model):
-    """
-    Spec to control the desired behavior of rolling update.
-    """
-
-    maxSurge = Field(six.text_type, alt_type=int)
-    maxUnavailable = Field(six.text_type, alt_type=int)
-
-
-class DeploymentStrategy(Model):
-    """
-    DeploymentStrategy describes how to replace existing pods with new ones.
-    """
-
-    rollingUpdate = Field(RollingUpdateDeployment)
-    type = Field(six.text_type)
-
-
-class DeploymentSpec(Model):
-    """
-    DeploymentSpec is the specification of the desired behavior of the Deployment.
-    """
-
-    minReadySeconds = Field(int)
-    paused = Field(bool)
-    progressDeadlineSeconds = Field(int)
-    replicas = Field(int)
-    revisionHistoryLimit = Field(int)
-    rollbackTo = Field(RollbackConfig)
-    selector = Field(LabelSelector)
-    strategy = Field(DeploymentStrategy)
-    template = Field(PodTemplateSpec)
-
-
-class Deployment(Model):
-    """
-    Deployment enables declarative updates for Pods and ReplicaSets.
-    """
-    class Meta:
-        create_url = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments"
-        delete_url = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments/{name}"
-        get_url = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments/{name}"
-        list_all_url = "/apis/extensions/v1beta1/deployments"
-        list_ns_url = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments"
-        update_url = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments/{name}"
-        watch_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/deployments/{name}"
-        watchlist_all_url = "/apis/extensions/v1beta1/watch/deployments"
-        watchlist_ns_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/deployments"
-    
-    apiVersion = Field(six.text_type, "extensions/v1beta1")
-    kind = Field(six.text_type, "Deployment")
-
-    metadata = Field(ObjectMeta)
-    spec = Field(DeploymentSpec)
-    status = Field(DeploymentStatus)
-
-
-class DeploymentList(Model):
-    """
-    DeploymentList is a list of Deployments.
-    """
-    apiVersion = Field(six.text_type, "extensions/v1beta1")
-    kind = Field(six.text_type, "DeploymentList")
-
-    items = ListField(Deployment)
-    metadata = Field(ListMeta)
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class APIVersion(Model):
@@ -467,24 +70,90 @@ class IngressStatus(Model):
     loadBalancer = Field(LoadBalancerStatus)
 
 
-class ScaleSpec(Model):
+class IDRange(Model):
     """
-    describes the attributes of a scale subresource
+    ID Range provides a min/max of an allowed range of IDs.
     """
 
+    max = RequiredField(int)
+    min = RequiredField(int)
+
+
+class RunAsUserStrategyOptions(Model):
+    """
+    Run A sUser Strategy Options defines the strategy type and any options used to
+    create the strategy.
+    """
+
+    ranges = ListField(IDRange)
+    rule = RequiredField(six.text_type)
+
+
+class SupplementalGroupsStrategyOptions(Model):
+    """
+    SupplementalGroupsStrategyOptions defines the strategy type and options used to
+    create the strategy.
+    """
+
+    ranges = ListField(IDRange)
+    rule = Field(six.text_type)
+
+
+class FSGroupStrategyOptions(Model):
+    """
+    FSGroupStrategyOptions defines the strategy type and options used to create the
+    strategy.
+    """
+
+    ranges = ListField(IDRange)
+    rule = Field(six.text_type)
+
+
+class DeploymentCondition(Model):
+    """
+    DeploymentCondition describes the state of a deployment at a certain point.
+    """
+
+    lastTransitionTime = Field(datetime.datetime)
+    lastUpdateTime = Field(datetime.datetime)
+    message = Field(six.text_type)
+    reason = Field(six.text_type)
+    status = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
+
+
+class DeploymentStatus(Model):
+    """
+    DeploymentStatus is the most recently observed status of the Deployment.
+    """
+
+    availableReplicas = Field(int)
+    collisionCount = Field(int)
+    conditions = ListField(DeploymentCondition)
+    observedGeneration = Field(int)
+    readyReplicas = Field(int)
     replicas = Field(int)
+    unavailableReplicas = Field(int)
+    updatedReplicas = Field(int)
 
 
-class Scale(Model):
+class SELinuxStrategyOptions(Model):
     """
-    represents a scaling request for a resource.
+    SELinux  Strategy Options defines the strategy type and any options used to
+    create the strategy.
     """
-    apiVersion = Field(six.text_type, "extensions/v1beta1")
-    kind = Field(six.text_type, "Scale")
 
-    metadata = Field(ObjectMeta)
-    spec = Field(ScaleSpec)
-    status = Field(ScaleStatus)
+    rule = RequiredField(six.text_type)
+    seLinuxOptions = Field(SELinuxOptions)
+
+
+class NetworkPolicyPort(Model):
+    """
+    
+    """
+
+    port = Field(six.text_type, alt_type=int)
+    protocol = Field(six.text_type)
 
 
 class DaemonSetStatus(Model):
@@ -493,14 +162,44 @@ class DaemonSetStatus(Model):
     """
 
     collisionCount = Field(int)
-    currentNumberScheduled = Field(int)
-    desiredNumberScheduled = Field(int)
+    currentNumberScheduled = RequiredField(int)
+    desiredNumberScheduled = RequiredField(int)
     numberAvailable = Field(int)
-    numberMisscheduled = Field(int)
-    numberReady = Field(int)
+    numberMisscheduled = RequiredField(int)
+    numberReady = RequiredField(int)
     numberUnavailable = Field(int)
     observedGeneration = Field(int)
     updatedNumberScheduled = Field(int)
+
+
+class RollingUpdateDaemonSet(Model):
+    """
+    Spec to control the desired behavior of daemon set rolling update.
+    """
+
+    maxUnavailable = Field(six.text_type, alt_type=int)
+
+
+class DaemonSetUpdateStrategy(Model):
+    """
+    
+    """
+
+    rollingUpdate = Field(RollingUpdateDaemonSet)
+    type = Field(six.text_type)
+
+
+class DaemonSetSpec(Model):
+    """
+    DaemonSetSpec is the specification of a daemon set.
+    """
+
+    minReadySeconds = Field(int)
+    revisionHistoryLimit = Field(int)
+    selector = Field(LabelSelector)
+    template = RequiredField(PodTemplateSpec)
+    templateGeneration = Field(int)
+    updateStrategy = Field(DaemonSetUpdateStrategy)
 
 
 class DaemonSet(Model):
@@ -523,7 +222,7 @@ class DaemonSet(Model):
 
     metadata = Field(ObjectMeta)
     spec = Field(DaemonSetSpec)
-    status = Field(DaemonSetStatus)
+    status = ReadOnlyField(DaemonSetStatus)
 
 
 class DaemonSetList(Model):
@@ -548,40 +247,6 @@ class ReplicaSetSpec(Model):
     template = Field(PodTemplateSpec)
 
 
-class ReplicaSet(Model):
-    """
-    ReplicaSet represents the configuration of a ReplicaSet.
-    """
-    class Meta:
-        create_url = "/apis/extensions/v1beta1/namespaces/{namespace}/replicasets"
-        delete_url = "/apis/extensions/v1beta1/namespaces/{namespace}/replicasets/{name}"
-        get_url = "/apis/extensions/v1beta1/namespaces/{namespace}/replicasets/{name}"
-        list_all_url = "/apis/extensions/v1beta1/replicasets"
-        list_ns_url = "/apis/extensions/v1beta1/namespaces/{namespace}/replicasets"
-        update_url = "/apis/extensions/v1beta1/namespaces/{namespace}/replicasets/{name}"
-        watch_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/replicasets/{name}"
-        watchlist_all_url = "/apis/extensions/v1beta1/watch/replicasets"
-        watchlist_ns_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/replicasets"
-    
-    apiVersion = Field(six.text_type, "extensions/v1beta1")
-    kind = Field(six.text_type, "ReplicaSet")
-
-    metadata = Field(ObjectMeta)
-    spec = Field(ReplicaSetSpec)
-    status = Field(ReplicaSetStatus)
-
-
-class ReplicaSetList(Model):
-    """
-    ReplicaSetList is a collection of ReplicaSets.
-    """
-    apiVersion = Field(six.text_type, "extensions/v1beta1")
-    kind = Field(six.text_type, "ReplicaSetList")
-
-    items = ListField(ReplicaSet)
-    metadata = Field(ListMeta)
-
-
 class IngressTLS(Model):
     """
     IngressTLS describes the transport layer security associated with an Ingress.
@@ -589,6 +254,144 @@ class IngressTLS(Model):
 
     hosts = ListField(six.text_type)
     secretName = Field(six.text_type)
+
+
+class RollingUpdateDeployment(Model):
+    """
+    Spec to control the desired behavior of rolling update.
+    """
+
+    maxSurge = Field(six.text_type, alt_type=int)
+    maxUnavailable = Field(six.text_type, alt_type=int)
+
+
+class DeploymentStrategy(Model):
+    """
+    DeploymentStrategy describes how to replace existing pods with new ones.
+    """
+
+    rollingUpdate = Field(RollingUpdateDeployment)
+    type = Field(six.text_type)
+
+
+class RollbackConfig(Model):
+    """
+    
+    """
+
+    revision = Field(int)
+
+
+class DeploymentRollback(Model):
+    """
+    DeploymentRollback stores the information required to rollback a deployment.
+    """
+    apiVersion = Field(six.text_type, "extensions/v1beta1")
+    kind = Field(six.text_type, "DeploymentRollback")
+
+    name = RequiredField(six.text_type)
+    rollbackTo = RequiredField(RollbackConfig)
+    updatedAnnotations = Field(dict)
+
+
+class DeploymentSpec(Model):
+    """
+    DeploymentSpec is the specification of the desired behavior of the Deployment.
+    """
+
+    minReadySeconds = Field(int)
+    paused = Field(bool)
+    progressDeadlineSeconds = Field(int)
+    replicas = Field(int)
+    revisionHistoryLimit = Field(int)
+    rollbackTo = Field(RollbackConfig)
+    selector = Field(LabelSelector)
+    strategy = Field(DeploymentStrategy)
+    template = RequiredField(PodTemplateSpec)
+
+
+class Deployment(Model):
+    """
+    Deployment enables declarative updates for Pods and ReplicaSets.
+    """
+    class Meta:
+        create_url = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments"
+        delete_url = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments/{name}"
+        get_url = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments/{name}"
+        list_all_url = "/apis/extensions/v1beta1/deployments"
+        list_ns_url = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments"
+        update_url = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments/{name}"
+        watch_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/deployments/{name}"
+        watchlist_all_url = "/apis/extensions/v1beta1/watch/deployments"
+        watchlist_ns_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/deployments"
+    
+    apiVersion = Field(six.text_type, "extensions/v1beta1")
+    kind = Field(six.text_type, "Deployment")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(DeploymentSpec)
+    status = Field(DeploymentStatus)
+
+
+class DeploymentList(Model):
+    """
+    DeploymentList is a list of Deployments.
+    """
+    apiVersion = Field(six.text_type, "extensions/v1beta1")
+    kind = Field(six.text_type, "DeploymentList")
+
+    items = ListField(Deployment)
+    metadata = Field(ListMeta)
+
+
+class ScaleSpec(Model):
+    """
+    describes the attributes of a scale subresource
+    """
+
+    replicas = Field(int)
+
+
+class IngressBackend(Model):
+    """
+    IngressBackend describes all endpoints for a given service and port.
+    """
+
+    serviceName = RequiredField(six.text_type)
+    servicePort = RequiredField(six.text_type, alt_type=int)
+
+
+class HTTPIngressPath(Model):
+    """
+    HTTPIngressPath associates a path regex with a backend. Incoming urls matching
+    the path are forwarded to the backend.
+    """
+
+    backend = RequiredField(IngressBackend)
+    path = Field(six.text_type)
+
+
+class HTTPIngressRuleValue(Model):
+    """
+    HTTPIngressRuleValue is a list of http selectors pointing to backends. In the
+    example: http://<host>/<path>?<searchpart> -> backend where where parts of the
+    url correspond to RFC 3986, this resource will be used to match against
+    everything after the last '/' and before the first '?' or '#'.
+    """
+
+    paths = ListField(HTTPIngressPath)
+
+
+class IngressRule(Model):
+    """
+    IngressRule represents the rules mapping the paths under a specified host to
+    the related backend services. Incoming requests are first evaluated for a host
+    match, then routed to the backend associated with the matching
+    IngressRuleValue.
+    """
+
+    host = Field(six.text_type)
+    http = Field(HTTPIngressRuleValue)
 
 
 class IngressSpec(Model):
@@ -635,5 +438,210 @@ class IngressList(Model):
     kind = Field(six.text_type, "IngressList")
 
     items = ListField(Ingress)
+    metadata = Field(ListMeta)
+
+
+class HostPortRange(Model):
+    """
+    Host Port Range defines a range of host ports that will be enabled by a policy
+    for pods to use.  It requires both the start and end to be defined.
+    """
+
+    max = RequiredField(int)
+    min = RequiredField(int)
+
+
+class PodSecurityPolicySpec(Model):
+    """
+    Pod Security Policy Spec defines the policy enforced.
+    """
+
+    allowedCapabilities = ListField(six.text_type)
+    defaultAddCapabilities = ListField(six.text_type)
+    fsGroup = RequiredField(FSGroupStrategyOptions)
+    hostIPC = Field(bool)
+    hostNetwork = Field(bool)
+    hostPID = Field(bool)
+    hostPorts = ListField(HostPortRange)
+    privileged = Field(bool)
+    readOnlyRootFilesystem = Field(bool)
+    requiredDropCapabilities = ListField(six.text_type)
+    runAsUser = RequiredField(RunAsUserStrategyOptions)
+    seLinux = RequiredField(SELinuxStrategyOptions)
+    supplementalGroups = RequiredField(SupplementalGroupsStrategyOptions)
+    volumes = ListField(six.text_type)
+
+
+class PodSecurityPolicy(Model):
+    """
+    Pod Security Policy governs the ability to make requests that affect the
+    Security Context that will be applied to a pod and container.
+    """
+    class Meta:
+        create_url = "/apis/extensions/v1beta1/podsecuritypolicies"
+        delete_url = "/apis/extensions/v1beta1/podsecuritypolicies/{name}"
+        get_url = "/apis/extensions/v1beta1/podsecuritypolicies/{name}"
+        list_all_url = "/apis/extensions/v1beta1/podsecuritypolicies"
+        update_url = "/apis/extensions/v1beta1/podsecuritypolicies/{name}"
+        watch_url = "/apis/extensions/v1beta1/watch/podsecuritypolicies/{name}"
+        watchlist_all_url = "/apis/extensions/v1beta1/watch/podsecuritypolicies"
+    
+    apiVersion = Field(six.text_type, "extensions/v1beta1")
+    kind = Field(six.text_type, "PodSecurityPolicy")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(PodSecurityPolicySpec)
+
+
+class PodSecurityPolicyList(Model):
+    """
+    Pod Security Policy List is a list of PodSecurityPolicy objects.
+    """
+    apiVersion = Field(six.text_type, "extensions/v1beta1")
+    kind = Field(six.text_type, "PodSecurityPolicyList")
+
+    items = ListField(PodSecurityPolicy)
+    metadata = Field(ListMeta)
+
+
+class NetworkPolicyPeer(Model):
+    """
+    
+    """
+
+    namespaceSelector = Field(LabelSelector)
+    podSelector = Field(LabelSelector)
+
+
+class NetworkPolicyIngressRule(Model):
+    """
+    This NetworkPolicyIngressRule matches traffic if and only if the traffic
+    matches both ports AND from.
+    """
+
+    _from = ListField(NetworkPolicyPeer)
+    ports = ListField(NetworkPolicyPort)
+
+
+class NetworkPolicySpec(Model):
+    """
+    
+    """
+
+    ingress = ListField(NetworkPolicyIngressRule)
+    podSelector = RequiredField(LabelSelector)
+
+
+class NetworkPolicy(Model):
+    """
+    NetworkPolicy describes what network traffic is allowed for a set of Pods
+    """
+    class Meta:
+        create_url = "/apis/extensions/v1beta1/namespaces/{namespace}/networkpolicies"
+        delete_url = "/apis/extensions/v1beta1/namespaces/{namespace}/networkpolicies/{name}"
+        get_url = "/apis/extensions/v1beta1/namespaces/{namespace}/networkpolicies/{name}"
+        list_all_url = "/apis/extensions/v1beta1/networkpolicies"
+        list_ns_url = "/apis/extensions/v1beta1/namespaces/{namespace}/networkpolicies"
+        update_url = "/apis/extensions/v1beta1/namespaces/{namespace}/networkpolicies/{name}"
+        watch_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/networkpolicies/{name}"
+        watchlist_all_url = "/apis/extensions/v1beta1/watch/networkpolicies"
+        watchlist_ns_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/networkpolicies"
+    
+    apiVersion = Field(six.text_type, "extensions/v1beta1")
+    kind = Field(six.text_type, "NetworkPolicy")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(NetworkPolicySpec)
+
+
+class NetworkPolicyList(Model):
+    """
+    Network Policy List is a list of NetworkPolicy objects.
+    """
+    apiVersion = Field(six.text_type, "extensions/v1beta1")
+    kind = Field(six.text_type, "NetworkPolicyList")
+
+    items = ListField(NetworkPolicy)
+    metadata = Field(ListMeta)
+
+
+class ScaleStatus(Model):
+    """
+    represents the current status of a scale subresource.
+    """
+
+    replicas = RequiredField(int)
+    selector = Field(dict)
+    targetSelector = Field(six.text_type)
+
+
+class Scale(Model):
+    """
+    represents a scaling request for a resource.
+    """
+    apiVersion = Field(six.text_type, "extensions/v1beta1")
+    kind = Field(six.text_type, "Scale")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(ScaleSpec)
+    status = ReadOnlyField(ScaleStatus)
+
+
+class ReplicaSetCondition(Model):
+    """
+    ReplicaSetCondition describes the state of a replica set at a certain point.
+    """
+
+    lastTransitionTime = Field(datetime.datetime)
+    message = Field(six.text_type)
+    reason = Field(six.text_type)
+    status = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
+
+
+class ReplicaSetStatus(Model):
+    """
+    ReplicaSetStatus represents the current status of a ReplicaSet.
+    """
+
+    availableReplicas = Field(int)
+    conditions = ListField(ReplicaSetCondition)
+    fullyLabeledReplicas = Field(int)
+    observedGeneration = Field(int)
+    readyReplicas = Field(int)
+    replicas = RequiredField(int)
+
+
+class ReplicaSet(Model):
+    """
+    ReplicaSet represents the configuration of a ReplicaSet.
+    """
+    class Meta:
+        create_url = "/apis/extensions/v1beta1/namespaces/{namespace}/replicasets"
+        delete_url = "/apis/extensions/v1beta1/namespaces/{namespace}/replicasets/{name}"
+        get_url = "/apis/extensions/v1beta1/namespaces/{namespace}/replicasets/{name}"
+        list_all_url = "/apis/extensions/v1beta1/replicasets"
+        list_ns_url = "/apis/extensions/v1beta1/namespaces/{namespace}/replicasets"
+        update_url = "/apis/extensions/v1beta1/namespaces/{namespace}/replicasets/{name}"
+        watch_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/replicasets/{name}"
+        watchlist_all_url = "/apis/extensions/v1beta1/watch/replicasets"
+        watchlist_ns_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/replicasets"
+    
+    apiVersion = Field(six.text_type, "extensions/v1beta1")
+    kind = Field(six.text_type, "ReplicaSet")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(ReplicaSetSpec)
+    status = ReadOnlyField(ReplicaSetStatus)
+
+
+class ReplicaSetList(Model):
+    """
+    ReplicaSetList is a collection of ReplicaSets.
+    """
+    apiVersion = Field(six.text_type, "extensions/v1beta1")
+    kind = Field(six.text_type, "ReplicaSetList")
+
+    items = ListField(ReplicaSet)
     metadata = Field(ListMeta)
 

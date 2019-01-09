@@ -7,8 +7,16 @@ import datetime
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_7.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
+
+
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class APIServiceCondition(Model):
@@ -19,8 +27,8 @@ class APIServiceCondition(Model):
     lastTransitionTime = Field(datetime.datetime)
     message = Field(six.text_type)
     reason = Field(six.text_type)
-    status = Field(six.text_type)
-    type = Field(six.text_type)
+    status = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
 
 
 class APIServiceStatus(Model):
@@ -47,13 +55,13 @@ class APIServiceSpec(Model):
     verification.
     """
 
-    caBundle = Field(six.text_type)
+    caBundle = RequiredField(six.text_type)
     group = Field(six.text_type)
-    groupPriorityMinimum = Field(int)
+    groupPriorityMinimum = RequiredField(int)
     insecureSkipTLSVerify = Field(bool)
-    service = Field(ServiceReference)
+    service = RequiredField(ServiceReference)
     version = Field(six.text_type)
-    versionPriority = Field(int)
+    versionPriority = RequiredField(int)
 
 
 class APIService(Model):

@@ -5,17 +5,16 @@ from __future__ import absolute_import
 import six
 
 from k8s.base import Model
-from k8s.fields import Field, ListField
+from k8s.fields import Field, ListField, RequiredField
 from k8s.models.v1_7.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
 
 
-class RoleRef(Model):
-    """
-    RoleRef contains information that points to the role being used
-    """
-
-    apiGroup = Field(six.text_type)
-    name = Field(six.text_type)
+###############################################################################
+# This file is auto-generated! Do not edit!
+#
+# Codestyle checking is disabled for this file
+# flake8: noqa
+###############################################################################
 
 
 class Subject(Model):
@@ -26,8 +25,17 @@ class Subject(Model):
     """
 
     apiGroup = Field(six.text_type)
-    name = Field(six.text_type)
+    name = RequiredField(six.text_type)
     namespace = Field(six.text_type)
+
+
+class RoleRef(Model):
+    """
+    RoleRef contains information that points to the role being used
+    """
+
+    apiGroup = RequiredField(six.text_type)
+    name = RequiredField(six.text_type)
 
 
 class RoleBinding(Model):
@@ -53,7 +61,7 @@ class RoleBinding(Model):
     kind = Field(six.text_type, "RoleBinding")
 
     metadata = Field(ObjectMeta)
-    roleRef = Field(RoleRef)
+    roleRef = RequiredField(RoleRef)
     subjects = ListField(Subject)
 
 
@@ -87,7 +95,7 @@ class ClusterRoleBinding(Model):
     kind = Field(six.text_type, "ClusterRoleBinding")
 
     metadata = Field(ObjectMeta)
-    roleRef = Field(RoleRef)
+    roleRef = RequiredField(RoleRef)
     subjects = ListField(Subject)
 
 
@@ -114,38 +122,6 @@ class PolicyRule(Model):
     resourceNames = ListField(six.text_type)
     resources = ListField(six.text_type)
     verbs = ListField(six.text_type)
-
-
-class ClusterRole(Model):
-    """
-    ClusterRole is a cluster level, logical grouping of PolicyRules that can be
-    referenced as a unit by a RoleBinding or ClusterRoleBinding.
-    """
-    class Meta:
-        create_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles"
-        delete_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles/{name}"
-        get_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles/{name}"
-        list_all_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles"
-        update_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles/{name}"
-        watch_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/clusterroles/{name}"
-        watchlist_all_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/clusterroles"
-    
-    apiVersion = Field(six.text_type, "rbac.authorization.k8s.io/v1beta1")
-    kind = Field(six.text_type, "ClusterRole")
-
-    metadata = Field(ObjectMeta)
-    rules = ListField(PolicyRule)
-
-
-class ClusterRoleList(Model):
-    """
-    ClusterRoleList is a collection of ClusterRoles
-    """
-    apiVersion = Field(six.text_type, "rbac.authorization.k8s.io/v1beta1")
-    kind = Field(six.text_type, "ClusterRoleList")
-
-    items = ListField(ClusterRole)
-    metadata = Field(ListMeta)
 
 
 class Role(Model):
@@ -179,5 +155,37 @@ class RoleList(Model):
     kind = Field(six.text_type, "RoleList")
 
     items = ListField(Role)
+    metadata = Field(ListMeta)
+
+
+class ClusterRole(Model):
+    """
+    ClusterRole is a cluster level, logical grouping of PolicyRules that can be
+    referenced as a unit by a RoleBinding or ClusterRoleBinding.
+    """
+    class Meta:
+        create_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles"
+        delete_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles/{name}"
+        get_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles/{name}"
+        list_all_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles"
+        update_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles/{name}"
+        watch_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/clusterroles/{name}"
+        watchlist_all_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/clusterroles"
+    
+    apiVersion = Field(six.text_type, "rbac.authorization.k8s.io/v1beta1")
+    kind = Field(six.text_type, "ClusterRole")
+
+    metadata = Field(ObjectMeta)
+    rules = ListField(PolicyRule)
+
+
+class ClusterRoleList(Model):
+    """
+    ClusterRoleList is a collection of ClusterRoles
+    """
+    apiVersion = Field(six.text_type, "rbac.authorization.k8s.io/v1beta1")
+    kind = Field(six.text_type, "ClusterRoleList")
+
+    items = ListField(ClusterRole)
     metadata = Field(ListMeta)
 
