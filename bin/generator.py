@@ -15,7 +15,7 @@ from cachecontrol.caches import FileCache
 from jinja2 import Environment, FileSystemLoader
 
 URL_TEMPLATE = "https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.{}/api/openapi-spec/swagger.json"
-VERSION_RANGE = (6, 8)
+VERSION_RANGE = (6, 9)
 HTTP_CLIENT_SESSION = CacheControl(requests.session(), cache=FileCache(appdirs.user_cache_dir("k8s-generator")))
 TYPE_MAPPING = {
     "integer": "int",
@@ -382,6 +382,10 @@ class Generator(object):
         print("Generating models in {}".format(self._output_dir))
         for package in self._packages:
             self._generate_package(package)
+        for root, dirs, files in os.walk(self._output_dir, topdown=False):
+            current_contents = os.listdir(root)
+            if len(current_contents) == 0:
+                os.rmdir(root)
         for root, dirs, files in os.walk(self._output_dir):
             if "__init__.py" in files:
                 continue
