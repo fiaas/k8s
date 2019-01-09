@@ -14,6 +14,18 @@ from .fields import Field
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
 
+URL_FIELDS = (
+    "create_url",
+    "delete_url",
+    "get_url",
+    "update_url",
+    "list_all_url",
+    "list_ns_url",
+    "watch_url",
+    "watchlist_all_url",
+    "watchlist_ns_url",
+)
+
 
 class MetaModel(type):
     """Metaclass for Model
@@ -33,13 +45,11 @@ class MetaModel(type):
         if attr_meta:
             bases += (ApiMixIn,)
         meta = {
-            "url_template": getattr(attr_meta, "url_template", ""),
-            "list_url": getattr(attr_meta, "list_url", ""),
-            "watch_list_url": getattr(attr_meta, "watch_list_url", ""),
-            "watch_list_url_template": getattr(attr_meta, "watch_list_url_template", ""),
             "fields": [],
             "field_names": []
         }
+        for url_field in URL_FIELDS:
+            meta[url_field] = getattr(attr_meta, url_field, "")
         field_names = meta["field_names"]
         fields = meta["fields"]
         for k, v in list(attrs.items()):
@@ -60,17 +70,13 @@ class ApiMixIn(object):
     _client = Client()
 
     @classmethod
-    def _build_url(cls, **kwargs):
-        return cls._meta.url_template.format(**kwargs)
-
-    @classmethod
     def find(cls, name, namespace="default", labels=None):
         if namespace is None:
-            if not cls._meta.list_url:
-                raise NotImplementedError("Cannot find without namespace, no list_url defined on class {}".format(cls))
-            url = cls._meta.list_url
+            url = cls._meta.list_all_url
         else:
-            url = cls._build_url(name="", namespace=namespace)
+            url = cls._meta.list_ns_url.format(namespace=namespace)
+        if not url:
+            raise NotImplementedError("No URL defined for find on {}".format(cls.__name__))
         if labels:
             selector = ",".join("{}={}".format(k, v) for k, v in labels.items())
         else:
@@ -81,11 +87,11 @@ class ApiMixIn(object):
     @classmethod
     def list(cls, namespace="default"):
         if namespace is None:
-            if not cls._meta.list_url:
-                raise NotImplementedError("Cannot list without namespace, no list_url defined on class {}".format(cls))
-            url = cls._meta.list_url
+            url = cls._meta.list_all_url
         else:
-            url = cls._build_url(name="", namespace=namespace)
+            url = cls._meta.list_ns_url.format(namespace=namespace)
+        if not url:
+            raise NotImplementedError("No URL defined for list on {}".format(cls.__name__))
         resp = cls._client.get(url)
         return [cls.from_dict(item) for item in resp.json()[u"items"]]
 
@@ -93,16 +99,24 @@ class ApiMixIn(object):
     def watch_list(cls, namespace=None):
         """Return a generator that yields WatchEvents of cls"""
         if namespace:
-            if cls._meta.watch_list_url_template:
-                url = cls._meta.watch_list_url_template.format(namespace=namespace)
-            else:
-                raise NotImplementedError(
-                    "Cannot watch_list with namespace, no watch_list_url_template defined on class {}".format(cls))
+            url = cls._meta.watchlist_ns_url.format(namespace=namespace)
         else:
-            url = cls._meta.watch_list_url
-            if not url:
-                raise NotImplementedError("Cannot watch_list, no watch_list_url defined on class {}".format(cls))
+            url = cls._meta.watchlist_all_url
+        if not url:
+            raise NotImplementedError("No URL defined for watch_list on {}".format(cls.__name__))
+        for event in cls._watch(url):
+            yield event
 
+    @classmethod
+    def watch(cls, name, namespace="default"):
+        url = cls._meta.watch_url.format(name=name, namespace=namespace)
+        if not url:
+            raise NotImplementedError("No URL defined for watch on {}".format(cls.__name__))
+        for event in cls._watch(url):
+            yield event
+
+    @classmethod
+    def _watch(cls, url):
         resp = cls._client.get(url, stream=True, timeout=None)
         for line in resp.iter_lines(chunk_size=None):
             if line:
@@ -116,7 +130,9 @@ class ApiMixIn(object):
     @classmethod
     def get(cls, name, namespace="default"):
         """Get from API server if it exists"""
-        url = cls._build_url(name=name, namespace=namespace)
+        url = cls._meta.get_url.format(name=name, namespace=namespace)
+        if not url:
+            raise NotImplementedError("No URL defined for get on {}".format(cls.__name__))
         resp = cls._client.get(url)
         instance = cls.from_dict(resp.json())
         return instance
@@ -135,17 +151,23 @@ class ApiMixIn(object):
 
     @classmethod
     def delete(cls, name, namespace="default", **kwargs):
-        url = cls._build_url(name=name, namespace=namespace)
+        url = cls._meta.delete_url.format(name=name, namespace=namespace)
+        if not url:
+            raise NotImplementedError("No URL defined for delete on {}".format(cls.__name__))
         cls._client.delete(url, **kwargs)
 
     def save(self):
         """Save to API server, either update if existing, or create if new"""
         if self._new:
-            url = self._build_url(name="", namespace=self.metadata.namespace)
+            url = self._meta.create_url.format(namespace=self.metadata.namespace)
+            if not url:
+                raise NotImplementedError("No URL defined for save on {}".format(self.__class__.__name__))
             resp = self._client.post(url, self.as_dict())
             self._new = False
         else:
-            url = self._build_url(name=self.metadata.name, namespace=self.metadata.namespace)
+            url = self._meta.update_url.format(name=self.metadata.name, namespace=self.metadata.namespace)
+            if not url:
+                raise NotImplementedError("No URL defined for save on {}".format(self.__class__.__name__))
             resp = self._client.put(url, self.as_dict())
         self.update_from_dict(resp.json())
 
@@ -187,6 +209,7 @@ class Model(six.with_metaclass(MetaModel)):
     def merge(self, other):
         for field in self._meta.fields:
             setattr(self, field.name, getattr(other, field.name))
+
     update = merge  # For backwards compatibility
 
     def update_from_dict(self, d):

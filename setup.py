@@ -23,6 +23,7 @@ TESTS_REQ = [
     "pytest-html==1.19.0",
     "pytest-cov==2.6.0",
     "pytest-helpers-namespace==2017.11.11",
+    "pytest-xdist==1.25.0",
     'pytest==3.8.2',
     "GitPython==2.1.11",
 ]
@@ -31,6 +32,12 @@ TESTS_REQ = [
 EXTRA_REQ = [
     "pluggy==0.7.1",
     "prospector==1.1.2",
+]
+
+GENERATOR_REQ = [
+    "appdirs==1.4.3",
+    "cachecontrol[filecache]==0.12.5",
+    "jinja2==2.10",
 ]
 
 
@@ -68,7 +75,7 @@ def main():
         install_requires=GENERIC_REQ,
         setup_requires=['pytest-runner', 'wheel', 'setuptools_scm'],
         extras_require={
-            "dev": TESTS_REQ + CODE_QUALITY_REQ + EXTRA_REQ,
+            "dev": TESTS_REQ + CODE_QUALITY_REQ + EXTRA_REQ + GENERATOR_REQ,
             "codacy": ["codacy-coverage"],
             "release": ["gitpython", "twine"],
             "docs": ["Sphinx>=1.6.3"]

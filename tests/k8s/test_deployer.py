@@ -6,14 +6,17 @@ import pytest
 from six import u
 
 from k8s.client import NotFound
-from k8s.models.common import ObjectMeta
-from k8s.models.deployment import Deployment, DeploymentSpec, LabelSelector, RollingUpdateDeployment, \
-    DeploymentStrategy
-from k8s.models.pod import ContainerPort, Container, LocalObjectReference, Probe, HTTPGetAction, TCPSocketAction, \
-    PodTemplateSpec, PodSpec
+from k8s.models.v1_6.apimachinery.apis.meta.v1 import LabelSelector, ObjectMeta
+from k8s.models.v1_6.kubernetes.api.v1 import ContainerPort, HTTPGetAction, Probe, TCPSocketAction, \
+    Container, LocalObjectReference, PodSpec, PodTemplateSpec
+from k8s.models.v1_6.kubernetes.apis.extensions.v1beta1 import Deployment, RollingUpdateDeployment, \
+    DeploymentStrategy, DeploymentSpec
 
 NAME = "my-name"
 NAMESPACE = "my-namespace"
+POST_URI = Deployment._meta.create_url.format(namespace=NAMESPACE)
+PUT_URI = Deployment._meta.update_url.format(name=NAME, namespace=NAMESPACE)
+DELETE_URI = Deployment._meta.delete_url.format(name=NAME, namespace=NAMESPACE)
 
 
 @pytest.mark.usefixtures("k8s_config")
@@ -33,7 +36,7 @@ class TestDeployer(object):
         deployment.save()
         assert not deployment._new
 
-        pytest.helpers.assert_any_call(post, _uri(NAMESPACE), call_params)
+        pytest.helpers.assert_any_call(post, POST_URI, call_params)
 
     def test_created_if_not_exists_with_percentage_rollout_strategy(self, post, api_get):
         api_get.side_effect = NotFound()
@@ -47,7 +50,7 @@ class TestDeployer(object):
         deployment.save()
         assert not deployment._new
 
-        pytest.helpers.assert_any_call(post, _uri(NAMESPACE), call_params)
+        pytest.helpers.assert_any_call(post, POST_URI, call_params)
 
     def test_updated_if_exists(self, get, put):
         mock_response = _create_mock_response()
@@ -61,11 +64,11 @@ class TestDeployer(object):
         put.return_value.json.return_value = call_params
 
         from_api.save()
-        pytest.helpers.assert_any_call(put, _uri(NAMESPACE, NAME), call_params)
+        pytest.helpers.assert_any_call(put, PUT_URI, call_params)
 
     def test_delete(self, delete):
         Deployment.delete(NAME, namespace=NAMESPACE)
-        pytest.helpers.assert_any_call(delete, _uri(NAMESPACE, NAME))
+        pytest.helpers.assert_any_call(delete, DELETE_URI)
 
 
 def _create_default_deployment():
@@ -164,7 +167,3 @@ def _create_mock_response():
         }
     }
     return mock_response
-
-
-def _uri(namespace, name=""):
-    return "/apis/extensions/v1beta1/namespaces/{namespace}/deployments/{name}".format(name=name, namespace=namespace)

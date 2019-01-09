@@ -6,13 +6,15 @@ import mock
 import pytest
 
 from k8s.client import NotFound
-from k8s.models.common import ObjectMeta
-from k8s.models.pod import Pod, ContainerPort, Container, LocalObjectReference, PodSpec, Volume, VolumeMount, \
-    SecretVolumeSource
+from k8s.models.v1_6.apimachinery.apis.meta.v1 import ObjectMeta
+from k8s.models.v1_6.kubernetes.api.v1 import Pod, ContainerPort, VolumeMount, Volume, SecretVolumeSource, Container, \
+    LocalObjectReference, PodSpec
 
 NAME = "my-name"
 NAMESPACE = "my-namespace"
-POD_URI = Pod._meta.url_template.format(name="", namespace=NAMESPACE)
+POST_URI = Pod._meta.create_url.format(namespace=NAMESPACE)
+PUT_URI = Pod._meta.update_url.format(name=NAME, namespace=NAMESPACE)
+DELETE_URI = Pod._meta.delete_url.format(name=NAME, namespace=NAMESPACE)
 
 
 @pytest.mark.usefixtures("logger", "k8s_config")
@@ -31,7 +33,7 @@ class TestPod(object):
         assert pod._new
         pod.save()
         assert not pod._new
-        pytest.helpers.assert_any_call(post, POD_URI, call_params)
+        pytest.helpers.assert_any_call(post, POST_URI, call_params)
 
     def test_get_or_create_pod_not_new(self, put, get):
         mock_response = mock.Mock()
@@ -109,13 +111,13 @@ class TestPod(object):
         put.return_value.json.return_value = call_params
 
         pod.save()
-        pytest.helpers.assert_any_call(put, POD_URI + NAME, call_params)
+        pytest.helpers.assert_any_call(put, PUT_URI, call_params)
 
     def test_pod_deleted(self, delete):
         Pod.delete(NAME, NAMESPACE)
 
         # call delete with service_name
-        pytest.helpers.assert_any_call(delete, POD_URI + NAME)
+        pytest.helpers.assert_any_call(delete, DELETE_URI)
 
 
 def _create_pod():

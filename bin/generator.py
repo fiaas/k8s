@@ -14,7 +14,7 @@ from cachecontrol.caches import FileCache
 from jinja2 import Environment, FileSystemLoader
 
 URL_TEMPLATE = "https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.{}/api/openapi-spec/swagger.json"
-VERSION_RANGE = (6, 14)
+VERSION_RANGE = (6, 8)
 HTTP_CLIENT_SESSION = CacheControl(requests.session(), cache=FileCache(appdirs.user_cache_dir("k8s-generator")))
 TYPE_MAPPING = {
     "integer": "int",
@@ -37,7 +37,9 @@ TYPE_MAPPING = {
 REF_PATTERN = re.compile(r"io\.k8s\.(.+)")
 OPERATION_ID_TO_ACTION = {}
 OPERATION_ID_TO_GVK = {}
-
+PYTHON2_KEYWORDS = ['and', 'as', 'assert', 'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except', 'exec',
+                    'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'not', 'or', 'pass',
+                    'print', 'raise', 'return', 'try', 'while', 'with', 'yield']
 
 GVK = namedtuple("GVK", ("group", "version", "kind"))
 Field = namedtuple("Field", ("name", "description", "type", "ref", "cls", "alt_type"))
@@ -206,13 +208,16 @@ class PackageParser(object):
         for field in definition.fields:
             if field.ref and shorten_ref(field.ref) in self._UNION_TYPES:
                 new_type, new_alt_type = self._UNION_TYPES[shorten_ref(field.ref)]
-                new_fields.append(field._replace(type=new_type, alt_type=new_alt_type))
+                new_field = field._replace(type=new_type, alt_type=new_alt_type)
             else:
                 if field.ref:
                     field_type = self.resolve_ref(field.ref)
                 else:
                     field_type = self._resolve_field(field.type)
-                new_fields.append(field._replace(type=field_type))
+                new_field = field._replace(type=field_type)
+            if new_field.name in PYTHON2_KEYWORDS:
+                new_field = new_field._replace(name="_{}".format(new_field.name))
+            new_fields.append(new_field)
         definition.fields[:] = new_fields
 
     def resolve_ref(self, ref):

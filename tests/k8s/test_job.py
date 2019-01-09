@@ -5,12 +5,13 @@ import mock
 import pytest
 
 from k8s.client import NotFound
-from k8s.models.common import ObjectMeta
-from k8s.models.job import Job, JobSpec
-from k8s.models.pod import Container, LocalObjectReference, PodTemplateSpec, PodSpec
+from k8s.models.v1_6.apimachinery.apis.meta.v1 import ObjectMeta
+from k8s.models.v1_6.kubernetes.api.v1 import Container, LocalObjectReference, PodSpec, PodTemplateSpec
+from k8s.models.v1_6.kubernetes.apis.batch.v1 import Job, JobSpec
 
 NAME = "my-name"
 NAMESPACE = "my-namespace"
+POST_URI = Job._meta.create_url.format(namespace=NAMESPACE)
 
 
 @pytest.mark.usefixtures("k8s_config")
@@ -30,7 +31,7 @@ class TestJobs(object):
         job.save()
         assert not job._new
 
-        pytest.helpers.assert_any_call(post, _uri(NAMESPACE), call_params)
+        pytest.helpers.assert_any_call(post, POST_URI, call_params)
 
 
 def _create_default_job():
@@ -92,7 +93,3 @@ def _create_mock_response():
         }
     }
     return mock_response
-
-
-def _uri(namespace, name=""):
-    return "/apis/batch/v1/namespaces/{namespace}/jobs".format(name=name, namespace=namespace)

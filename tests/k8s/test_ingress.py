@@ -5,11 +5,15 @@ import mock
 import pytest
 
 from k8s.client import NotFound
-from k8s.models.common import ObjectMeta
-from k8s.models.ingress import Ingress, IngressSpec, IngressRule, IngressBackend, HTTPIngressPath, HTTPIngressRuleValue
+from k8s.models.v1_6.apimachinery.apis.meta.v1 import ObjectMeta
+from k8s.models.v1_6.kubernetes.apis.extensions.v1beta1 import Ingress, IngressBackend, HTTPIngressPath, \
+    HTTPIngressRuleValue, IngressRule, IngressSpec
 
 NAME = "my-name"
 NAMESPACE = "my-namespace"
+POST_URI = Ingress._meta.create_url.format(namespace=NAMESPACE)
+PUT_URI = Ingress._meta.update_url.format(name=NAME, namespace=NAMESPACE)
+GET_URI = Ingress._meta.get_url.format(name=NAME, namespace=NAMESPACE)
 
 
 @pytest.mark.usefixtures("k8s_config")
@@ -29,7 +33,7 @@ class TestIngress(object):
         ingress.save()
         assert not ingress._new
 
-        pytest.helpers.assert_any_call(post, _uri(NAMESPACE), call_params)
+        pytest.helpers.assert_any_call(post, POST_URI, call_params)
 
     def test_updated_if_exists(self, get, put):
         mock_response = _create_mock_response()
@@ -43,7 +47,7 @@ class TestIngress(object):
         put.return_value.json.return_value = call_params
 
         from_api.save()
-        pytest.helpers.assert_any_call(put, _uri(NAMESPACE, NAME), call_params)
+        pytest.helpers.assert_any_call(put, PUT_URI, call_params)
 
 
 def _create_mock_response():
@@ -60,7 +64,7 @@ def _create_mock_response():
             "name": NAME,
             "namespace": NAMESPACE,
             "resourceVersion": "96758807",
-            "selfLink": _uri(NAMESPACE, NAME),
+            "selfLink": GET_URI,
             "uid": "d8f1ba26-b182-11e6-a364-fa163ea2a9c4"
         },
         "spec": {
@@ -98,7 +102,3 @@ def _create_default_ingress():
     ingress_spec = IngressSpec(rules=[ingress_rule])
     ingress = Ingress(metadata=object_meta, spec=ingress_spec)
     return ingress
-
-
-def _uri(namespace, name=""):
-    return "/apis/extensions/v1beta1/namespaces/{namespace}/ingresses/{name}".format(name=name, namespace=namespace)

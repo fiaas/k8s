@@ -5,30 +5,33 @@ import mock
 import pytest
 
 from k8s.client import NotFound
-from k8s.models.common import ObjectMeta
-from k8s.models.service import Service, ServicePort, ServiceSpec
+from k8s.models.v1_6.apimachinery.apis.meta.v1 import ObjectMeta
+from k8s.models.v1_6.kubernetes.api.v1 import ServicePort, ServiceSpec, Service
 
-SERVICE_NAMESPACE = 'my-namespace'
-SERVICE_NAME = 'my_name'
-SERVICES_URI = '/api/v1/namespaces/' + SERVICE_NAMESPACE + '/services/'
+NAMESPACE = 'my-namespace'
+NAME = 'my_name'
+POST_URI = Service._meta.create_url.format(namespace=NAMESPACE)
+PUT_URI = Service._meta.update_url.format(name=NAME, namespace=NAMESPACE)
+DELETE_URI = Service._meta.delete_url.format(name=NAME, namespace=NAMESPACE)
+GET_URI = Service._meta.get_url.format(name=NAME, namespace=NAMESPACE)
 
 
 @pytest.mark.usefixtures("k8s_config")
 class TestService(object):
     def test_create_blank_service(self):
         svc = create_default_service()
-        assert svc.metadata.name == SERVICE_NAME
-        assert svc.as_dict()[u"metadata"][u"name"] == SERVICE_NAME
+        assert svc.metadata.name == NAME
+        assert svc.as_dict()[u"metadata"][u"name"] == NAME
 
     def test_create_blank_object_meta(self):
-        meta = ObjectMeta(name=SERVICE_NAME, namespace=SERVICE_NAMESPACE, labels={"label": "value"})
+        meta = ObjectMeta(name=NAME, namespace=NAMESPACE, labels={"label": "value"})
         assert not hasattr(meta, "_name")
-        assert meta.name == SERVICE_NAME
-        assert meta.namespace == SERVICE_NAMESPACE
+        assert meta.name == NAME
+        assert meta.namespace == NAMESPACE
         assert meta.labels == {"label": "value"}
         assert meta.as_dict() == {
-            "name": SERVICE_NAME,
-            "namespace": SERVICE_NAMESPACE,
+            "name": NAME,
+            "namespace": NAMESPACE,
             "finalizers": [],
             "labels": {
                 "label": "value"
@@ -45,7 +48,7 @@ class TestService(object):
         assert service._new
         service.save()
         assert not service._new
-        pytest.helpers.assert_any_call(post, SERVICES_URI, call_params)
+        pytest.helpers.assert_any_call(post, POST_URI, call_params)
 
     def test_get_or_create_service_not_new(self, put, get):
         service = create_default_service()
@@ -53,9 +56,9 @@ class TestService(object):
         mock_response = mock.Mock()
         mock_response.json.return_value = {
             "kind": "Service", "apiVersion": "v1", "metadata": {
-                "name": SERVICE_NAME,
-                "namespace": SERVICE_NAMESPACE,
-                "selfLink": "/api/v1/namespaces/" + SERVICE_NAMESPACE + "/services/my-name",
+                "name": NAME,
+                "namespace": NAMESPACE,
+                "selfLink": GET_URI,
                 "uid": "cc562581-cbf5-11e5-b6ef-247703d2e388",
                 "resourceVersion": "817",
                 "creationTimestamp": "2016-02-05T10:47:06Z",
@@ -77,7 +80,7 @@ class TestService(object):
         }
         get.return_value = mock_response
 
-        metadata = ObjectMeta(name=SERVICE_NAME, namespace=SERVICE_NAMESPACE, labels={"app": "test"})
+        metadata = ObjectMeta(name=NAME, namespace=NAMESPACE, labels={"app": "test"})
         port = ServicePort(name="my-port", port=80, targetPort="name")
         spec = ServiceSpec(ports=[port])
 
@@ -89,13 +92,13 @@ class TestService(object):
         put.return_value.json.return_value = call_params
 
         from_api.save()
-        pytest.helpers.assert_any_call(put, SERVICES_URI + SERVICE_NAME, call_params)
+        pytest.helpers.assert_any_call(put, PUT_URI, call_params)
 
     def test_service_deleted(self, delete):
-        Service.delete(SERVICE_NAME, SERVICE_NAMESPACE)
+        Service.delete(NAME, NAMESPACE)
 
         # call delete with service_name
-        pytest.helpers.assert_any_call(delete, (SERVICES_URI + SERVICE_NAME))
+        pytest.helpers.assert_any_call(delete, DELETE_URI)
 
     def test_list_services(self, get):
         service_list = {
@@ -171,7 +174,7 @@ class TestService(object):
 
 
 def create_default_service():
-    metadata = ObjectMeta(name=SERVICE_NAME, namespace=SERVICE_NAMESPACE, labels={"app": "test"})
+    metadata = ObjectMeta(name=NAME, namespace=NAMESPACE, labels={"app": "test"})
     port = ServicePort(name="my-port", port=80, targetPort="name")
     spec = ServiceSpec(ports=[port])
     return Service(metadata=metadata, spec=spec)

@@ -8,7 +8,7 @@ import six
 from k8s import config
 from k8s.base import Model
 from k8s.fields import Field, ListField, OnceField, ReadOnlyField, RequiredField
-from k8s.models.common import ObjectMeta
+from k8s.models.v1_6.kubernetes.api.v1 import ObjectMeta
 
 
 class ModelTest(Model):

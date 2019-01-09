@@ -11,6 +11,9 @@ ignore-paths:
   - .tox
   - .cachedocs
 
+ignore-patterns:
+  - ^k8s/models/v1_.*
+
 pep8:
   options:
     max-line-length: 120

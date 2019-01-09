@@ -5,11 +5,16 @@ import mock
 import pytest
 
 from k8s.client import NotFound
-from k8s.models.common import ObjectMeta
-from k8s.models.resourcequota import ResourceQuota, ResourceQuotaSpec, NotBestEffort, BestEffort
+from k8s.models.enums import ResourceQuotaScope
+from k8s.models.v1_6.apimachinery.apis.meta.v1 import ObjectMeta
+from k8s.models.v1_6.kubernetes.api.v1 import ResourceQuota, ResourceQuotaSpec
 
 NAME = "my-name"
 NAMESPACE = "my-namespace"
+POST_URI = ResourceQuota._meta.create_url.format(namespace=NAMESPACE)
+PUT_URI = ResourceQuota._meta.update_url.format(name=NAME, namespace=NAMESPACE)
+DELETE_URI = ResourceQuota._meta.delete_url.format(name=NAME, namespace=NAMESPACE)
+GET_URI = ResourceQuota._meta.get_url.format(name=NAME, namespace=NAMESPACE)
 
 
 @pytest.mark.usefixtures("k8s_config")
@@ -24,7 +29,7 @@ class TestResourceQuota(object):
         resourcequota.save()
         assert not resourcequota._new
 
-        pytest.helpers.assert_any_call(post, _uri(NAMESPACE), call_params)
+        pytest.helpers.assert_any_call(post, POST_URI, call_params)
 
     def test_updated_if_exists(self, get, put):
         mock_response = _create_mock_response()
@@ -36,16 +41,16 @@ class TestResourceQuota(object):
         assert from_api.spec == resourcequota.spec
         assert from_api.status == resourcequota.status
 
-        from_api.spec = ResourceQuotaSpec(hard={'pods': "10"}, scopes=[BestEffort])
+        from_api.spec = ResourceQuotaSpec(hard={'pods': "10"}, scopes=[ResourceQuotaScope.BestEffort])
         call_params = from_api.as_dict()
         put.return_value.json.return_value = call_params
 
         from_api.save()
-        pytest.helpers.assert_any_call(put, _uri(NAMESPACE, NAME), call_params)
+        pytest.helpers.assert_any_call(put, PUT_URI, call_params)
 
     def test_deleted(self, delete):
         ResourceQuota.delete(NAME, namespace=NAMESPACE)
-        pytest.helpers.assert_any_call(delete, _uri(NAMESPACE, NAME))
+        pytest.helpers.assert_any_call(delete, DELETE_URI)
 
 
 def _create_mock_response():
@@ -62,7 +67,7 @@ def _create_mock_response():
             "name": NAME,
             "namespace": NAMESPACE,
             "resourceVersion": "42",
-            "selfLink": _uri(NAMESPACE, NAME),
+            "selfLink": GET_URI,
             "uid": "d8f1ba26-b182-11e6-a364-fa163ea2a9c4"
         },
         "spec": {
@@ -70,7 +75,7 @@ def _create_mock_response():
                 "pods": "0",
             },
             "scopes": [
-                NotBestEffort,
+                ResourceQuotaScope.NotBestEffort,
             ],
         },
     }
@@ -79,10 +84,6 @@ def _create_mock_response():
 
 def _create_default_resourcequota():
     objectmeta = ObjectMeta(name=NAME, namespace=NAMESPACE, labels={"test": "true"})
-    resourcequotaspec = ResourceQuotaSpec(hard={"pods": "0"}, scopes=[NotBestEffort])
+    resourcequotaspec = ResourceQuotaSpec(hard={"pods": "0"}, scopes=[ResourceQuotaScope.NotBestEffort])
     resourcequota = ResourceQuota(metadata=objectmeta, spec=resourcequotaspec)
     return resourcequota
-
-
-def _uri(namespace, name=""):
-    return "/api/v1/namespaces/{namespace}/resourcequotas".format(name=name, namespace=namespace)

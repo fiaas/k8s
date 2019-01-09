@@ -97,13 +97,15 @@ class TestClient(object):
     def test_watch_list(self, session):
         list(WatchListExample.watch_list())
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/watch/example"), json=None, timeout=None, stream=True
+            "GET", _absolute_url(WatchListExample._meta.watchlist_all_url), json=None, timeout=None, stream=True
         )
 
     def test_watch_list_with_namespace(self, session):
-        list(WatchListExample.watch_list(namespace="explicitly-set"))
+        namespace = "explicitly-set"
+        list(WatchListExample.watch_list(namespace=namespace))
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/watch/explicitly-set/example"), json=None, timeout=None, stream=True
+            "GET", _absolute_url(WatchListExample._meta.watchlist_ns_url.format(namespace=namespace)), json=None,
+            timeout=None, stream=True
         )
 
     def test_list_without_namespace_should_raise_exception_when_list_url_is_not_set_on_metaclass(self, session):
@@ -113,19 +115,22 @@ class TestClient(object):
     def test_list_default_namespace(self, session):
         WatchListExample.list()
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/apis/namespaces/default/example"), json=None, timeout=config.timeout
+            "GET", _absolute_url(WatchListExample._meta.list_ns_url.format(namespace="default")), json=None,
+            timeout=config.timeout
         )
 
     def test_list_explicit_namespace(self, session):
-        WatchListExample.list(namespace="explicitly-set")
+        namespace = "explicitly-set"
+        WatchListExample.list(namespace=namespace)
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/apis/namespaces/explicitly-set/example"), json=None, timeout=config.timeout
+            "GET", _absolute_url(WatchListExample._meta.list_ns_url.format(namespace=namespace)), json=None,
+            timeout=config.timeout
         )
 
     def test_list_without_namespace(self, session):
         WatchListExample.list(namespace=None)
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/example/list"), json=None, timeout=config.timeout
+            "GET", _absolute_url(WatchListExample._meta.list_all_url), json=None, timeout=config.timeout
         )
 
     def test_find_without_namespace_should_raise_exception_when_list_url_is_not_set_on_metaclass(self, session):
@@ -135,21 +140,24 @@ class TestClient(object):
     def test_find_default_namespace(self, session):
         WatchListExample.find("foo")
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/apis/namespaces/default/example"), json=None, timeout=config.timeout,
+            "GET", _absolute_url(WatchListExample._meta.list_ns_url.format(namespace="default")), json=None,
+            timeout=config.timeout,
             params={"labelSelector": "app=foo"}
         )
 
     def test_find_explicit_namespace(self, session):
-        WatchListExample.find("foo", namespace="explicitly-set")
+        namespace = "explicitly-set"
+        WatchListExample.find("foo", namespace=namespace)
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/apis/namespaces/explicitly-set/example"), json=None, timeout=config.timeout,
+            "GET", _absolute_url((WatchListExample._meta.list_ns_url.format(namespace=namespace))), json=None,
+            timeout=config.timeout,
             params={"labelSelector": "app=foo"}
         )
 
     def test_find_without_namespace(self, session):
         WatchListExample.find("foo", namespace=None)
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/example/list"), json=None, timeout=config.timeout,
+            "GET", _absolute_url(WatchListExample._meta.list_all_url), json=None, timeout=config.timeout,
             params={"labelSelector": "app=foo"}
         )
 
@@ -168,16 +176,21 @@ def _absolute_url(url):
 
 class WatchListExample(Model):
     class Meta:
-        list_url = "/example/list"
-        url_template = "/apis/namespaces/{namespace}/example"
-        watch_list_url = "/watch/example"
-        watch_list_url_template = "/watch/{namespace}/example"
+        create_url = "/apis/tests/v1/namespaces/{namespace}/watch_list_example"
+        delete_url = "/apis/tests/v1/namespaces/{namespace}/watch_list_example/{name}"
+        get_url = "/apis/tests/v1/namespaces/{namespace}/watch_list_example/{name}"
+        list_all_url = "/apis/tests/v1/watch_list_example"
+        list_ns_url = "/apis/tests/v1/namespaces/{namespace}/watch_list_example"
+        update_url = "/apis/tests/v1/namespaces/{namespace}/watch_list_example/{name}"
+        watch_url = "/apis/tests/v1/watch/namespaces/{namespace}/watch_list_example/{name}"
+        watchlist_all_url = "/apis/tests/v1/watch/watch_list_example"
+        watchlist_ns_url = "/apis/tests/v1/watch/namespaces/{namespace}/watch_list_example"
 
     value = Field(int)
 
 
 class WatchListExampleUnsupported(Model):
     class Meta:
-        url_template = "/example"
+        get_url = "/example"
 
     value = Field(int)

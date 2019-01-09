@@ -5,11 +5,15 @@ import mock
 import pytest
 
 from k8s.client import NotFound
-from k8s.models.common import ObjectMeta
-from k8s.models.configmap import ConfigMap
+from k8s.models.v1_6.apimachinery.apis.meta.v1 import ObjectMeta
+from k8s.models.v1_6.kubernetes.api.v1 import ConfigMap
 
 NAME = "my-name"
 NAMESPACE = "my-namespace"
+POST_URI = ConfigMap._meta.create_url.format(namespace=NAMESPACE)
+PUT_URI = ConfigMap._meta.update_url.format(name=NAME, namespace=NAMESPACE)
+DELETE_URI = ConfigMap._meta.delete_url.format(name=NAME, namespace=NAMESPACE)
+GET_URI = ConfigMap._meta.get_url.format(name=NAME, namespace=NAMESPACE)
 
 
 @pytest.mark.usefixtures("k8s_config")
@@ -24,7 +28,7 @@ class TestConfigMap(object):
         configmap.save()
         assert not configmap._new
 
-        pytest.helpers.assert_any_call(post, _uri(NAMESPACE), call_params)
+        pytest.helpers.assert_any_call(post, POST_URI, call_params)
 
     def test_updated_if_exists(self, get, put):
         mock_response = _create_mock_response()
@@ -40,11 +44,11 @@ class TestConfigMap(object):
         put.return_value.json.return_value = call_params
 
         from_api.save()
-        pytest.helpers.assert_any_call(put, _uri(NAMESPACE, NAME), call_params)
+        pytest.helpers.assert_any_call(put, PUT_URI, call_params)
 
     def test_deleted(self, delete):
         ConfigMap.delete(NAME, namespace=NAMESPACE)
-        pytest.helpers.assert_any_call(delete, _uri(NAMESPACE, NAME))
+        pytest.helpers.assert_any_call(delete, DELETE_URI)
 
 
 def _create_mock_response():
@@ -61,7 +65,7 @@ def _create_mock_response():
             "name": NAME,
             "namespace": NAMESPACE,
             "resourceVersion": "42",
-            "selfLink": _uri(NAMESPACE, NAME),
+            "selfLink": GET_URI,
             "uid": "d8f1ba26-b182-11e6-a364-fa163ea2a9c4"
         },
         "data": {
@@ -76,7 +80,3 @@ def _create_default_configmap():
     data = {"foo": "bar"}
     configmap = ConfigMap(metadata=object_meta, data=data)
     return configmap
-
-
-def _uri(namespace, name=""):
-    return "/api/v1/namespaces/{namespace}/configmaps/{name}".format(name=name, namespace=namespace)

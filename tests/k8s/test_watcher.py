@@ -6,7 +6,7 @@ import pytest
 import six
 
 from k8s.base import Model, Field, WatchEvent
-from k8s.models.common import ObjectMeta
+from k8s.models.v1_6.apimachinery.apis.meta.v1 import ObjectMeta
 from k8s.watcher import Watcher
 
 # Just to make things shorter
