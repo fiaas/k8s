@@ -19,6 +19,41 @@ from k8s.models.v1_6.apimachinery.runtime import RawExtension
 ###############################################################################
 
 
+class WatchEvent(Model):
+    """
+    Event represents a single event to a watched resource.
+    """
+
+    object = RequiredField(RawExtension)
+    type = RequiredField(six.text_type)
+
+
+class StatusCause(Model):
+    """
+    StatusCause provides more information about an api.Status failure, including
+    cases when multiple errors are encountered.
+    """
+
+    field = Field(six.text_type)
+    message = Field(six.text_type)
+    reason = Field(six.text_type)
+
+
+class StatusDetails(Model):
+    """
+    StatusDetails is a set of additional properties that MAY be set by the server
+    to provide additional information about a response. The Reason field of a
+    Status object defines what attributes will be set. Clients must ignore fields
+    that do not match the defined type of each attribute, and should assume that
+    any attribute may be empty, invalid, or under defined.
+    """
+
+    causes = ListField(StatusCause)
+    group = Field(six.text_type)
+    name = Field(six.text_type)
+    retryAfterSeconds = Field(int)
+
+
 class ServerAddressByClientCIDR(Model):
     """
     ServerAddressByClientCIDR helps the client to determine the server address that
@@ -39,99 +74,24 @@ class APIVersions(Model):
     versions = ListField(six.text_type)
 
 
-class GroupVersionForDiscovery(Model):
+class Preconditions(Model):
     """
-    GroupVersion contains the 'group/version' and 'version' string of a version. It
-    is made a struct to keep extensibility.
-    """
-
-    groupVersion = RequiredField(six.text_type)
-    version = RequiredField(six.text_type)
-
-
-class APIGroup(Model):
-    """
-    APIGroup contains the name, the supported versions, and the preferred version
-    of a group.
+    Preconditions must be fulfilled before an operation (update, delete, etc.) is
+    carried out.
     """
 
-    name = RequiredField(six.text_type)
-    preferredVersion = Field(GroupVersionForDiscovery)
-    serverAddressByClientCIDRs = ListField(ServerAddressByClientCIDR)
-    versions = ListField(GroupVersionForDiscovery)
+    uid = Field(six.text_type)
 
 
-class APIGroupList(Model):
+class DeleteOptions(Model):
     """
-    APIGroupList is a list of APIGroup, to allow clients to discover the API at
-    /apis.
+    DeleteOptions may be provided when deleting an API object.
     """
 
-    groups = ListField(APIGroup)
-
-
-class LabelSelectorRequirement(Model):
-    """
-    A label selector requirement is a selector that contains values, a key, and an
-    operator that relates the key and values.
-    """
-
-    key = RequiredField(six.text_type)
-    operator = RequiredField(six.text_type)
-    values = ListField(six.text_type)
-
-
-class LabelSelector(Model):
-    """
-    A label selector is a label query over a set of resources. The result of
-    matchLabels and matchExpressions are ANDed. An empty label selector matches all
-    objects. A null label selector matches no objects.
-    """
-
-    matchExpressions = ListField(LabelSelectorRequirement)
-    matchLabels = Field(dict)
-
-
-class APIResource(Model):
-    """
-    APIResource specifies the name of a resource and whether it is namespaced.
-    """
-
-    name = RequiredField(six.text_type)
-    namespaced = RequiredField(bool)
-    shortNames = ListField(six.text_type)
-    verbs = ListField(six.text_type)
-
-
-class APIResourceList(Model):
-    """
-    APIResourceList is a list of APIResource, it is used to expose the name of the
-    resources supported in a specific group and version, and if the resource is
-    namespaced.
-    """
-
-    groupVersion = RequiredField(six.text_type)
-    resources = ListField(APIResource)
-
-
-class ListMeta(Model):
-    """
-    ListMeta describes metadata that synthetic resources must have, including lists
-    and various status objects. A resource may have only one of {ObjectMeta,
-    ListMeta}.
-    """
-
-    resourceVersion = ReadOnlyField(six.text_type)
-    selfLink = ReadOnlyField(six.text_type)
-
-
-class WatchEvent(Model):
-    """
-    Event represents a single event to a watched resource.
-    """
-
-    object = RequiredField(RawExtension)
-    type = RequiredField(six.text_type)
+    gracePeriodSeconds = Field(int)
+    orphanDependents = Field(bool)
+    preconditions = Field(Preconditions)
+    propagationPolicy = Field(six.text_type)
 
 
 class OwnerReference(Model):
@@ -170,50 +130,15 @@ class ObjectMeta(Model):
     uid = ReadOnlyField(six.text_type)
 
 
-class Preconditions(Model):
+class ListMeta(Model):
     """
-    Preconditions must be fulfilled before an operation (update, delete, etc.) is
-    carried out.
-    """
-
-    uid = Field(six.text_type)
-
-
-class DeleteOptions(Model):
-    """
-    DeleteOptions may be provided when deleting an API object.
+    ListMeta describes metadata that synthetic resources must have, including lists
+    and various status objects. A resource may have only one of {ObjectMeta,
+    ListMeta}.
     """
 
-    gracePeriodSeconds = Field(int)
-    orphanDependents = Field(bool)
-    preconditions = Field(Preconditions)
-    propagationPolicy = Field(six.text_type)
-
-
-class StatusCause(Model):
-    """
-    StatusCause provides more information about an api.Status failure, including
-    cases when multiple errors are encountered.
-    """
-
-    field = Field(six.text_type)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-
-
-class StatusDetails(Model):
-    """
-    StatusDetails is a set of additional properties that MAY be set by the server
-    to provide additional information about a response. The Reason field of a
-    Status object defines what attributes will be set. Clients must ignore fields
-    that do not match the defined type of each attribute, and should assume that
-    any attribute may be empty, invalid, or under defined.
-    """
-
-    causes = ListField(StatusCause)
-    group = Field(six.text_type)
-    name = Field(six.text_type)
-    retryAfterSeconds = Field(int)
+    resourceVersion = ReadOnlyField(six.text_type)
+    selfLink = ReadOnlyField(six.text_type)
 
 
 class Status(Model):
@@ -227,4 +152,79 @@ class Status(Model):
     metadata = Field(ListMeta)
     reason = Field(six.text_type)
     status = Field(six.text_type)
+
+
+class LabelSelectorRequirement(Model):
+    """
+    A label selector requirement is a selector that contains values, a key, and an
+    operator that relates the key and values.
+    """
+
+    key = RequiredField(six.text_type)
+    operator = RequiredField(six.text_type)
+    values = ListField(six.text_type)
+
+
+class LabelSelector(Model):
+    """
+    A label selector is a label query over a set of resources. The result of
+    matchLabels and matchExpressions are ANDed. An empty label selector matches all
+    objects. A null label selector matches no objects.
+    """
+
+    matchExpressions = ListField(LabelSelectorRequirement)
+    matchLabels = Field(dict)
+
+
+class GroupVersionForDiscovery(Model):
+    """
+    GroupVersion contains the 'group/version' and 'version' string of a version. It
+    is made a struct to keep extensibility.
+    """
+
+    groupVersion = RequiredField(six.text_type)
+    version = RequiredField(six.text_type)
+
+
+class APIGroup(Model):
+    """
+    APIGroup contains the name, the supported versions, and the preferred version
+    of a group.
+    """
+
+    name = RequiredField(six.text_type)
+    preferredVersion = Field(GroupVersionForDiscovery)
+    serverAddressByClientCIDRs = ListField(ServerAddressByClientCIDR)
+    versions = ListField(GroupVersionForDiscovery)
+
+
+class APIGroupList(Model):
+    """
+    APIGroupList is a list of APIGroup, to allow clients to discover the API at
+    /apis.
+    """
+
+    groups = ListField(APIGroup)
+
+
+class APIResource(Model):
+    """
+    APIResource specifies the name of a resource and whether it is namespaced.
+    """
+
+    name = RequiredField(six.text_type)
+    namespaced = RequiredField(bool)
+    shortNames = ListField(six.text_type)
+    verbs = ListField(six.text_type)
+
+
+class APIResourceList(Model):
+    """
+    APIResourceList is a list of APIResource, it is used to expose the name of the
+    resources supported in a specific group and version, and if the resource is
+    namespaced.
+    """
+
+    groupVersion = RequiredField(six.text_type)
+    resources = ListField(APIResource)
 

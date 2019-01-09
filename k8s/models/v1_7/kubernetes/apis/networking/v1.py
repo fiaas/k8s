@@ -17,6 +17,15 @@ from k8s.models.v1_7.apimachinery.apis.meta.v1 import LabelSelector, ListMeta, O
 ###############################################################################
 
 
+class NetworkPolicyPort(Model):
+    """
+    NetworkPolicyPort describes a port to allow traffic on
+    """
+
+    port = Field(six.text_type, alt_type=int)
+    protocol = Field(six.text_type)
+
+
 class NetworkPolicyPeer(Model):
     """
     NetworkPolicyPeer describes a peer to allow traffic from. Exactly one of its
@@ -25,15 +34,6 @@ class NetworkPolicyPeer(Model):
 
     namespaceSelector = Field(LabelSelector)
     podSelector = Field(LabelSelector)
-
-
-class NetworkPolicyPort(Model):
-    """
-    NetworkPolicyPort describes a port to allow traffic on
-    """
-
-    port = Field(six.text_type, alt_type=int)
-    protocol = Field(six.text_type)
 
 
 class NetworkPolicyIngressRule(Model):

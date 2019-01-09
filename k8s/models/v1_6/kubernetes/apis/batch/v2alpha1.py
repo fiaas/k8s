@@ -21,15 +21,6 @@ from k8s.models.v1_6.kubernetes.apis.batch.v1 import JobSpec
 ###############################################################################
 
 
-class CronJobStatus(Model):
-    """
-    CronJobStatus represents the current state of a cron job.
-    """
-
-    active = ListField(ObjectReference)
-    lastScheduleTime = Field(datetime.datetime)
-
-
 class JobTemplateSpec(Model):
     """
     JobTemplateSpec describes the data a Job should have when created from a
@@ -55,20 +46,29 @@ class CronJobSpec(Model):
     suspend = Field(bool)
 
 
+class CronJobStatus(Model):
+    """
+    CronJobStatus represents the current state of a cron job.
+    """
+
+    active = ListField(ObjectReference)
+    lastScheduleTime = Field(datetime.datetime)
+
+
 class CronJob(Model):
     """
     CronJob represents the configuration of a single cron job.
     """
     class Meta:
-        create_url = "/apis/batch/v2alpha1/namespaces/{namespace}/cronjobs"
-        delete_url = "/apis/batch/v2alpha1/namespaces/{namespace}/cronjobs/{name}"
-        get_url = "/apis/batch/v2alpha1/namespaces/{namespace}/cronjobs/{name}"
-        list_all_url = "/apis/batch/v2alpha1/cronjobs"
-        list_ns_url = "/apis/batch/v2alpha1/namespaces/{namespace}/cronjobs"
-        update_url = "/apis/batch/v2alpha1/namespaces/{namespace}/cronjobs/{name}"
-        watch_url = "/apis/batch/v2alpha1/watch/namespaces/{namespace}/cronjobs/{name}"
-        watchlist_all_url = "/apis/batch/v2alpha1/watch/cronjobs"
-        watchlist_ns_url = "/apis/batch/v2alpha1/watch/namespaces/{namespace}/cronjobs"
+        create_url = "/apis/batch/v2alpha1/namespaces/{namespace}/scheduledjobs"
+        delete_url = "/apis/batch/v2alpha1/namespaces/{namespace}/scheduledjobs/{name}"
+        get_url = "/apis/batch/v2alpha1/namespaces/{namespace}/scheduledjobs/{name}"
+        list_all_url = "/apis/batch/v2alpha1/scheduledjobs"
+        list_ns_url = "/apis/batch/v2alpha1/namespaces/{namespace}/scheduledjobs"
+        update_url = "/apis/batch/v2alpha1/namespaces/{namespace}/scheduledjobs/{name}"
+        watch_url = "/apis/batch/v2alpha1/watch/namespaces/{namespace}/scheduledjobs/{name}"
+        watchlist_all_url = "/apis/batch/v2alpha1/watch/scheduledjobs"
+        watchlist_ns_url = "/apis/batch/v2alpha1/watch/namespaces/{namespace}/scheduledjobs"
     
     apiVersion = Field(six.text_type, "batch/v2alpha1")
     kind = Field(six.text_type, "ScheduledJob")

@@ -17,14 +17,14 @@ from k8s.models.v1_7.apimachinery.apis.meta.v1 import ObjectMeta
 ###############################################################################
 
 
-class NonResourceAttributes(Model):
+class SubjectAccessReviewStatus(Model):
     """
-    NonResourceAttributes includes the authorization attributes available for non-
-    resource requests to the Authorizer interface
+    SubjectAccessReviewStatus
     """
 
-    path = Field(six.text_type)
-    verb = Field(six.text_type)
+    allowed = RequiredField(bool)
+    evaluationError = Field(six.text_type)
+    reason = Field(six.text_type)
 
 
 class ResourceAttributes(Model):
@@ -42,15 +42,14 @@ class ResourceAttributes(Model):
     version = Field(six.text_type)
 
 
-class SelfSubjectAccessReviewSpec(Model):
+class NonResourceAttributes(Model):
     """
-    SelfSubjectAccessReviewSpec is a description of the access request.  Exactly
-    one of ResourceAuthorizationAttributes and NonResourceAuthorizationAttributes
-    must be set
+    NonResourceAttributes includes the authorization attributes available for non-
+    resource requests to the Authorizer interface
     """
 
-    nonResourceAttributes = Field(NonResourceAttributes)
-    resourceAttributes = Field(ResourceAttributes)
+    path = Field(six.text_type)
+    verb = Field(six.text_type)
 
 
 class SubjectAccessReviewSpec(Model):
@@ -67,14 +66,20 @@ class SubjectAccessReviewSpec(Model):
     user = Field(six.text_type)
 
 
-class SubjectAccessReviewStatus(Model):
+class SubjectAccessReview(Model):
     """
-    SubjectAccessReviewStatus
+    SubjectAccessReview checks whether or not a user or group can perform an
+    action.
     """
+    class Meta:
+        create_url = "/apis/authorization.k8s.io/v1beta1/subjectaccessreviews"
+    
+    apiVersion = Field(six.text_type, "authorization.k8s.io/v1beta1")
+    kind = Field(six.text_type, "SubjectAccessReview")
 
-    allowed = RequiredField(bool)
-    evaluationError = Field(six.text_type)
-    reason = Field(six.text_type)
+    metadata = Field(ObjectMeta)
+    spec = RequiredField(SubjectAccessReviewSpec)
+    status = Field(SubjectAccessReviewStatus)
 
 
 class LocalSubjectAccessReview(Model):
@@ -94,20 +99,15 @@ class LocalSubjectAccessReview(Model):
     status = Field(SubjectAccessReviewStatus)
 
 
-class SubjectAccessReview(Model):
+class SelfSubjectAccessReviewSpec(Model):
     """
-    SubjectAccessReview checks whether or not a user or group can perform an
-    action.
+    SelfSubjectAccessReviewSpec is a description of the access request.  Exactly
+    one of ResourceAuthorizationAttributes and NonResourceAuthorizationAttributes
+    must be set
     """
-    class Meta:
-        create_url = "/apis/authorization.k8s.io/v1beta1/subjectaccessreviews"
-    
-    apiVersion = Field(six.text_type, "authorization.k8s.io/v1beta1")
-    kind = Field(six.text_type, "SubjectAccessReview")
 
-    metadata = Field(ObjectMeta)
-    spec = RequiredField(SubjectAccessReviewSpec)
-    status = Field(SubjectAccessReviewStatus)
+    nonResourceAttributes = Field(NonResourceAttributes)
+    resourceAttributes = Field(ResourceAttributes)
 
 
 class SelfSubjectAccessReview(Model):

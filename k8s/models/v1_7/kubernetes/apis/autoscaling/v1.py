@@ -19,34 +19,6 @@ from k8s.models.v1_7.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
 ###############################################################################
 
 
-class ScaleSpec(Model):
-    """
-    ScaleSpec describes the attributes of a scale subresource.
-    """
-
-    replicas = Field(int)
-
-
-class CrossVersionObjectReference(Model):
-    """
-    CrossVersionObjectReference contains enough information to let you identify the
-    referred resource.
-    """
-
-    name = RequiredField(six.text_type)
-
-
-class HorizontalPodAutoscalerSpec(Model):
-    """
-    specification of a horizontal pod autoscaler.
-    """
-
-    maxReplicas = RequiredField(int)
-    minReplicas = Field(int)
-    scaleTargetRef = RequiredField(CrossVersionObjectReference)
-    targetCPUUtilizationPercentage = Field(int)
-
-
 class ScaleStatus(Model):
     """
     ScaleStatus represents the current status of a scale subresource.
@@ -54,6 +26,14 @@ class ScaleStatus(Model):
 
     replicas = RequiredField(int)
     selector = Field(six.text_type)
+
+
+class ScaleSpec(Model):
+    """
+    ScaleSpec describes the attributes of a scale subresource.
+    """
+
+    replicas = Field(int)
 
 
 class Scale(Model):
@@ -78,6 +58,26 @@ class HorizontalPodAutoscalerStatus(Model):
     desiredReplicas = RequiredField(int)
     lastScaleTime = Field(datetime.datetime)
     observedGeneration = Field(int)
+
+
+class CrossVersionObjectReference(Model):
+    """
+    CrossVersionObjectReference contains enough information to let you identify the
+    referred resource.
+    """
+
+    name = RequiredField(six.text_type)
+
+
+class HorizontalPodAutoscalerSpec(Model):
+    """
+    specification of a horizontal pod autoscaler.
+    """
+
+    maxReplicas = RequiredField(int)
+    minReplicas = Field(int)
+    scaleTargetRef = RequiredField(CrossVersionObjectReference)
+    targetCPUUtilizationPercentage = Field(int)
 
 
 class HorizontalPodAutoscaler(Model):

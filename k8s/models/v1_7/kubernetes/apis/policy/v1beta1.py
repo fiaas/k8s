@@ -17,22 +17,6 @@ from k8s.models.v1_7.apimachinery.apis.meta.v1 import DeleteOptions, LabelSelect
 ###############################################################################
 
 
-class Eviction(Model):
-    """
-    Eviction evicts a pod from its node subject to certain policies and safety
-    constraints. This is a subresource of Pod.  A request to cause such an eviction
-    is created by POSTing to .../pods/<pod name>/evictions.
-    """
-    class Meta:
-        create_url = "/api/v1/namespaces/{namespace}/pods/{name}/eviction"
-    
-    apiVersion = Field(six.text_type, "policy/v1beta1")
-    kind = Field(six.text_type, "Eviction")
-
-    deleteOptions = Field(DeleteOptions)
-    metadata = Field(ObjectMeta)
-
-
 class PodDisruptionBudgetStatus(Model):
     """
     PodDisruptionBudgetStatus represents information about the status of a
@@ -90,4 +74,20 @@ class PodDisruptionBudgetList(Model):
 
     items = ListField(PodDisruptionBudget)
     metadata = Field(ListMeta)
+
+
+class Eviction(Model):
+    """
+    Eviction evicts a pod from its node subject to certain policies and safety
+    constraints. This is a subresource of Pod.  A request to cause such an eviction
+    is created by POSTing to .../pods/<pod name>/evictions.
+    """
+    class Meta:
+        create_url = "/api/v1/namespaces/{namespace}/pods/{name}/eviction"
+    
+    apiVersion = Field(six.text_type, "policy/v1beta1")
+    kind = Field(six.text_type, "Eviction")
+
+    deleteOptions = Field(DeleteOptions)
+    metadata = Field(ObjectMeta)
 

@@ -6,6 +6,7 @@ import posixpath
 import re
 import shutil
 from collections import namedtuple, defaultdict, Counter
+from functools import total_ordering
 
 import appdirs
 import requests
@@ -52,10 +53,20 @@ class Primitive(object):
         self.name = TYPE_MAPPING.get(type, type)
 
 
+@total_ordering
 class Child(object):
     @property
     def parent_ref(self):
         return self.ref.rsplit(".", 1)[0]
+
+    def __eq__(self, other):
+        return self.ref == other.ref
+
+    def __lt__(self, other):
+        return self.ref < other.ref
+
+    def __hash__(self):
+        return hash(self.ref)
 
 
 class Module(namedtuple("Module", ("ref", "name", "imports", "models")), Child):
@@ -260,10 +271,11 @@ class PackageParser(object):
                 if isinstance(field.type, Model) and field.type.parent_ref == model.parent_ref:
                     dep = nodes.setdefault(field.type.ref, Node(field.type, [], []))
                     node.dependencies.append(dep)
-        for node in nodes.values():
+        for node in sorted(nodes.values()):
             for dep in node.dependencies:
                 dep.dependants.append(node)
         top_nodes = [n for n in nodes.values() if len(n.dependencies) == 0]
+        top_nodes.sort()
         models = []
         while top_nodes:
             top_node = top_nodes.pop()

@@ -19,16 +19,6 @@ from k8s.models.v1_7.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
 ###############################################################################
 
 
-class PodsMetricStatus(Model):
-    """
-    PodsMetricStatus indicates the current value of a metric describing each pod in
-    the current scale target (for example, transactions-processed-per-second).
-    """
-
-    currentAverageValue = RequiredField(six.text_type)
-    metricName = RequiredField(six.text_type)
-
-
 class ResourceMetricStatus(Model):
     """
     ResourceMetricStatus indicates the current value of a resource metric known to
@@ -43,17 +33,30 @@ class ResourceMetricStatus(Model):
     name = RequiredField(six.text_type)
 
 
-class HorizontalPodAutoscalerCondition(Model):
+class ResourceMetricSource(Model):
     """
-    HorizontalPodAutoscalerCondition describes the state of a
-    HorizontalPodAutoscaler at a certain point.
+    ResourceMetricSource indicates how to scale on a resource metric known to
+    Kubernetes, as specified in requests and limits, describing each pod in the
+    current scale target (e.g. CPU or memory).  The values will be averaged
+    together before being compared to the target.  Such metrics are built in to
+    Kubernetes, and have special scaling options on top of those available to
+    normal per-pod metrics using the 'pods' source.  Only one 'target' type should
+    be set.
     """
 
-    lastTransitionTime = Field(datetime.datetime)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-    status = RequiredField(six.text_type)
-    type = RequiredField(six.text_type)
+    name = RequiredField(six.text_type)
+    targetAverageUtilization = Field(int)
+    targetAverageValue = Field(six.text_type)
+
+
+class PodsMetricStatus(Model):
+    """
+    PodsMetricStatus indicates the current value of a metric describing each pod in
+    the current scale target (for example, transactions-processed-per-second).
+    """
+
+    currentAverageValue = RequiredField(six.text_type)
+    metricName = RequiredField(six.text_type)
 
 
 class PodsMetricSource(Model):
@@ -65,6 +68,19 @@ class PodsMetricSource(Model):
 
     metricName = RequiredField(six.text_type)
     targetAverageValue = RequiredField(six.text_type)
+
+
+class HorizontalPodAutoscalerCondition(Model):
+    """
+    HorizontalPodAutoscalerCondition describes the state of a
+    HorizontalPodAutoscaler at a certain point.
+    """
+
+    lastTransitionTime = Field(datetime.datetime)
+    message = Field(six.text_type)
+    reason = Field(six.text_type)
+    status = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
 
 
 class CrossVersionObjectReference(Model):
@@ -121,22 +137,6 @@ class ObjectMetricSource(Model):
     metricName = RequiredField(six.text_type)
     target = RequiredField(CrossVersionObjectReference)
     targetValue = RequiredField(six.text_type)
-
-
-class ResourceMetricSource(Model):
-    """
-    ResourceMetricSource indicates how to scale on a resource metric known to
-    Kubernetes, as specified in requests and limits, describing each pod in the
-    current scale target (e.g. CPU or memory).  The values will be averaged
-    together before being compared to the target.  Such metrics are built in to
-    Kubernetes, and have special scaling options on top of those available to
-    normal per-pod metrics using the 'pods' source.  Only one 'target' type should
-    be set.
-    """
-
-    name = RequiredField(six.text_type)
-    targetAverageUtilization = Field(int)
-    targetAverageValue = Field(six.text_type)
 
 
 class MetricSpec(Model):

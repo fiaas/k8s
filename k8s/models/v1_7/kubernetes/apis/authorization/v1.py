@@ -17,14 +17,14 @@ from k8s.models.v1_7.apimachinery.apis.meta.v1 import ObjectMeta
 ###############################################################################
 
 
-class NonResourceAttributes(Model):
+class SubjectAccessReviewStatus(Model):
     """
-    NonResourceAttributes includes the authorization attributes available for non-
-    resource requests to the Authorizer interface
+    SubjectAccessReviewStatus
     """
 
-    path = Field(six.text_type)
-    verb = Field(six.text_type)
+    allowed = RequiredField(bool)
+    evaluationError = Field(six.text_type)
+    reason = Field(six.text_type)
 
 
 class ResourceAttributes(Model):
@@ -42,6 +42,16 @@ class ResourceAttributes(Model):
     version = Field(six.text_type)
 
 
+class NonResourceAttributes(Model):
+    """
+    NonResourceAttributes includes the authorization attributes available for non-
+    resource requests to the Authorizer interface
+    """
+
+    path = Field(six.text_type)
+    verb = Field(six.text_type)
+
+
 class SubjectAccessReviewSpec(Model):
     """
     SubjectAccessReviewSpec is a description of the access request.  Exactly one of
@@ -54,27 +64,6 @@ class SubjectAccessReviewSpec(Model):
     nonResourceAttributes = Field(NonResourceAttributes)
     resourceAttributes = Field(ResourceAttributes)
     user = Field(six.text_type)
-
-
-class SelfSubjectAccessReviewSpec(Model):
-    """
-    SelfSubjectAccessReviewSpec is a description of the access request.  Exactly
-    one of ResourceAuthorizationAttributes and NonResourceAuthorizationAttributes
-    must be set
-    """
-
-    nonResourceAttributes = Field(NonResourceAttributes)
-    resourceAttributes = Field(ResourceAttributes)
-
-
-class SubjectAccessReviewStatus(Model):
-    """
-    SubjectAccessReviewStatus
-    """
-
-    allowed = RequiredField(bool)
-    evaluationError = Field(six.text_type)
-    reason = Field(six.text_type)
 
 
 class SubjectAccessReview(Model):
@@ -93,6 +82,34 @@ class SubjectAccessReview(Model):
     status = Field(SubjectAccessReviewStatus)
 
 
+class LocalSubjectAccessReview(Model):
+    """
+    LocalSubjectAccessReview checks whether or not a user or group can perform an
+    action in a given namespace. Having a namespace scoped resource makes it much
+    easier to grant namespace scoped policy that includes permissions checking.
+    """
+    class Meta:
+        create_url = "/apis/authorization.k8s.io/v1/namespaces/{namespace}/localsubjectaccessreviews"
+    
+    apiVersion = Field(six.text_type, "authorization.k8s.io/v1")
+    kind = Field(six.text_type, "LocalSubjectAccessReview")
+
+    metadata = Field(ObjectMeta)
+    spec = RequiredField(SubjectAccessReviewSpec)
+    status = Field(SubjectAccessReviewStatus)
+
+
+class SelfSubjectAccessReviewSpec(Model):
+    """
+    SelfSubjectAccessReviewSpec is a description of the access request.  Exactly
+    one of ResourceAuthorizationAttributes and NonResourceAuthorizationAttributes
+    must be set
+    """
+
+    nonResourceAttributes = Field(NonResourceAttributes)
+    resourceAttributes = Field(ResourceAttributes)
+
+
 class SelfSubjectAccessReview(Model):
     """
     SelfSubjectAccessReview checks whether or the current user can perform an
@@ -108,22 +125,5 @@ class SelfSubjectAccessReview(Model):
 
     metadata = Field(ObjectMeta)
     spec = RequiredField(SelfSubjectAccessReviewSpec)
-    status = Field(SubjectAccessReviewStatus)
-
-
-class LocalSubjectAccessReview(Model):
-    """
-    LocalSubjectAccessReview checks whether or not a user or group can perform an
-    action in a given namespace. Having a namespace scoped resource makes it much
-    easier to grant namespace scoped policy that includes permissions checking.
-    """
-    class Meta:
-        create_url = "/apis/authorization.k8s.io/v1/namespaces/{namespace}/localsubjectaccessreviews"
-    
-    apiVersion = Field(six.text_type, "authorization.k8s.io/v1")
-    kind = Field(six.text_type, "LocalSubjectAccessReview")
-
-    metadata = Field(ObjectMeta)
-    spec = RequiredField(SubjectAccessReviewSpec)
     status = Field(SubjectAccessReviewStatus)
 

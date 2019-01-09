@@ -19,26 +19,6 @@ from k8s.models.v1_7.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
 ###############################################################################
 
 
-class APIServiceCondition(Model):
-    """
-    
-    """
-
-    lastTransitionTime = Field(datetime.datetime)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-    status = RequiredField(six.text_type)
-    type = RequiredField(six.text_type)
-
-
-class APIServiceStatus(Model):
-    """
-    APIServiceStatus contains derived information about an API server
-    """
-
-    conditions = ListField(APIServiceCondition)
-
-
 class ServiceReference(Model):
     """
     ServiceReference holds a reference to Service.legacy.k8s.io
@@ -62,6 +42,26 @@ class APIServiceSpec(Model):
     service = RequiredField(ServiceReference)
     version = Field(six.text_type)
     versionPriority = RequiredField(int)
+
+
+class APIServiceCondition(Model):
+    """
+    
+    """
+
+    lastTransitionTime = Field(datetime.datetime)
+    message = Field(six.text_type)
+    reason = Field(six.text_type)
+    status = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
+
+
+class APIServiceStatus(Model):
+    """
+    APIServiceStatus contains derived information about an API server
+    """
+
+    conditions = ListField(APIServiceCondition)
 
 
 class APIService(Model):

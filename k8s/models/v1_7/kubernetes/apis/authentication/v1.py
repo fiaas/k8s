@@ -17,14 +17,6 @@ from k8s.models.v1_7.apimachinery.apis.meta.v1 import ObjectMeta
 ###############################################################################
 
 
-class TokenReviewSpec(Model):
-    """
-    TokenReviewSpec is a description of the token authentication request.
-    """
-
-    token = Field(six.text_type)
-
-
 class UserInfo(Model):
     """
     UserInfo holds the information about the user needed to implement the user.Info
@@ -45,6 +37,14 @@ class TokenReviewStatus(Model):
     authenticated = Field(bool)
     error = Field(six.text_type)
     user = Field(UserInfo)
+
+
+class TokenReviewSpec(Model):
+    """
+    TokenReviewSpec is a description of the token authentication request.
+    """
+
+    token = Field(six.text_type)
 
 
 class TokenReview(Model):

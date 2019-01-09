@@ -20,6 +20,15 @@ from k8s.models.v1_6.kubernetes.api.v1 import PersistentVolumeClaim, PodTemplate
 ###############################################################################
 
 
+class StatefulSetStatus(Model):
+    """
+    StatefulSetStatus represents the current state of a StatefulSet.
+    """
+
+    observedGeneration = Field(int)
+    replicas = RequiredField(int)
+
+
 class StatefulSetSpec(Model):
     """
     A StatefulSetSpec is the specification of a StatefulSet.
@@ -30,52 +39,6 @@ class StatefulSetSpec(Model):
     serviceName = RequiredField(six.text_type)
     template = RequiredField(PodTemplateSpec)
     volumeClaimTemplates = ListField(PersistentVolumeClaim)
-
-
-class ScaleStatus(Model):
-    """
-    ScaleStatus represents the current status of a scale subresource.
-    """
-
-    replicas = RequiredField(int)
-    selector = Field(dict)
-    targetSelector = Field(six.text_type)
-
-
-class DeploymentCondition(Model):
-    """
-    DeploymentCondition describes the state of a deployment at a certain point.
-    """
-
-    lastTransitionTime = Field(datetime.datetime)
-    lastUpdateTime = Field(datetime.datetime)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-    status = RequiredField(six.text_type)
-    type = RequiredField(six.text_type)
-
-
-class DeploymentStatus(Model):
-    """
-    DeploymentStatus is the most recently observed status of the Deployment.
-    """
-
-    availableReplicas = Field(int)
-    conditions = ListField(DeploymentCondition)
-    observedGeneration = Field(int)
-    readyReplicas = Field(int)
-    replicas = Field(int)
-    unavailableReplicas = Field(int)
-    updatedReplicas = Field(int)
-
-
-class StatefulSetStatus(Model):
-    """
-    StatefulSetStatus represents the current state of a StatefulSet.
-    """
-
-    observedGeneration = Field(int)
-    replicas = RequiredField(int)
 
 
 class StatefulSet(Model):
@@ -118,24 +81,14 @@ class StatefulSetList(Model):
     metadata = Field(ListMeta)
 
 
-class RollbackConfig(Model):
+class ScaleStatus(Model):
     """
-    
+    ScaleStatus represents the current status of a scale subresource.
     """
 
-    revision = Field(int)
-
-
-class DeploymentRollback(Model):
-    """
-    DeploymentRollback stores the information required to rollback a deployment.
-    """
-    apiVersion = Field(six.text_type, "apps/v1beta1")
-    kind = Field(six.text_type, "DeploymentRollback")
-
-    name = RequiredField(six.text_type)
-    rollbackTo = RequiredField(RollbackConfig)
-    updatedAnnotations = Field(dict)
+    replicas = RequiredField(int)
+    selector = Field(dict)
+    targetSelector = Field(six.text_type)
 
 
 class ScaleSpec(Model):
@@ -176,6 +129,14 @@ class DeploymentStrategy(Model):
     type = Field(six.text_type)
 
 
+class RollbackConfig(Model):
+    """
+    
+    """
+
+    revision = Field(int)
+
+
 class DeploymentSpec(Model):
     """
     DeploymentSpec is the specification of the desired behavior of the Deployment.
@@ -190,6 +151,45 @@ class DeploymentSpec(Model):
     selector = Field(LabelSelector)
     strategy = Field(DeploymentStrategy)
     template = RequiredField(PodTemplateSpec)
+
+
+class DeploymentRollback(Model):
+    """
+    DeploymentRollback stores the information required to rollback a deployment.
+    """
+    apiVersion = Field(six.text_type, "apps/v1beta1")
+    kind = Field(six.text_type, "DeploymentRollback")
+
+    name = RequiredField(six.text_type)
+    rollbackTo = RequiredField(RollbackConfig)
+    updatedAnnotations = Field(dict)
+
+
+class DeploymentCondition(Model):
+    """
+    DeploymentCondition describes the state of a deployment at a certain point.
+    """
+
+    lastTransitionTime = Field(datetime.datetime)
+    lastUpdateTime = Field(datetime.datetime)
+    message = Field(six.text_type)
+    reason = Field(six.text_type)
+    status = RequiredField(six.text_type)
+    type = RequiredField(six.text_type)
+
+
+class DeploymentStatus(Model):
+    """
+    DeploymentStatus is the most recently observed status of the Deployment.
+    """
+
+    availableReplicas = Field(int)
+    conditions = ListField(DeploymentCondition)
+    observedGeneration = Field(int)
+    readyReplicas = Field(int)
+    replicas = Field(int)
+    unavailableReplicas = Field(int)
+    updatedReplicas = Field(int)
 
 
 class Deployment(Model):

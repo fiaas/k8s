@@ -21,6 +21,20 @@ from k8s.models.v1_7.kubernetes.api.v1 import PersistentVolumeClaim, PodTemplate
 ###############################################################################
 
 
+class StatefulSetStatus(Model):
+    """
+    StatefulSetStatus represents the current state of a StatefulSet.
+    """
+
+    currentReplicas = Field(int)
+    currentRevision = Field(six.text_type)
+    observedGeneration = Field(int)
+    readyReplicas = Field(int)
+    replicas = RequiredField(int)
+    updateRevision = Field(six.text_type)
+    updatedReplicas = Field(int)
+
+
 class ScaleStatus(Model):
     """
     ScaleStatus represents the current status of a scale subresource.
@@ -29,6 +43,26 @@ class ScaleStatus(Model):
     replicas = RequiredField(int)
     selector = Field(dict)
     targetSelector = Field(six.text_type)
+
+
+class ScaleSpec(Model):
+    """
+    ScaleSpec describes the attributes of a scale subresource
+    """
+
+    replicas = Field(int)
+
+
+class Scale(Model):
+    """
+    Scale represents a scaling request for a resource.
+    """
+    apiVersion = Field(six.text_type, "apps/v1beta1")
+    kind = Field(six.text_type, "Scale")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(ScaleSpec)
+    status = ReadOnlyField(ScaleStatus)
 
 
 class RollingUpdateStatefulSetStrategy(Model):
@@ -64,83 +98,6 @@ class StatefulSetSpec(Model):
     template = RequiredField(PodTemplateSpec)
     updateStrategy = Field(StatefulSetUpdateStrategy)
     volumeClaimTemplates = ListField(PersistentVolumeClaim)
-
-
-class ControllerRevision(Model):
-    """
-    ControllerRevision implements an immutable snapshot of state data. Clients are
-    responsible for serializing and deserializing the objects that contain their
-    internal state. Once a ControllerRevision has been successfully created, it can
-    not be updated. The API Server will fail validation of all requests that
-    attempt to mutate the Data field. ControllerRevisions may, however, be deleted.
-    Note that, due to its use by both the DaemonSet and StatefulSet controllers for
-    update and rollback, this object is beta. However, it may be subject to name
-    and representation changes in future releases, and clients should not depend on
-    its stability. It is primarily for internal use by controllers.
-    """
-    class Meta:
-        create_url = "/apis/apps/v1beta1/namespaces/{namespace}/controllerrevisions"
-        delete_url = "/apis/apps/v1beta1/namespaces/{namespace}/controllerrevisions/{name}"
-        get_url = "/apis/apps/v1beta1/namespaces/{namespace}/controllerrevisions/{name}"
-        list_all_url = "/apis/apps/v1beta1/controllerrevisions"
-        list_ns_url = "/apis/apps/v1beta1/namespaces/{namespace}/controllerrevisions"
-        update_url = "/apis/apps/v1beta1/namespaces/{namespace}/controllerrevisions/{name}"
-        watch_url = "/apis/apps/v1beta1/watch/namespaces/{namespace}/controllerrevisions/{name}"
-        watchlist_all_url = "/apis/apps/v1beta1/watch/controllerrevisions"
-        watchlist_ns_url = "/apis/apps/v1beta1/watch/namespaces/{namespace}/controllerrevisions"
-    
-    apiVersion = Field(six.text_type, "apps/v1beta1")
-    kind = Field(six.text_type, "ControllerRevision")
-
-    data = Field(RawExtension)
-    metadata = Field(ObjectMeta)
-    revision = RequiredField(int)
-
-
-class ControllerRevisionList(Model):
-    """
-    ControllerRevisionList is a resource containing a list of ControllerRevision
-    objects.
-    """
-    apiVersion = Field(six.text_type, "apps/v1beta1")
-    kind = Field(six.text_type, "ControllerRevisionList")
-
-    items = ListField(ControllerRevision)
-    metadata = Field(ListMeta)
-
-
-class RollbackConfig(Model):
-    """
-    
-    """
-
-    revision = Field(int)
-
-
-class DeploymentRollback(Model):
-    """
-    DeploymentRollback stores the information required to rollback a deployment.
-    """
-    apiVersion = Field(six.text_type, "apps/v1beta1")
-    kind = Field(six.text_type, "DeploymentRollback")
-
-    name = RequiredField(six.text_type)
-    rollbackTo = RequiredField(RollbackConfig)
-    updatedAnnotations = Field(dict)
-
-
-class StatefulSetStatus(Model):
-    """
-    StatefulSetStatus represents the current state of a StatefulSet.
-    """
-
-    currentReplicas = Field(int)
-    currentRevision = Field(six.text_type)
-    observedGeneration = Field(int)
-    readyReplicas = Field(int)
-    replicas = RequiredField(int)
-    updateRevision = Field(six.text_type)
-    updatedReplicas = Field(int)
 
 
 class StatefulSet(Model):
@@ -183,24 +140,58 @@ class StatefulSetList(Model):
     metadata = Field(ListMeta)
 
 
-class ScaleSpec(Model):
+class RollingUpdateDeployment(Model):
     """
-    ScaleSpec describes the attributes of a scale subresource
+    Spec to control the desired behavior of rolling update.
     """
 
+    maxSurge = Field(six.text_type, alt_type=int)
+    maxUnavailable = Field(six.text_type, alt_type=int)
+
+
+class DeploymentStrategy(Model):
+    """
+    DeploymentStrategy describes how to replace existing pods with new ones.
+    """
+
+    rollingUpdate = Field(RollingUpdateDeployment)
+    type = Field(six.text_type)
+
+
+class RollbackConfig(Model):
+    """
+    
+    """
+
+    revision = Field(int)
+
+
+class DeploymentSpec(Model):
+    """
+    DeploymentSpec is the specification of the desired behavior of the Deployment.
+    """
+
+    minReadySeconds = Field(int)
+    paused = Field(bool)
+    progressDeadlineSeconds = Field(int)
     replicas = Field(int)
+    revisionHistoryLimit = Field(int)
+    rollbackTo = Field(RollbackConfig)
+    selector = Field(LabelSelector)
+    strategy = Field(DeploymentStrategy)
+    template = RequiredField(PodTemplateSpec)
 
 
-class Scale(Model):
+class DeploymentRollback(Model):
     """
-    Scale represents a scaling request for a resource.
+    DeploymentRollback stores the information required to rollback a deployment.
     """
     apiVersion = Field(six.text_type, "apps/v1beta1")
-    kind = Field(six.text_type, "Scale")
+    kind = Field(six.text_type, "DeploymentRollback")
 
-    metadata = Field(ObjectMeta)
-    spec = Field(ScaleSpec)
-    status = ReadOnlyField(ScaleStatus)
+    name = RequiredField(six.text_type)
+    rollbackTo = RequiredField(RollbackConfig)
+    updatedAnnotations = Field(dict)
 
 
 class DeploymentCondition(Model):
@@ -229,40 +220,6 @@ class DeploymentStatus(Model):
     replicas = Field(int)
     unavailableReplicas = Field(int)
     updatedReplicas = Field(int)
-
-
-class RollingUpdateDeployment(Model):
-    """
-    Spec to control the desired behavior of rolling update.
-    """
-
-    maxSurge = Field(six.text_type, alt_type=int)
-    maxUnavailable = Field(six.text_type, alt_type=int)
-
-
-class DeploymentStrategy(Model):
-    """
-    DeploymentStrategy describes how to replace existing pods with new ones.
-    """
-
-    rollingUpdate = Field(RollingUpdateDeployment)
-    type = Field(six.text_type)
-
-
-class DeploymentSpec(Model):
-    """
-    DeploymentSpec is the specification of the desired behavior of the Deployment.
-    """
-
-    minReadySeconds = Field(int)
-    paused = Field(bool)
-    progressDeadlineSeconds = Field(int)
-    replicas = Field(int)
-    revisionHistoryLimit = Field(int)
-    rollbackTo = Field(RollbackConfig)
-    selector = Field(LabelSelector)
-    strategy = Field(DeploymentStrategy)
-    template = RequiredField(PodTemplateSpec)
 
 
 class Deployment(Model):
@@ -296,5 +253,48 @@ class DeploymentList(Model):
     kind = Field(six.text_type, "DeploymentList")
 
     items = ListField(Deployment)
+    metadata = Field(ListMeta)
+
+
+class ControllerRevision(Model):
+    """
+    ControllerRevision implements an immutable snapshot of state data. Clients are
+    responsible for serializing and deserializing the objects that contain their
+    internal state. Once a ControllerRevision has been successfully created, it can
+    not be updated. The API Server will fail validation of all requests that
+    attempt to mutate the Data field. ControllerRevisions may, however, be deleted.
+    Note that, due to its use by both the DaemonSet and StatefulSet controllers for
+    update and rollback, this object is beta. However, it may be subject to name
+    and representation changes in future releases, and clients should not depend on
+    its stability. It is primarily for internal use by controllers.
+    """
+    class Meta:
+        create_url = "/apis/apps/v1beta1/namespaces/{namespace}/controllerrevisions"
+        delete_url = "/apis/apps/v1beta1/namespaces/{namespace}/controllerrevisions/{name}"
+        get_url = "/apis/apps/v1beta1/namespaces/{namespace}/controllerrevisions/{name}"
+        list_all_url = "/apis/apps/v1beta1/controllerrevisions"
+        list_ns_url = "/apis/apps/v1beta1/namespaces/{namespace}/controllerrevisions"
+        update_url = "/apis/apps/v1beta1/namespaces/{namespace}/controllerrevisions/{name}"
+        watch_url = "/apis/apps/v1beta1/watch/namespaces/{namespace}/controllerrevisions/{name}"
+        watchlist_all_url = "/apis/apps/v1beta1/watch/controllerrevisions"
+        watchlist_ns_url = "/apis/apps/v1beta1/watch/namespaces/{namespace}/controllerrevisions"
+    
+    apiVersion = Field(six.text_type, "apps/v1beta1")
+    kind = Field(six.text_type, "ControllerRevision")
+
+    data = Field(RawExtension)
+    metadata = Field(ObjectMeta)
+    revision = RequiredField(int)
+
+
+class ControllerRevisionList(Model):
+    """
+    ControllerRevisionList is a resource containing a list of ControllerRevision
+    objects.
+    """
+    apiVersion = Field(six.text_type, "apps/v1beta1")
+    kind = Field(six.text_type, "ControllerRevisionList")
+
+    items = ListField(ControllerRevision)
     metadata = Field(ListMeta)
 
