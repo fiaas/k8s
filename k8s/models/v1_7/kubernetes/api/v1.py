@@ -680,7 +680,6 @@ class Namespace(Model):
         get_url = "/api/v1/namespaces/{name}"
         list_all_url = "/api/v1/namespaces"
         update_url = "/api/v1/namespaces/{name}"
-        update_url = "/api/v1/namespaces/{name}/finalize"
         watch_url = "/api/v1/watch/namespaces/{name}"
         watchlist_all_url = "/api/v1/watch/namespaces"
     

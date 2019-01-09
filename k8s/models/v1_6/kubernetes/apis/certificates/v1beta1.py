@@ -63,7 +63,6 @@ class CertificateSigningRequest(Model):
         delete_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}"
         get_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}"
         list_all_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests"
-        update_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}/approval"
         update_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}"
         watch_url = "/apis/certificates.k8s.io/v1beta1/watch/certificatesigningrequests/{name}"
         watchlist_all_url = "/apis/certificates.k8s.io/v1beta1/watch/certificatesigningrequests"

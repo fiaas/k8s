@@ -323,7 +323,7 @@ class ActionParser(object):
     @staticmethod
     def _should_ignore_path(path):
         last = posixpath.split(path)[-1]
-        return last in ("status", "scale", "rollback", "bindings", "log")
+        return last in ("status", "scale", "rollback", "bindings", "log", "approval", "finalize")
 
     @staticmethod
     def _should_ignore_method(method):
