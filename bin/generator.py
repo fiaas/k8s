@@ -15,7 +15,7 @@ from cachecontrol.caches import FileCache
 from jinja2 import Environment, FileSystemLoader
 
 URL_TEMPLATE = "https://raw.githubusercontent.com/kubernetes/kubernetes/release-1.{}/api/openapi-spec/swagger.json"
-VERSION_RANGE = (6, 9)
+VERSION_RANGE = (6, 14)
 HTTP_CLIENT_SESSION = CacheControl(requests.session(), cache=FileCache(appdirs.user_cache_dir("k8s-generator")))
 TYPE_MAPPING = {
     "integer": "int",
@@ -38,6 +38,7 @@ TYPE_MAPPING = {
 REF_PATTERN = re.compile(r"io\.k8s\.(.+)")
 OPERATION_ID_TO_ACTION = {}
 OPERATION_ID_TO_GVK = {}
+MODEL_REF_TO_GVK = {}
 PYTHON2_KEYWORDS = ['and', 'as', 'assert', 'break', 'class', 'continue', 'def', 'del', 'elif', 'else', 'except', 'exec',
                     'finally', 'for', 'from', 'global', 'if', 'import', 'in', 'is', 'lambda', 'not', 'or', 'pass',
                     'print', 'raise', 'return', 'try', 'while', 'with', 'yield']
@@ -83,6 +84,9 @@ class Model(Child):
     def name(self):
         return self.definition.name
 
+    def __repr__(self):
+        return "Model(ref={})".format(self.ref)
+
 
 class Package(namedtuple("Package", ("ref", "modules"))):
     @property
@@ -96,7 +100,20 @@ class Import(namedtuple("Import", ("module", "models"))):
         return sorted(m.definition.name for m in self.models)
 
 
+@total_ordering
+class Node(namedtuple("Node", ("model", "dependants", "dependencies"))):
+    def __eq__(self, other):
+        return self.model == other.model
+
+    def __lt__(self, other):
+        return self.model < other.model
+
+    def __hash__(self):
+        return hash(self.model)
+
+
 def shorten_ref(id):
+    id = id.replace("-", "_")
     m = REF_PATTERN.search(id)
     if not m:
         raise RuntimeError("Invalid id: {}".format(id))
@@ -113,6 +130,8 @@ class PackageParser(object):
         shorten_ref("io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1beta1.CustomResourceSubresourceStatus"):
             Primitive("object"),  # This might not be the right thing to do, but the spec is unclear
         shorten_ref("io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1beta1.JSON"): Primitive("object"),
+        shorten_ref("io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1beta1.JSONSchemaProps"):
+            Primitive("object"),
     }
     _UNION_TYPES = {
         shorten_ref("io.k8s.apimachinery.pkg.util.intstr.IntOrString"): (Primitive("string"), Primitive("integer")),
@@ -140,13 +159,22 @@ class PackageParser(object):
     def _parse_models(self):
         for id, item in self._spec.items():
             id = shorten_ref(id)
+            if id in self._SPECIAL_TYPES:
+                print("Model {} is a special type, skipping".format(id))
+                continue
+            if id in self._UNION_TYPES:
+                print("Model {} is a union type, skipping".format(id))
+                continue
             package_ref, module_name, def_name = _split_ref(id)
             package = self.get_package(package_ref)
             module = self.get_module(package, module_name)
+            model_ref = _make_ref(package.ref, module.name, def_name)
             gvks = []
             for x in item.get("x-kubernetes-group-version-kind", []):
                 x = {k.lower(): v for k, v in x.items()}
                 gvks.append(GVK(**x))
+            if not gvks and model_ref in MODEL_REF_TO_GVK:
+                gvks = [MODEL_REF_TO_GVK[model_ref]]
             gvks = gvks[:1]
             fields = []
             required_fields = item.get("required", [])
@@ -156,11 +184,12 @@ class PackageParser(object):
                 print("Model {}.{}.{} has no fields, skipping".format(package_ref, module_name, def_name))
                 continue
             definition = Definition(def_name, item.get("description", ""), fields, gvks)
-            model = Model(_make_ref(package.ref, module.name, def_name), definition)
+            model = Model(model_ref, definition)
             module.models.append(model)
             self._models[model.ref] = model
             for gvk in gvks:
                 self._gvk_lookup[gvk] = model
+                MODEL_REF_TO_GVK[model_ref] = gvk
         print("Completed parse. Parsed {} packages, {} modules, {} models and {} GVKs.".format(len(self._packages),
                                                                                                len(self._modules),
                                                                                                len(self._models),
@@ -264,28 +293,53 @@ class PackageParser(object):
 
     def _sort_models(self, models):
         """We need to make sure that any model that references an other model comes later in the list"""
-        Node = namedtuple("Node", ("model", "dependants", "dependencies"))
         nodes = {}
         for model in models:
-            node = nodes.setdefault(model.ref, Node(model, [], []))
+            nodes[model.ref] = Node(model, [], [])
+        for node in sorted(nodes.values()):
+            model = node.model
             for field in model.definition.fields:
                 if isinstance(field.type, Model) and field.type.parent_ref == model.parent_ref:
-                    dep = nodes.setdefault(field.type.ref, Node(field.type, [], []))
+                    dep = nodes[field.type.ref]
                     node.dependencies.append(dep)
-        for node in sorted(nodes.values()):
-            for dep in node.dependencies:
-                dep.dependants.append(node)
+                    dep.dependants.append(node)
+        self._cycle_check(nodes.values())
         top_nodes = [n for n in nodes.values() if len(n.dependencies) == 0]
         top_nodes.sort()
-        models = []
+        sorted_models = []
         while top_nodes:
             top_node = top_nodes.pop()
-            models.append(top_node.model)
+            sorted_models.append(top_node.model)
             for dep in top_node.dependants:
                 dep.dependencies.remove(top_node)
                 if len(dep.dependencies) == 0:
                     top_nodes.append(dep)
-        return models
+        if len(models) != len(sorted_models):
+            print("Lost models while sorting!!!\n=== Input: {}\n=== Output: {}".format(models, sorted_models))
+        return sorted_models
+
+    def _cycle_check(self, nodes):
+        visited = defaultdict(bool)
+        stack = defaultdict(bool)
+        for n in nodes:
+            if not visited[n]:
+                result = self._cycle_check_util(n, visited, stack)
+                if result:
+                    print("Graph has a cycle!!! Detected at {}".format(result))
+                    break
+
+    def _cycle_check_util(self, v, visited, stack):
+        visited[v] = True
+        stack[v] = True
+        for dep in v.dependencies:
+            if not visited[dep]:
+                result = self._cycle_check_util(dep, visited, stack)
+                if result:
+                    return result
+            elif stack[dep]:
+                return dep
+        stack[v] = False
+        return False
 
 
 class ActionParser(object):
@@ -299,7 +353,7 @@ class ActionParser(object):
         for gvk, actions in operations.items():
             model = self._package_parser.resolve_gvk(gvk)
             if not model:
-                print("GVK {} resolved to no known model".format(gvk))
+                print("GVK {} resolved to no known model. No model to attach these actions to: {}".format(gvk, actions))
                 continue
             model.operations = sorted(actions, key=lambda a: a.action)
             counter[model] += len(actions)

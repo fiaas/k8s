@@ -23,6 +23,8 @@ class WatchEvent(Model):
     """
     Event represents a single event to a watched resource.
     """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "WatchEvent")
 
     object = RequiredField(RawExtension)
     type = RequiredField(six.text_type)
@@ -69,6 +71,8 @@ class APIVersions(Model):
     APIVersions lists the versions that are available, to allow clients to discover
     the API at /api, which is the root path of the legacy v1 API.
     """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "APIVersions")
 
     serverAddressByClientCIDRs = ListField(ServerAddressByClientCIDR)
     versions = ListField(six.text_type)
@@ -87,6 +91,8 @@ class DeleteOptions(Model):
     """
     DeleteOptions may be provided when deleting an API object.
     """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "DeleteOptions")
 
     gracePeriodSeconds = Field(int)
     orphanDependents = Field(bool)
@@ -145,6 +151,8 @@ class Status(Model):
     """
     Status is a return value for calls that don't return other objects.
     """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "Status")
 
     code = Field(int)
     details = Field(StatusDetails)
@@ -191,6 +199,8 @@ class APIGroup(Model):
     APIGroup contains the name, the supported versions, and the preferred version
     of a group.
     """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "APIGroup")
 
     name = RequiredField(six.text_type)
     preferredVersion = Field(GroupVersionForDiscovery)
@@ -203,6 +213,8 @@ class APIGroupList(Model):
     APIGroupList is a list of APIGroup, to allow clients to discover the API at
     /apis.
     """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "APIGroupList")
 
     groups = ListField(APIGroup)
 
@@ -224,6 +236,8 @@ class APIResourceList(Model):
     resources supported in a specific group and version, and if the resource is
     namespaced.
     """
+    apiVersion = Field(six.text_type, "v1")
+    kind = Field(six.text_type, "APIResourceList")
 
     groupVersion = RequiredField(six.text_type)
     resources = ListField(APIResource)

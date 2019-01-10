@@ -8,6 +8,7 @@ import six
 
 from k8s.base import Model
 from k8s.fields import Field, ListField, RequiredField
+from k8s.models.v1_8.apimachinery.apis.meta.v1 import ListMeta, ObjectMeta
 
 
 ###############################################################################
@@ -16,15 +17,6 @@ from k8s.fields import Field, ListField, RequiredField
 # Codestyle checking is disabled for this file
 # flake8: noqa
 ###############################################################################
-
-
-class JSON(Model):
-    """
-    JSON represents any valid JSON value. These types are supported: bool, int64,
-    float64, string, []interface{}, map[string]interface{} and nil.
-    """
-
-    Raw = RequiredField(six.text_type)
 
 
 class ExternalDocumentation(Model):
@@ -37,6 +29,14 @@ class ExternalDocumentation(Model):
     url = Field(six.text_type)
 
 
+class CustomResourceValidation(Model):
+    """
+    CustomResourceValidation is a list of validation methods for CustomResources.
+    """
+
+    openAPIV3Schema = Field(dict)
+
+
 class CustomResourceDefinitionNames(Model):
     """
     CustomResourceDefinitionNames indicates the names to serve this
@@ -47,6 +47,19 @@ class CustomResourceDefinitionNames(Model):
     plural = RequiredField(six.text_type)
     shortNames = ListField(six.text_type)
     singular = Field(six.text_type)
+
+
+class CustomResourceDefinitionSpec(Model):
+    """
+    CustomResourceDefinitionSpec describes how a user wants their resource to
+    appear
+    """
+
+    group = RequiredField(six.text_type)
+    names = RequiredField(CustomResourceDefinitionNames)
+    scope = RequiredField(six.text_type)
+    validation = Field(CustomResourceValidation)
+    version = RequiredField(six.text_type)
 
 
 class CustomResourceDefinitionCondition(Model):
@@ -70,4 +83,37 @@ class CustomResourceDefinitionStatus(Model):
 
     acceptedNames = RequiredField(CustomResourceDefinitionNames)
     conditions = ListField(CustomResourceDefinitionCondition)
+
+
+class CustomResourceDefinition(Model):
+    """
+    CustomResourceDefinition represents a resource that should be exposed on the
+    API server.  Its name MUST be in the format <.spec.name>.<.spec.group>.
+    """
+    class Meta:
+        create_url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions"
+        delete_url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}"
+        get_url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}"
+        list_all_url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions"
+        update_url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}"
+        watch_url = "/apis/apiextensions.k8s.io/v1beta1/watch/customresourcedefinitions/{name}"
+        watchlist_all_url = "/apis/apiextensions.k8s.io/v1beta1/watch/customresourcedefinitions"
+    
+    apiVersion = Field(six.text_type, "apiextensions.k8s.io/v1beta1")
+    kind = Field(six.text_type, "CustomResourceDefinition")
+
+    metadata = Field(ObjectMeta)
+    spec = Field(CustomResourceDefinitionSpec)
+    status = Field(CustomResourceDefinitionStatus)
+
+
+class CustomResourceDefinitionList(Model):
+    """
+    CustomResourceDefinitionList is a list of CustomResourceDefinition objects.
+    """
+    apiVersion = Field(six.text_type, "apiextensions.k8s.io/v1beta1")
+    kind = Field(six.text_type, "CustomResourceDefinitionList")
+
+    items = ListField(CustomResourceDefinition)
+    metadata = Field(ListMeta)
 
