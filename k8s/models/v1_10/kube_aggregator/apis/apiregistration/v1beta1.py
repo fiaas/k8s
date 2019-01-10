@@ -69,6 +69,7 @@ class APIService(Model):
     APIService represents a server for a particular GroupVersion. Name must be
     'version.group'.
     """
+
     class Meta:
         create_url = "/apis/apiregistration.k8s.io/v1beta1/apiservices"
         delete_url = "/apis/apiregistration.k8s.io/v1beta1/apiservices/{name}"
@@ -77,7 +78,7 @@ class APIService(Model):
         update_url = "/apis/apiregistration.k8s.io/v1beta1/apiservices/{name}"
         watch_url = "/apis/apiregistration.k8s.io/v1beta1/watch/apiservices/{name}"
         watchlist_all_url = "/apis/apiregistration.k8s.io/v1beta1/watch/apiservices"
-    
+
     apiVersion = Field(six.text_type, "apiregistration.k8s.io/v1beta1")
     kind = Field(six.text_type, "APIService")
 
@@ -95,4 +96,3 @@ class APIServiceList(Model):
 
     items = ListField(APIService)
     metadata = Field(ListMeta)
-

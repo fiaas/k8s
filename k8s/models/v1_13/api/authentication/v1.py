@@ -55,13 +55,13 @@ class TokenReview(Model):
     requests may be cached by the webhook token authenticator plugin in the kube-
     apiserver.
     """
+
     class Meta:
         create_url = "/apis/authentication.k8s.io/v1/tokenreviews"
-    
+
     apiVersion = Field(six.text_type, "authentication.k8s.io/v1")
     kind = Field(six.text_type, "TokenReview")
 
     metadata = Field(ObjectMeta)
     spec = RequiredField(TokenReviewSpec)
     status = Field(TokenReviewStatus)
-

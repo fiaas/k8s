@@ -84,6 +84,7 @@ class HorizontalPodAutoscaler(Model):
     """
     configuration of a horizontal pod autoscaler.
     """
+
     class Meta:
         create_url = "/apis/autoscaling/v1/namespaces/{namespace}/horizontalpodautoscalers"
         delete_url = "/apis/autoscaling/v1/namespaces/{namespace}/horizontalpodautoscalers/{name}"
@@ -94,7 +95,7 @@ class HorizontalPodAutoscaler(Model):
         watch_url = "/apis/autoscaling/v1/watch/namespaces/{namespace}/horizontalpodautoscalers/{name}"
         watchlist_all_url = "/apis/autoscaling/v1/watch/horizontalpodautoscalers"
         watchlist_ns_url = "/apis/autoscaling/v1/watch/namespaces/{namespace}/horizontalpodautoscalers"
-    
+
     apiVersion = Field(six.text_type, "autoscaling/v1")
     kind = Field(six.text_type, "HorizontalPodAutoscaler")
 
@@ -112,4 +113,3 @@ class HorizontalPodAutoscalerList(Model):
 
     items = ListField(HorizontalPodAutoscaler)
     metadata = Field(ListMeta)
-

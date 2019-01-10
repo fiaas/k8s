@@ -46,6 +46,7 @@ class RoleBinding(Model):
     exists in.  RoleBindings in a given namespace only have effect in that
     namespace.
     """
+
     class Meta:
         create_url = "/apis/rbac.authorization.k8s.io/v1beta1/namespaces/{namespace}/rolebindings"
         delete_url = "/apis/rbac.authorization.k8s.io/v1beta1/namespaces/{namespace}/rolebindings/{name}"
@@ -56,7 +57,7 @@ class RoleBinding(Model):
         watch_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/namespaces/{namespace}/rolebindings/{name}"
         watchlist_all_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/rolebindings"
         watchlist_ns_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/namespaces/{namespace}/rolebindings"
-    
+
     apiVersion = Field(six.text_type, "rbac.authorization.k8s.io/v1beta1")
     kind = Field(six.text_type, "RoleBinding")
 
@@ -82,6 +83,7 @@ class ClusterRoleBinding(Model):
     reference a ClusterRole in the global namespace, and adds who information via
     Subject.
     """
+
     class Meta:
         create_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterrolebindings"
         delete_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterrolebindings/{name}"
@@ -90,7 +92,7 @@ class ClusterRoleBinding(Model):
         update_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterrolebindings/{name}"
         watch_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/clusterrolebindings/{name}"
         watchlist_all_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/clusterrolebindings"
-    
+
     apiVersion = Field(six.text_type, "rbac.authorization.k8s.io/v1beta1")
     kind = Field(six.text_type, "ClusterRoleBinding")
 
@@ -129,6 +131,7 @@ class Role(Model):
     Role is a namespaced, logical grouping of PolicyRules that can be referenced as
     a unit by a RoleBinding.
     """
+
     class Meta:
         create_url = "/apis/rbac.authorization.k8s.io/v1beta1/namespaces/{namespace}/roles"
         delete_url = "/apis/rbac.authorization.k8s.io/v1beta1/namespaces/{namespace}/roles/{name}"
@@ -139,7 +142,7 @@ class Role(Model):
         watch_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/namespaces/{namespace}/roles/{name}"
         watchlist_all_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/roles"
         watchlist_ns_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/namespaces/{namespace}/roles"
-    
+
     apiVersion = Field(six.text_type, "rbac.authorization.k8s.io/v1beta1")
     kind = Field(six.text_type, "Role")
 
@@ -163,6 +166,7 @@ class ClusterRole(Model):
     ClusterRole is a cluster level, logical grouping of PolicyRules that can be
     referenced as a unit by a RoleBinding or ClusterRoleBinding.
     """
+
     class Meta:
         create_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles"
         delete_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles/{name}"
@@ -171,7 +175,7 @@ class ClusterRole(Model):
         update_url = "/apis/rbac.authorization.k8s.io/v1beta1/clusterroles/{name}"
         watch_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/clusterroles/{name}"
         watchlist_all_url = "/apis/rbac.authorization.k8s.io/v1beta1/watch/clusterroles"
-    
+
     apiVersion = Field(six.text_type, "rbac.authorization.k8s.io/v1beta1")
     kind = Field(six.text_type, "ClusterRole")
 
@@ -188,4 +192,3 @@ class ClusterRoleList(Model):
 
     items = ListField(ClusterRole)
     metadata = Field(ListMeta)
-

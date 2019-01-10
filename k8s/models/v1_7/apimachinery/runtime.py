@@ -63,4 +63,3 @@ class RawExtension(Model):
     """
 
     Raw = RequiredField(six.text_type)
-

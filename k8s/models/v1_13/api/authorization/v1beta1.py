@@ -100,9 +100,10 @@ class SelfSubjectRulesReview(Model):
     SubjectAccessReview, and LocalAccessReview are the correct way to defer
     authorization decisions to the API server.
     """
+
     class Meta:
         create_url = "/apis/authorization.k8s.io/v1beta1/selfsubjectrulesreviews"
-    
+
     apiVersion = Field(six.text_type, "authorization.k8s.io/v1beta1")
     kind = Field(six.text_type, "SelfSubjectRulesReview")
 
@@ -141,9 +142,10 @@ class SubjectAccessReview(Model):
     SubjectAccessReview checks whether or not a user or group can perform an
     action.
     """
+
     class Meta:
         create_url = "/apis/authorization.k8s.io/v1beta1/subjectaccessreviews"
-    
+
     apiVersion = Field(six.text_type, "authorization.k8s.io/v1beta1")
     kind = Field(six.text_type, "SubjectAccessReview")
 
@@ -158,9 +160,10 @@ class LocalSubjectAccessReview(Model):
     action in a given namespace. Having a namespace scoped resource makes it much
     easier to grant namespace scoped policy that includes permissions checking.
     """
+
     class Meta:
         create_url = "/apis/authorization.k8s.io/v1beta1/namespaces/{namespace}/localsubjectaccessreviews"
-    
+
     apiVersion = Field(six.text_type, "authorization.k8s.io/v1beta1")
     kind = Field(six.text_type, "LocalSubjectAccessReview")
 
@@ -187,13 +190,13 @@ class SelfSubjectAccessReview(Model):
     special case, because users should always be able to check whether they can
     perform an action
     """
+
     class Meta:
         create_url = "/apis/authorization.k8s.io/v1beta1/selfsubjectaccessreviews"
-    
+
     apiVersion = Field(six.text_type, "authorization.k8s.io/v1beta1")
     kind = Field(six.text_type, "SelfSubjectAccessReview")
 
     metadata = Field(ObjectMeta)
     spec = RequiredField(SelfSubjectAccessReviewSpec)
     status = Field(SubjectAccessReviewStatus)
-

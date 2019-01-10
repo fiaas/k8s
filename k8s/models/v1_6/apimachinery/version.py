@@ -31,4 +31,3 @@ class Info(Model):
     major = RequiredField(six.text_type)
     minor = RequiredField(six.text_type)
     platform = RequiredField(six.text_type)
-

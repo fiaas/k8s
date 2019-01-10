@@ -67,6 +67,7 @@ class VolumeAttachment(Model):
 
     VolumeAttachment objects are non-namespaced.
     """
+
     class Meta:
         create_url = "/apis/storage.k8s.io/v1beta1/volumeattachments"
         delete_url = "/apis/storage.k8s.io/v1beta1/volumeattachments/{name}"
@@ -75,7 +76,7 @@ class VolumeAttachment(Model):
         update_url = "/apis/storage.k8s.io/v1beta1/volumeattachments/{name}"
         watch_url = "/apis/storage.k8s.io/v1beta1/watch/volumeattachments/{name}"
         watchlist_all_url = "/apis/storage.k8s.io/v1beta1/watch/volumeattachments"
-    
+
     apiVersion = Field(six.text_type, "storage.k8s.io/v1beta1")
     kind = Field(six.text_type, "VolumeAttachment")
 
@@ -104,6 +105,7 @@ class StorageClass(Model):
     namespaced; the name of the storage class according to etcd is in
     ObjectMeta.Name.
     """
+
     class Meta:
         create_url = "/apis/storage.k8s.io/v1beta1/storageclasses"
         delete_url = "/apis/storage.k8s.io/v1beta1/storageclasses/{name}"
@@ -112,7 +114,7 @@ class StorageClass(Model):
         update_url = "/apis/storage.k8s.io/v1beta1/storageclasses/{name}"
         watch_url = "/apis/storage.k8s.io/v1beta1/watch/storageclasses/{name}"
         watchlist_all_url = "/apis/storage.k8s.io/v1beta1/watch/storageclasses"
-    
+
     apiVersion = Field(six.text_type, "storage.k8s.io/v1beta1")
     kind = Field(six.text_type, "StorageClass")
 
@@ -135,4 +137,3 @@ class StorageClassList(Model):
 
     items = ListField(StorageClass)
     metadata = Field(ListMeta)
-

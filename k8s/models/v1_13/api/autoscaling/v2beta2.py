@@ -221,6 +221,7 @@ class HorizontalPodAutoscaler(Model):
     which automatically manages the replica count of any resource implementing the
     scale subresource based on the metrics specified.
     """
+
     class Meta:
         create_url = "/apis/autoscaling/v2beta2/namespaces/{namespace}/horizontalpodautoscalers"
         delete_url = "/apis/autoscaling/v2beta2/namespaces/{namespace}/horizontalpodautoscalers/{name}"
@@ -231,7 +232,7 @@ class HorizontalPodAutoscaler(Model):
         watch_url = "/apis/autoscaling/v2beta2/watch/namespaces/{namespace}/horizontalpodautoscalers/{name}"
         watchlist_all_url = "/apis/autoscaling/v2beta2/watch/horizontalpodautoscalers"
         watchlist_ns_url = "/apis/autoscaling/v2beta2/watch/namespaces/{namespace}/horizontalpodautoscalers"
-    
+
     apiVersion = Field(six.text_type, "autoscaling/v2beta2")
     kind = Field(six.text_type, "HorizontalPodAutoscaler")
 
@@ -249,4 +250,3 @@ class HorizontalPodAutoscalerList(Model):
 
     items = ListField(HorizontalPodAutoscaler)
     metadata = Field(ListMeta)
-

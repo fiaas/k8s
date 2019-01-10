@@ -35,6 +35,7 @@ class Lease(Model):
     """
     Lease defines a lease concept.
     """
+
     class Meta:
         create_url = "/apis/coordination.k8s.io/v1beta1/namespaces/{namespace}/leases"
         delete_url = "/apis/coordination.k8s.io/v1beta1/namespaces/{namespace}/leases/{name}"
@@ -45,7 +46,7 @@ class Lease(Model):
         watch_url = "/apis/coordination.k8s.io/v1beta1/watch/namespaces/{namespace}/leases/{name}"
         watchlist_all_url = "/apis/coordination.k8s.io/v1beta1/watch/leases"
         watchlist_ns_url = "/apis/coordination.k8s.io/v1beta1/watch/namespaces/{namespace}/leases"
-    
+
     apiVersion = Field(six.text_type, "coordination.k8s.io/v1beta1")
     kind = Field(six.text_type, "Lease")
 
@@ -62,4 +63,3 @@ class LeaseList(Model):
 
     items = ListField(Lease)
     metadata = Field(ListMeta)
-

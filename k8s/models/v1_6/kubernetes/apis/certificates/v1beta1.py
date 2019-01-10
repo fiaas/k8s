@@ -58,6 +58,7 @@ class CertificateSigningRequest(Model):
     """
     Describes a certificate signing request
     """
+
     class Meta:
         create_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests"
         delete_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}"
@@ -66,7 +67,7 @@ class CertificateSigningRequest(Model):
         update_url = "/apis/certificates.k8s.io/v1beta1/certificatesigningrequests/{name}"
         watch_url = "/apis/certificates.k8s.io/v1beta1/watch/certificatesigningrequests/{name}"
         watchlist_all_url = "/apis/certificates.k8s.io/v1beta1/watch/certificatesigningrequests"
-    
+
     apiVersion = Field(six.text_type, "certificates.k8s.io/v1beta1")
     kind = Field(six.text_type, "CertificateSigningRequest")
 
@@ -84,4 +85,3 @@ class CertificateSigningRequestList(Model):
 
     items = ListField(CertificateSigningRequest)
     metadata = Field(ListMeta)
-

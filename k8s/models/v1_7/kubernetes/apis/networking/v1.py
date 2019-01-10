@@ -60,6 +60,7 @@ class NetworkPolicy(Model):
     """
     NetworkPolicy describes what network traffic is allowed for a set of Pods
     """
+
     class Meta:
         create_url = "/apis/networking.k8s.io/v1/namespaces/{namespace}/networkpolicies"
         delete_url = "/apis/networking.k8s.io/v1/namespaces/{namespace}/networkpolicies/{name}"
@@ -70,7 +71,7 @@ class NetworkPolicy(Model):
         watch_url = "/apis/networking.k8s.io/v1/watch/namespaces/{namespace}/networkpolicies/{name}"
         watchlist_all_url = "/apis/networking.k8s.io/v1/watch/networkpolicies"
         watchlist_ns_url = "/apis/networking.k8s.io/v1/watch/namespaces/{namespace}/networkpolicies"
-    
+
     apiVersion = Field(six.text_type, "networking.k8s.io/v1")
     kind = Field(six.text_type, "NetworkPolicy")
 
@@ -87,4 +88,3 @@ class NetworkPolicyList(Model):
 
     items = ListField(NetworkPolicy)
     metadata = Field(ListMeta)
-

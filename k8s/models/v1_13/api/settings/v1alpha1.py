@@ -35,6 +35,7 @@ class PodPreset(Model):
     PodPreset is a policy resource that defines additional runtime requirements for
     a Pod.
     """
+
     class Meta:
         create_url = "/apis/settings.k8s.io/v1alpha1/namespaces/{namespace}/podpresets"
         delete_url = "/apis/settings.k8s.io/v1alpha1/namespaces/{namespace}/podpresets/{name}"
@@ -45,7 +46,7 @@ class PodPreset(Model):
         watch_url = "/apis/settings.k8s.io/v1alpha1/watch/namespaces/{namespace}/podpresets/{name}"
         watchlist_all_url = "/apis/settings.k8s.io/v1alpha1/watch/podpresets"
         watchlist_ns_url = "/apis/settings.k8s.io/v1alpha1/watch/namespaces/{namespace}/podpresets"
-    
+
     apiVersion = Field(six.text_type, "settings.k8s.io/v1alpha1")
     kind = Field(six.text_type, "PodPreset")
 
@@ -62,4 +63,3 @@ class PodPresetList(Model):
 
     items = ListField(PodPreset)
     metadata = Field(ListMeta)
-

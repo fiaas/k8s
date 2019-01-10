@@ -59,6 +59,7 @@ class CronJob(Model):
     """
     CronJob represents the configuration of a single cron job.
     """
+
     class Meta:
         create_url = "/apis/batch/v1beta1/namespaces/{namespace}/cronjobs"
         delete_url = "/apis/batch/v1beta1/namespaces/{namespace}/cronjobs/{name}"
@@ -69,7 +70,7 @@ class CronJob(Model):
         watch_url = "/apis/batch/v1beta1/watch/namespaces/{namespace}/cronjobs/{name}"
         watchlist_all_url = "/apis/batch/v1beta1/watch/cronjobs"
         watchlist_ns_url = "/apis/batch/v1beta1/watch/namespaces/{namespace}/cronjobs"
-    
+
     apiVersion = Field(six.text_type, "batch/v1beta1")
     kind = Field(six.text_type, "CronJob")
 
@@ -87,4 +88,3 @@ class CronJobList(Model):
 
     items = ListField(CronJob)
     metadata = Field(ListMeta)
-

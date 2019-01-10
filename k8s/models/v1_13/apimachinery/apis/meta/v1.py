@@ -266,4 +266,3 @@ class APIResourceList(Model):
 
     groupVersion = RequiredField(six.text_type)
     resources = ListField(APIResource)
-

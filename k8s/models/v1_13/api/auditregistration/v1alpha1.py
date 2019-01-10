@@ -78,6 +78,7 @@ class AuditSink(Model):
     """
     AuditSink represents a cluster level audit sink
     """
+
     class Meta:
         create_url = "/apis/auditregistration.k8s.io/v1alpha1/auditsinks"
         delete_url = "/apis/auditregistration.k8s.io/v1alpha1/auditsinks/{name}"
@@ -86,7 +87,7 @@ class AuditSink(Model):
         update_url = "/apis/auditregistration.k8s.io/v1alpha1/auditsinks/{name}"
         watch_url = "/apis/auditregistration.k8s.io/v1alpha1/watch/auditsinks/{name}"
         watchlist_all_url = "/apis/auditregistration.k8s.io/v1alpha1/watch/auditsinks"
-    
+
     apiVersion = Field(six.text_type, "auditregistration.k8s.io/v1alpha1")
     kind = Field(six.text_type, "AuditSink")
 
@@ -103,4 +104,3 @@ class AuditSinkList(Model):
 
     items = ListField(AuditSink)
     metadata = Field(ListMeta)
-

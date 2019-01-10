@@ -36,6 +36,7 @@ class Event(Model):
     Event is a report of an event somewhere in the cluster. It generally denotes
     some state change in the system.
     """
+
     class Meta:
         create_url = "/apis/events.k8s.io/v1beta1/namespaces/{namespace}/events"
         delete_url = "/apis/events.k8s.io/v1beta1/namespaces/{namespace}/events/{name}"
@@ -46,7 +47,7 @@ class Event(Model):
         watch_url = "/apis/events.k8s.io/v1beta1/watch/namespaces/{namespace}/events/{name}"
         watchlist_all_url = "/apis/events.k8s.io/v1beta1/watch/events"
         watchlist_ns_url = "/apis/events.k8s.io/v1beta1/watch/namespaces/{namespace}/events"
-    
+
     apiVersion = Field(six.text_type, "events.k8s.io/v1beta1")
     kind = Field(six.text_type, "Event")
 
@@ -76,4 +77,3 @@ class EventList(Model):
 
     items = ListField(Event)
     metadata = Field(ListMeta)
-

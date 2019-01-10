@@ -64,6 +64,7 @@ class ExternalAdmissionHookConfiguration(Model):
     """
     ExternalAdmissionHookConfiguration describes the configuration of initializers.
     """
+
     class Meta:
         create_url = "/apis/admissionregistration.k8s.io/v1alpha1/externaladmissionhookconfigurations"
         delete_url = "/apis/admissionregistration.k8s.io/v1alpha1/externaladmissionhookconfigurations/{name}"
@@ -72,7 +73,7 @@ class ExternalAdmissionHookConfiguration(Model):
         update_url = "/apis/admissionregistration.k8s.io/v1alpha1/externaladmissionhookconfigurations/{name}"
         watch_url = "/apis/admissionregistration.k8s.io/v1alpha1/watch/externaladmissionhookconfigurations/{name}"
         watchlist_all_url = "/apis/admissionregistration.k8s.io/v1alpha1/watch/externaladmissionhookconfigurations"
-    
+
     apiVersion = Field(six.text_type, "admissionregistration.k8s.io/v1alpha1")
     kind = Field(six.text_type, "ExternalAdmissionHookConfiguration")
 
@@ -117,6 +118,7 @@ class InitializerConfiguration(Model):
     """
     InitializerConfiguration describes the configuration of initializers.
     """
+
     class Meta:
         create_url = "/apis/admissionregistration.k8s.io/v1alpha1/initializerconfigurations"
         delete_url = "/apis/admissionregistration.k8s.io/v1alpha1/initializerconfigurations/{name}"
@@ -125,7 +127,7 @@ class InitializerConfiguration(Model):
         update_url = "/apis/admissionregistration.k8s.io/v1alpha1/initializerconfigurations/{name}"
         watch_url = "/apis/admissionregistration.k8s.io/v1alpha1/watch/initializerconfigurations/{name}"
         watchlist_all_url = "/apis/admissionregistration.k8s.io/v1alpha1/watch/initializerconfigurations"
-    
+
     apiVersion = Field(six.text_type, "admissionregistration.k8s.io/v1alpha1")
     kind = Field(six.text_type, "InitializerConfiguration")
 
@@ -142,4 +144,3 @@ class InitializerConfigurationList(Model):
 
     items = ListField(InitializerConfiguration)
     metadata = Field(ListMeta)
-

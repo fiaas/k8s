@@ -126,6 +126,7 @@ class StatefulSet(Model):
     The StatefulSet guarantees that a given network
     identity will always map to the same storage identity.
     """
+
     class Meta:
         create_url = "/apis/apps/v1beta1/namespaces/{namespace}/statefulsets"
         delete_url = "/apis/apps/v1beta1/namespaces/{namespace}/statefulsets/{name}"
@@ -136,7 +137,7 @@ class StatefulSet(Model):
         watch_url = "/apis/apps/v1beta1/watch/namespaces/{namespace}/statefulsets/{name}"
         watchlist_all_url = "/apis/apps/v1beta1/watch/statefulsets"
         watchlist_ns_url = "/apis/apps/v1beta1/watch/namespaces/{namespace}/statefulsets"
-    
+
     apiVersion = Field(six.text_type, "apps/v1beta1")
     kind = Field(six.text_type, "StatefulSet")
 
@@ -245,6 +246,7 @@ class Deployment(Model):
     apps/v1beta2/Deployment. See the release notes for more information. Deployment
     enables declarative updates for Pods and ReplicaSets.
     """
+
     class Meta:
         create_url = "/apis/apps/v1beta1/namespaces/{namespace}/deployments"
         delete_url = "/apis/apps/v1beta1/namespaces/{namespace}/deployments/{name}"
@@ -255,7 +257,7 @@ class Deployment(Model):
         watch_url = "/apis/apps/v1beta1/watch/namespaces/{namespace}/deployments/{name}"
         watchlist_all_url = "/apis/apps/v1beta1/watch/deployments"
         watchlist_ns_url = "/apis/apps/v1beta1/watch/namespaces/{namespace}/deployments"
-    
+
     apiVersion = Field(six.text_type, "apps/v1beta1")
     kind = Field(six.text_type, "Deployment")
 
@@ -289,6 +291,7 @@ class ControllerRevision(Model):
     and representation changes in future releases, and clients should not depend on
     its stability. It is primarily for internal use by controllers.
     """
+
     class Meta:
         create_url = "/apis/apps/v1beta1/namespaces/{namespace}/controllerrevisions"
         delete_url = "/apis/apps/v1beta1/namespaces/{namespace}/controllerrevisions/{name}"
@@ -299,7 +302,7 @@ class ControllerRevision(Model):
         watch_url = "/apis/apps/v1beta1/watch/namespaces/{namespace}/controllerrevisions/{name}"
         watchlist_all_url = "/apis/apps/v1beta1/watch/controllerrevisions"
         watchlist_ns_url = "/apis/apps/v1beta1/watch/namespaces/{namespace}/controllerrevisions"
-    
+
     apiVersion = Field(six.text_type, "apps/v1beta1")
     kind = Field(six.text_type, "ControllerRevision")
 
@@ -318,4 +321,3 @@ class ControllerRevisionList(Model):
 
     items = ListField(ControllerRevision)
     metadata = Field(ListMeta)
-

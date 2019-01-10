@@ -22,6 +22,7 @@ class PriorityClass(Model):
     PriorityClass defines mapping from a priority class name to the priority
     integer value. The value can be any valid integer.
     """
+
     class Meta:
         create_url = "/apis/scheduling.k8s.io/v1beta1/priorityclasses"
         delete_url = "/apis/scheduling.k8s.io/v1beta1/priorityclasses/{name}"
@@ -30,7 +31,7 @@ class PriorityClass(Model):
         update_url = "/apis/scheduling.k8s.io/v1beta1/priorityclasses/{name}"
         watch_url = "/apis/scheduling.k8s.io/v1beta1/watch/priorityclasses/{name}"
         watchlist_all_url = "/apis/scheduling.k8s.io/v1beta1/watch/priorityclasses"
-    
+
     apiVersion = Field(six.text_type, "scheduling.k8s.io/v1beta1")
     kind = Field(six.text_type, "PriorityClass")
 
@@ -49,4 +50,3 @@ class PriorityClassList(Model):
 
     items = ListField(PriorityClass)
     metadata = Field(ListMeta)
-

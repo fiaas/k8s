@@ -46,6 +46,7 @@ class PodDisruptionBudget(Model):
     PodDisruptionBudget is an object to define the max disruption that can be
     caused to a collection of pods
     """
+
     class Meta:
         create_url = "/apis/policy/v1beta1/namespaces/{namespace}/poddisruptionbudgets"
         delete_url = "/apis/policy/v1beta1/namespaces/{namespace}/poddisruptionbudgets/{name}"
@@ -56,7 +57,7 @@ class PodDisruptionBudget(Model):
         watch_url = "/apis/policy/v1beta1/watch/namespaces/{namespace}/poddisruptionbudgets/{name}"
         watchlist_all_url = "/apis/policy/v1beta1/watch/poddisruptionbudgets"
         watchlist_ns_url = "/apis/policy/v1beta1/watch/namespaces/{namespace}/poddisruptionbudgets"
-    
+
     apiVersion = Field(six.text_type, "policy/v1beta1")
     kind = Field(six.text_type, "PodDisruptionBudget")
 
@@ -82,12 +83,12 @@ class Eviction(Model):
     constraints. This is a subresource of Pod.  A request to cause such an eviction
     is created by POSTing to .../pods/<pod name>/evictions.
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/pods/{name}/eviction"
-    
+
     apiVersion = Field(six.text_type, "policy/v1beta1")
     kind = Field(six.text_type, "Eviction")
 
     deleteOptions = Field(DeleteOptions)
     metadata = Field(ObjectMeta)
-

@@ -183,6 +183,7 @@ class ReplicaSet(Model):
     """
     ReplicaSet represents the configuration of a ReplicaSet.
     """
+
     class Meta:
         create_url = "/apis/extensions/v1beta1/namespaces/{namespace}/replicasets"
         delete_url = "/apis/extensions/v1beta1/namespaces/{namespace}/replicasets/{name}"
@@ -193,7 +194,7 @@ class ReplicaSet(Model):
         watch_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/replicasets/{name}"
         watchlist_all_url = "/apis/extensions/v1beta1/watch/replicasets"
         watchlist_ns_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/replicasets"
-    
+
     apiVersion = Field(six.text_type, "extensions/v1beta1")
     kind = Field(six.text_type, "ReplicaSet")
 
@@ -254,6 +255,7 @@ class NetworkPolicy(Model):
     """
     
     """
+
     class Meta:
         create_url = "/apis/extensions/v1beta1/namespaces/{namespace}/networkpolicies"
         delete_url = "/apis/extensions/v1beta1/namespaces/{namespace}/networkpolicies/{name}"
@@ -264,7 +266,7 @@ class NetworkPolicy(Model):
         watch_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/networkpolicies/{name}"
         watchlist_all_url = "/apis/extensions/v1beta1/watch/networkpolicies"
         watchlist_ns_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/networkpolicies"
-    
+
     apiVersion = Field(six.text_type, "extensions/v1beta1")
     kind = Field(six.text_type, "NetworkPolicy")
 
@@ -359,6 +361,7 @@ class Ingress(Model):
     externally-reachable urls, load balance traffic, terminate SSL, offer name
     based virtual hosting etc.
     """
+
     class Meta:
         create_url = "/apis/extensions/v1beta1/namespaces/{namespace}/ingresses"
         delete_url = "/apis/extensions/v1beta1/namespaces/{namespace}/ingresses/{name}"
@@ -369,7 +372,7 @@ class Ingress(Model):
         watch_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/ingresses/{name}"
         watchlist_all_url = "/apis/extensions/v1beta1/watch/ingresses"
         watchlist_ns_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/ingresses"
-    
+
     apiVersion = Field(six.text_type, "extensions/v1beta1")
     kind = Field(six.text_type, "Ingress")
 
@@ -464,6 +467,7 @@ class PodSecurityPolicy(Model):
     Pod Security Policy governs the ability to make requests that affect the
     Security Context that will be applied to a pod and container.
     """
+
     class Meta:
         create_url = "/apis/extensions/v1beta1/podsecuritypolicies"
         delete_url = "/apis/extensions/v1beta1/podsecuritypolicies/{name}"
@@ -472,7 +476,7 @@ class PodSecurityPolicy(Model):
         update_url = "/apis/extensions/v1beta1/podsecuritypolicies/{name}"
         watch_url = "/apis/extensions/v1beta1/watch/podsecuritypolicies/{name}"
         watchlist_all_url = "/apis/extensions/v1beta1/watch/podsecuritypolicies"
-    
+
     apiVersion = Field(six.text_type, "extensions/v1beta1")
     kind = Field(six.text_type, "PodSecurityPolicy")
 
@@ -522,6 +526,7 @@ class Deployment(Model):
     """
     Deployment enables declarative updates for Pods and ReplicaSets.
     """
+
     class Meta:
         create_url = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments"
         delete_url = "/apis/extensions/v1beta1/namespaces/{namespace}/deployments/{name}"
@@ -532,7 +537,7 @@ class Deployment(Model):
         watch_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/deployments/{name}"
         watchlist_all_url = "/apis/extensions/v1beta1/watch/deployments"
         watchlist_ns_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/deployments"
-    
+
     apiVersion = Field(six.text_type, "extensions/v1beta1")
     kind = Field(six.text_type, "Deployment")
 
@@ -571,6 +576,7 @@ class DaemonSet(Model):
     """
     DaemonSet represents the configuration of a daemon set.
     """
+
     class Meta:
         create_url = "/apis/extensions/v1beta1/namespaces/{namespace}/daemonsets"
         delete_url = "/apis/extensions/v1beta1/namespaces/{namespace}/daemonsets/{name}"
@@ -581,7 +587,7 @@ class DaemonSet(Model):
         watch_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/daemonsets/{name}"
         watchlist_all_url = "/apis/extensions/v1beta1/watch/daemonsets"
         watchlist_ns_url = "/apis/extensions/v1beta1/watch/namespaces/{namespace}/daemonsets"
-    
+
     apiVersion = Field(six.text_type, "extensions/v1beta1")
     kind = Field(six.text_type, "DaemonSet")
 
@@ -615,6 +621,7 @@ class ThirdPartyResource(Model):
     add-ons and plugins to add new resource types to the API.  It consists of one
     or more Versions of the api.
     """
+
     class Meta:
         create_url = "/apis/extensions/v1beta1/thirdpartyresources"
         delete_url = "/apis/extensions/v1beta1/thirdpartyresources/{name}"
@@ -623,7 +630,7 @@ class ThirdPartyResource(Model):
         update_url = "/apis/extensions/v1beta1/thirdpartyresources/{name}"
         watch_url = "/apis/extensions/v1beta1/watch/thirdpartyresources/{name}"
         watchlist_all_url = "/apis/extensions/v1beta1/watch/thirdpartyresources"
-    
+
     apiVersion = Field(six.text_type, "extensions/v1beta1")
     kind = Field(six.text_type, "ThirdPartyResource")
 
@@ -641,4 +648,3 @@ class ThirdPartyResourceList(Model):
 
     items = ListField(ThirdPartyResource)
     metadata = Field(ListMeta)
-

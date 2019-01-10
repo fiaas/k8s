@@ -155,6 +155,7 @@ class Secret(Model):
     Secret holds secret data of a certain type. The total bytes of the values in
     the Data field must be less than MaxSecretSize bytes.
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/secrets"
         delete_url = "/api/v1/namespaces/{namespace}/secrets/{name}"
@@ -165,7 +166,7 @@ class Secret(Model):
         watch_url = "/api/v1/watch/namespaces/{namespace}/secrets/{name}"
         watchlist_all_url = "/api/v1/watch/secrets"
         watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/secrets"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "Secret")
 
@@ -256,6 +257,7 @@ class ResourceQuota(Model):
     """
     ResourceQuota sets aggregate quota restrictions enforced per namespace
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/resourcequotas"
         delete_url = "/api/v1/namespaces/{namespace}/resourcequotas/{name}"
@@ -266,7 +268,7 @@ class ResourceQuota(Model):
         watch_url = "/api/v1/watch/namespaces/{namespace}/resourcequotas/{name}"
         watchlist_all_url = "/api/v1/watch/resourcequotas"
         watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/resourcequotas"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "ResourceQuota")
 
@@ -461,6 +463,7 @@ class PersistentVolumeClaim(Model):
     """
     PersistentVolumeClaim is a user's request for and claim to a persistent volume
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/persistentvolumeclaims"
         delete_url = "/api/v1/namespaces/{namespace}/persistentvolumeclaims/{name}"
@@ -471,7 +474,7 @@ class PersistentVolumeClaim(Model):
         watch_url = "/api/v1/watch/namespaces/{namespace}/persistentvolumeclaims/{name}"
         watchlist_all_url = "/api/v1/watch/persistentvolumeclaims"
         watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/persistentvolumeclaims"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "PersistentVolumeClaim")
 
@@ -557,9 +560,10 @@ class Binding(Model):
     scheduler. Deprecated in 1.7, please use the bindings subresource of pods
     instead.
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/pods/{name}/binding"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "Binding")
 
@@ -724,6 +728,7 @@ class Namespace(Model):
     """
     Namespace provides a scope for Names. Use of multiple namespaces is optional.
     """
+
     class Meta:
         create_url = "/api/v1/namespaces"
         delete_url = "/api/v1/namespaces/{name}"
@@ -732,7 +737,7 @@ class Namespace(Model):
         update_url = "/api/v1/namespaces/{name}"
         watch_url = "/api/v1/watch/namespaces/{name}"
         watchlist_all_url = "/api/v1/watch/namespaces"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "Namespace")
 
@@ -798,6 +803,7 @@ class ServiceAccount(Model):
     peripheral systems, for an identity * a principal that can be authenticated and
     authorized * a set of secrets
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/serviceaccounts"
         delete_url = "/api/v1/namespaces/{namespace}/serviceaccounts/{name}"
@@ -808,7 +814,7 @@ class ServiceAccount(Model):
         watch_url = "/api/v1/watch/namespaces/{namespace}/serviceaccounts/{name}"
         watchlist_all_url = "/api/v1/watch/serviceaccounts"
         watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/serviceaccounts"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "ServiceAccount")
 
@@ -960,6 +966,7 @@ class LimitRange(Model):
     """
     LimitRange sets resource usage limits for each kind of resource in a Namespace.
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/limitranges"
         delete_url = "/api/v1/namespaces/{namespace}/limitranges/{name}"
@@ -970,7 +977,7 @@ class LimitRange(Model):
         watch_url = "/api/v1/watch/namespaces/{namespace}/limitranges/{name}"
         watchlist_all_url = "/api/v1/watch/limitranges"
         watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/limitranges"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "LimitRange")
 
@@ -1246,6 +1253,7 @@ class Event(Model):
     """
     Event is a report of an event somewhere in the cluster.
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/events"
         delete_url = "/api/v1/namespaces/{namespace}/events/{name}"
@@ -1256,7 +1264,7 @@ class Event(Model):
         watch_url = "/api/v1/watch/namespaces/{namespace}/events/{name}"
         watchlist_all_url = "/api/v1/watch/events"
         watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/events"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "Event")
 
@@ -1333,6 +1341,7 @@ class Endpoints(Model):
         },
      ]
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/endpoints"
         delete_url = "/api/v1/namespaces/{namespace}/endpoints/{name}"
@@ -1343,7 +1352,7 @@ class Endpoints(Model):
         watch_url = "/api/v1/watch/namespaces/{namespace}/endpoints/{name}"
         watchlist_all_url = "/api/v1/watch/endpoints"
         watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/endpoints"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "Endpoints")
 
@@ -1543,6 +1552,7 @@ class ConfigMap(Model):
     """
     ConfigMap holds configuration data for pods to consume.
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/configmaps"
         delete_url = "/api/v1/namespaces/{namespace}/configmaps/{name}"
@@ -1553,7 +1563,7 @@ class ConfigMap(Model):
         watch_url = "/api/v1/watch/namespaces/{namespace}/configmaps/{name}"
         watchlist_all_url = "/api/v1/watch/configmaps"
         watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/configmaps"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "ConfigMap")
 
@@ -1587,10 +1597,11 @@ class ComponentStatus(Model):
     """
     ComponentStatus (and ComponentStatusList) holds the cluster validation info.
     """
+
     class Meta:
         get_url = "/api/v1/componentstatuses/{name}"
         list_all_url = "/api/v1/componentstatuses"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "ComponentStatus")
 
@@ -1654,6 +1665,7 @@ class Service(Model):
     selector that determines which pods will answer requests sent through the
     proxy.
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/services"
         delete_url = "/api/v1/namespaces/{namespace}/services/{name}"
@@ -1664,7 +1676,7 @@ class Service(Model):
         watch_url = "/api/v1/watch/namespaces/{namespace}/services/{name}"
         watchlist_all_url = "/api/v1/watch/services"
         watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/services"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "Service")
 
@@ -1817,6 +1829,7 @@ class Node(Model):
     Node is a worker node in Kubernetes. Each node will have a unique identifier in
     the cache (i.e. in etcd).
     """
+
     class Meta:
         create_url = "/api/v1/nodes"
         delete_url = "/api/v1/nodes/{name}"
@@ -1825,7 +1838,7 @@ class Node(Model):
         update_url = "/api/v1/nodes/{name}"
         watch_url = "/api/v1/watch/nodes/{name}"
         watchlist_all_url = "/api/v1/watch/nodes"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "Node")
 
@@ -1954,6 +1967,7 @@ class ReplicationController(Model):
     """
     ReplicationController represents the configuration of a replication controller.
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/replicationcontrollers"
         delete_url = "/api/v1/namespaces/{namespace}/replicationcontrollers/{name}"
@@ -1964,7 +1978,7 @@ class ReplicationController(Model):
         watch_url = "/api/v1/watch/namespaces/{namespace}/replicationcontrollers/{name}"
         watchlist_all_url = "/api/v1/watch/replicationcontrollers"
         watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/replicationcontrollers"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "ReplicationController")
 
@@ -1988,6 +2002,7 @@ class PodTemplate(Model):
     """
     PodTemplate describes a template for creating copies of a predefined pod.
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/podtemplates"
         delete_url = "/api/v1/namespaces/{namespace}/podtemplates/{name}"
@@ -1998,7 +2013,7 @@ class PodTemplate(Model):
         watch_url = "/api/v1/watch/namespaces/{namespace}/podtemplates/{name}"
         watchlist_all_url = "/api/v1/watch/podtemplates"
         watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/podtemplates"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "PodTemplate")
 
@@ -2022,6 +2037,7 @@ class Pod(Model):
     Pod is a collection of containers that can run on a host. This resource is
     created by clients and scheduled onto hosts.
     """
+
     class Meta:
         create_url = "/api/v1/namespaces/{namespace}/pods"
         delete_url = "/api/v1/namespaces/{namespace}/pods/{name}"
@@ -2032,7 +2048,7 @@ class Pod(Model):
         watch_url = "/api/v1/watch/namespaces/{namespace}/pods/{name}"
         watchlist_all_url = "/api/v1/watch/pods"
         watchlist_ns_url = "/api/v1/watch/namespaces/{namespace}/pods"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "Pod")
 
@@ -2092,6 +2108,7 @@ class PersistentVolume(Model):
     is analogous to a node. More info: https://kubernetes.io/docs/concepts/storage
     /persistent-volumes
     """
+
     class Meta:
         create_url = "/api/v1/persistentvolumes"
         delete_url = "/api/v1/persistentvolumes/{name}"
@@ -2100,7 +2117,7 @@ class PersistentVolume(Model):
         update_url = "/api/v1/persistentvolumes/{name}"
         watch_url = "/api/v1/watch/persistentvolumes/{name}"
         watchlist_all_url = "/api/v1/watch/persistentvolumes"
-    
+
     apiVersion = Field(six.text_type, "v1")
     kind = Field(six.text_type, "PersistentVolume")
 
@@ -2118,4 +2135,3 @@ class PersistentVolumeList(Model):
 
     items = ListField(PersistentVolume)
     metadata = Field(ListMeta)
-

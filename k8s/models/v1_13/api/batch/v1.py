@@ -65,6 +65,7 @@ class Job(Model):
     """
     Job represents the configuration of a single job.
     """
+
     class Meta:
         create_url = "/apis/batch/v1/namespaces/{namespace}/jobs"
         delete_url = "/apis/batch/v1/namespaces/{namespace}/jobs/{name}"
@@ -75,7 +76,7 @@ class Job(Model):
         watch_url = "/apis/batch/v1/watch/namespaces/{namespace}/jobs/{name}"
         watchlist_all_url = "/apis/batch/v1/watch/jobs"
         watchlist_ns_url = "/apis/batch/v1/watch/namespaces/{namespace}/jobs"
-    
+
     apiVersion = Field(six.text_type, "batch/v1")
     kind = Field(six.text_type, "Job")
 
@@ -93,4 +94,3 @@ class JobList(Model):
 
     items = ListField(Job)
     metadata = Field(ListMeta)
-

@@ -17,19 +17,20 @@ from k8s.fields import Field, ListField, ReadOnlyField, RequiredField
 {% for import in module.imports %}
 from k8s.models.{{ version }}.{{ import.module.ref }} import {{ import.names|join(", ") }}
 {% endfor %}
-
 {% for model in module.models %}
+
 
 class {{ model.definition.name }}(Model):
     """
     {{ model.definition.description|replace('"', '\'')|wordwrap|indent }}
     """
 {% if model.operations %}
+
     class Meta:
 {% for operation in model.operations %}
         {{ operation.action }}_url = "{{ operation.path }}"
 {% endfor %}
-    
+
 {% endif %}
 {% if model.definition.gvks %}
 {% set gvk = model.definition.gvks[-1] %}
@@ -42,5 +43,4 @@ class {{ model.definition.name }}(Model):
 {% else %}
     # Model has no fields
 {% endfor %}
-
 {% endfor %}

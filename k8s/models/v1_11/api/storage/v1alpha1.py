@@ -66,6 +66,7 @@ class VolumeAttachment(Model):
 
     VolumeAttachment objects are non-namespaced.
     """
+
     class Meta:
         create_url = "/apis/storage.k8s.io/v1alpha1/volumeattachments"
         delete_url = "/apis/storage.k8s.io/v1alpha1/volumeattachments/{name}"
@@ -74,7 +75,7 @@ class VolumeAttachment(Model):
         update_url = "/apis/storage.k8s.io/v1alpha1/volumeattachments/{name}"
         watch_url = "/apis/storage.k8s.io/v1alpha1/watch/volumeattachments/{name}"
         watchlist_all_url = "/apis/storage.k8s.io/v1alpha1/watch/volumeattachments"
-    
+
     apiVersion = Field(six.text_type, "storage.k8s.io/v1alpha1")
     kind = Field(six.text_type, "VolumeAttachment")
 
@@ -92,4 +93,3 @@ class VolumeAttachmentList(Model):
 
     items = ListField(VolumeAttachment)
     metadata = Field(ListMeta)
-

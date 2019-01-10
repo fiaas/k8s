@@ -68,6 +68,7 @@ class ValidatingWebhookConfiguration(Model):
     ValidatingWebhookConfiguration describes the configuration of and admission
     webhook that accept or reject and object without changing it.
     """
+
     class Meta:
         create_url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations"
         delete_url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations/{name}"
@@ -76,7 +77,7 @@ class ValidatingWebhookConfiguration(Model):
         update_url = "/apis/admissionregistration.k8s.io/v1beta1/validatingwebhookconfigurations/{name}"
         watch_url = "/apis/admissionregistration.k8s.io/v1beta1/watch/validatingwebhookconfigurations/{name}"
         watchlist_all_url = "/apis/admissionregistration.k8s.io/v1beta1/watch/validatingwebhookconfigurations"
-    
+
     apiVersion = Field(six.text_type, "admissionregistration.k8s.io/v1beta1")
     kind = Field(six.text_type, "ValidatingWebhookConfiguration")
 
@@ -100,6 +101,7 @@ class MutatingWebhookConfiguration(Model):
     MutatingWebhookConfiguration describes the configuration of and admission
     webhook that accept or reject and may change the object.
     """
+
     class Meta:
         create_url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations"
         delete_url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations/{name}"
@@ -108,7 +110,7 @@ class MutatingWebhookConfiguration(Model):
         update_url = "/apis/admissionregistration.k8s.io/v1beta1/mutatingwebhookconfigurations/{name}"
         watch_url = "/apis/admissionregistration.k8s.io/v1beta1/watch/mutatingwebhookconfigurations/{name}"
         watchlist_all_url = "/apis/admissionregistration.k8s.io/v1beta1/watch/mutatingwebhookconfigurations"
-    
+
     apiVersion = Field(six.text_type, "admissionregistration.k8s.io/v1beta1")
     kind = Field(six.text_type, "MutatingWebhookConfiguration")
 
@@ -125,4 +127,3 @@ class MutatingWebhookConfigurationList(Model):
 
     items = ListField(MutatingWebhookConfiguration)
     metadata = Field(ListMeta)
-

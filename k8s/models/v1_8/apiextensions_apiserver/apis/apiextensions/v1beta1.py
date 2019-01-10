@@ -90,6 +90,7 @@ class CustomResourceDefinition(Model):
     CustomResourceDefinition represents a resource that should be exposed on the
     API server.  Its name MUST be in the format <.spec.name>.<.spec.group>.
     """
+
     class Meta:
         create_url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions"
         delete_url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}"
@@ -98,7 +99,7 @@ class CustomResourceDefinition(Model):
         update_url = "/apis/apiextensions.k8s.io/v1beta1/customresourcedefinitions/{name}"
         watch_url = "/apis/apiextensions.k8s.io/v1beta1/watch/customresourcedefinitions/{name}"
         watchlist_all_url = "/apis/apiextensions.k8s.io/v1beta1/watch/customresourcedefinitions"
-    
+
     apiVersion = Field(six.text_type, "apiextensions.k8s.io/v1beta1")
     kind = Field(six.text_type, "CustomResourceDefinition")
 
@@ -116,4 +117,3 @@ class CustomResourceDefinitionList(Model):
 
     items = ListField(CustomResourceDefinition)
     metadata = Field(ListMeta)
-
