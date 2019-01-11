@@ -75,6 +75,7 @@ class CustomResourceDefinitionNames(Model):
     """
 
     categories = ListField(six.text_type)
+    kind = RequiredField(six.text_type)
     listKind = Field(six.text_type)
     plural = RequiredField(six.text_type)
     shortNames = ListField(six.text_type)

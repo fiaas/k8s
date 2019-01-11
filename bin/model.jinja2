@@ -36,11 +36,14 @@ class {{ model.definition.name }}(Model):
 {% set gvk = model.definition.gvks[-1] %}
     apiVersion = Field(six.text_type, "{{ [gvk.group, gvk.version]|select|join("/") }}")
     kind = Field(six.text_type, "{{ gvk.kind }}")
-{% endif %}
 
 {% for field in model.definition.fields|rejectattr("name", "in", ("apiVersion", "kind"))|sort %}
     {{ field.name }} = {{ field.cls }}({{ field.type.name }}{% if field.alt_type %}, alt_type={{ field.alt_type.name }}{% endif %})
-{% else %}
-    # Model has no fields
 {% endfor %}
+{% else %}
+
+{% for field in model.definition.fields|sort %}
+    {{ field.name }} = {{ field.cls }}({{ field.type.name }}{% if field.alt_type %}, alt_type={{ field.alt_type.name }}{% endif %})
+{% endfor %}
+{% endif %}
 {% endfor %}

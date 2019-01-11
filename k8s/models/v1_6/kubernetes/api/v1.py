@@ -470,7 +470,9 @@ class ObjectReference(Model):
     referred object.
     """
 
+    apiVersion = Field(six.text_type)
     fieldPath = Field(six.text_type)
+    kind = Field(six.text_type)
     name = Field(six.text_type)
     namespace = Field(six.text_type)
     resourceVersion = Field(six.text_type)
@@ -505,6 +507,7 @@ class ObjectFieldSelector(Model):
     ObjectFieldSelector selects an APIVersioned field of an object.
     """
 
+    apiVersion = Field(six.text_type)
     fieldPath = RequiredField(six.text_type)
 
 

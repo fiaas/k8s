@@ -52,6 +52,7 @@ class StatusDetails(Model):
 
     causes = ListField(StatusCause)
     group = Field(six.text_type)
+    kind = Field(six.text_type)
     name = Field(six.text_type)
     retryAfterSeconds = Field(int)
 
@@ -107,8 +108,10 @@ class OwnerReference(Model):
     no namespace field.
     """
 
+    apiVersion = RequiredField(six.text_type)
     blockOwnerDeletion = Field(bool)
     controller = Field(bool)
+    kind = RequiredField(six.text_type)
     name = RequiredField(six.text_type)
     uid = RequiredField(six.text_type)
 
@@ -224,6 +227,7 @@ class APIResource(Model):
     APIResource specifies the name of a resource and whether it is namespaced.
     """
 
+    kind = RequiredField(six.text_type)
     name = RequiredField(six.text_type)
     namespaced = RequiredField(bool)
     shortNames = ListField(six.text_type)

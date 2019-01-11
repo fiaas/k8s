@@ -25,6 +25,7 @@ class Subject(Model):
     """
 
     apiGroup = Field(six.text_type)
+    kind = RequiredField(six.text_type)
     name = RequiredField(six.text_type)
     namespace = Field(six.text_type)
 
@@ -35,6 +36,7 @@ class RoleRef(Model):
     """
 
     apiGroup = RequiredField(six.text_type)
+    kind = RequiredField(six.text_type)
     name = RequiredField(six.text_type)
 
 

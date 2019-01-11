@@ -117,6 +117,8 @@ class CrossVersionObjectReference(Model):
     referred resource.
     """
 
+    apiVersion = Field(six.text_type)
+    kind = RequiredField(six.text_type)
     name = RequiredField(six.text_type)
 
 

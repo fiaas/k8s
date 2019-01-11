@@ -24,6 +24,8 @@ class Subject(Model):
     non-objects such as user and group names.
     """
 
+    apiVersion = Field(six.text_type)
+    kind = RequiredField(six.text_type)
     name = RequiredField(six.text_type)
     namespace = Field(six.text_type)
 
@@ -34,6 +36,7 @@ class RoleRef(Model):
     """
 
     apiGroup = RequiredField(six.text_type)
+    kind = RequiredField(six.text_type)
     name = RequiredField(six.text_type)
 
 
