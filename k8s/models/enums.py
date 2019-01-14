@@ -2,11 +2,11 @@
 # -*- coding: utf-8
 
 
-def _Enum(name, attrs):
+def _make_enum(name, attrs):
     return type(name, (object,), {a: a for a in attrs})
 
 
-ResourceQuotaScope = _Enum("ResourceQuota", (
+ResourceQuotaScope = _make_enum("ResourceQuotaScope", (
     "Terminating",
     "NotTerminating",
     "BestEffort",
