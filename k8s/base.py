@@ -64,22 +64,53 @@ class ApiMixIn(object):
         return cls._meta.url_template.format(**kwargs)
 
     @classmethod
-    def find(cls, name, namespace="default", labels=None):
+    def find(cls, name="", namespace="default", labels=None):
+        """Find resources using label selection
+
+        :param: :py:class:`str` name: The name of the resource, as indicated by the `app` label
+        :param: :py:class:`str` namespace: The namespace to search in
+        :param: :py:class:`dict` labels: More advanced label selection (see below)
+
+        :returns: A list of matching objects
+
+        When a `labels` dictionary is supplied, the `name` parameter is ignored.
+        The dictionary is used to build the `labelSelector` parameter to the API,
+        and supports all the operations of the API through the use of :py:class:`~k8s.base.LabelSelector`.
+
+        Each key in the dictionary is a label name. The value defines which operation to perform.
+        Operations that take a single string value:
+
+            - :py:class:`~k8s.base.Equality`
+            - :py:class:`~k8s.base.Inequality`
+
+        A plain string will automatically be wrapped by :py:class:`~k8s.base.Equality` for compatability
+        with older versions of this method.
+
+        Operations that take a sequence of string values:
+
+            - :py:class:`~k8s.base.In`
+            - :py:class:`~k8s.base.NotIn`
+
+        Operations that takes no value:
+
+            - :py:class:`~k8s.base.Exists`
+        """
         if namespace is None:
             if not cls._meta.list_url:
                 raise NotImplementedError("Cannot find without namespace, no list_url defined on class {}".format(cls))
             url = cls._meta.list_url
         else:
             url = cls._build_url(name="", namespace=namespace)
-        if labels:
-            selector = ",".join("{}={}".format(k, v) for k, v in labels.items())
-        else:
-            selector = "app={}".format(name)
+        if not labels:
+            labels = {"app": Equality(name)}
+        selector = ",".join("{}{}".format(k, v if isinstance(v, LabelSelector) else Equality(v))
+                            for k, v in labels.items())
         resp = cls._client.get(url, params={"labelSelector": selector})
         return [cls.from_dict(item) for item in resp.json()[u"items"]]
 
     @classmethod
     def list(cls, namespace="default"):
+        """List all resources in given namespace"""
         if namespace is None:
             if not cls._meta.list_url:
                 raise NotImplementedError("Cannot list without namespace, no list_url defined on class {}".format(cls))
@@ -135,6 +166,7 @@ class ApiMixIn(object):
 
     @classmethod
     def delete(cls, name, namespace="default", **kwargs):
+        """Delete the named resource"""
         url = cls._build_url(name=name, namespace=namespace)
         cls._client.delete(url, **kwargs)
 
@@ -227,3 +259,45 @@ class WatchEvent(object):
     def __repr__(self):
         return "{cls}(type={type}, object={object})".format(cls=self.__class__.__name__, type=self.type,
                                                             object=self.object)
+
+
+class LabelSelector(object):
+    """Base for label select operations"""
+
+    #: Operator used in selection query
+    operator = None
+
+    def __init__(self, value=""):
+        self.value = value
+
+    def __str__(self):
+        return "{}{}".format(self.operator, self.value)
+
+
+class Equality(LabelSelector):
+    operator = "="
+
+
+class Inequality(LabelSelector):
+    operator = "!="
+
+
+class LabelSetSelector(LabelSelector):
+    def __str__(self):
+        return " {} ({})".format(self.operator, ",".join(self.value))
+
+
+class In(LabelSetSelector):
+    operator = "in"
+
+
+class NotIn(LabelSetSelector):
+    operator = "notin"
+
+
+class Exists(LabelSelector):
+    def __init__(self):
+        super(Exists, self).__init__("")
+
+    def __str__(self):
+        return ""
