@@ -134,3 +134,28 @@ objects, you need to pass a `DeleteOptions` object with a `propagationPolicy` to
       'propagationPolicy': 'Foreground'
   }
   >>> Deployment.delete('nginx', body=delete_options)
+
+
+Watch resources
+---------------
+
+In order to watch resources for changes, there are two options. A low-level `watch_list` function, or the higher level :py:class:`~k8s.watcher.Watcher`, which handles some quirks of the watch process for you.
+
+Watching is simple in both cases, but there are some differences in behavior::
+
+  >>> watcher = Watcher(Pod)
+  >>> for event in watcher.watch(namespace="production"):
+  ...   _handle_watch_event(event)
+
+Or::
+
+  >>> for event in Pod.watch_list(namespace="production"):
+  ...   _handle_watch_event_event)
+
+The events yielded from the watch are objects of type :py:class:`~k8s.base.WatchEvent`, which has a type `ADDED`, `MODIFIED` or `DELETED` and the actual object the event relates to.
+
+The API server has a configurable timeout for how long the watch can be in effect, and once that timeout happens, the watch will be closed. Similary, in order to detect situations where the connection is dead, there is a timeout on the client side, which will cause the connection to be closed if there has been no activity. The stream timeout is configured in :py:mod:`~k8s.config` and defaults to one hour.
+
+When using `watch_list`, you are responsible for reconnecting the watch again. The `Watcher` takes care of reconnecting for you.
+
+When starting a watch (even when reconnecting), the API server will send all known objects marking them as `ADDED`. The `Watcher` has a cache of the last 1000 objects seen (use `capacity` parameter to override). This avoids the case where you reconnect and then reprocess all objects even if you have already processed them.

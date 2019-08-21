@@ -8,6 +8,7 @@ from collections import namedtuple
 
 import six
 
+from . import config
 from .client import Client, NotFound
 from .fields import Field
 
@@ -103,7 +104,7 @@ class ApiMixIn(object):
             if not url:
                 raise NotImplementedError("Cannot watch_list, no watch_list_url defined on class {}".format(cls))
 
-        resp = cls._client.get(url, stream=True, timeout=None)
+        resp = cls._client.get(url, stream=True, timeout=config.stream_timeout)
         for line in resp.iter_lines(chunk_size=None):
             if line:
                 try:
