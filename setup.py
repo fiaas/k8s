@@ -6,10 +6,10 @@ import os
 from setuptools import setup, find_packages
 
 GENERIC_REQ = [
-    "six==1.11.0",
-    "requests==2.19.1",
+    "six==1.12.0",
+    "requests==2.22.0",
     "pyrfc3339==1.1",
-    "cachetools==2.1.0",
+    "cachetools==3.1.1",
 ]
 
 CODE_QUALITY_REQ = [
@@ -17,20 +17,20 @@ CODE_QUALITY_REQ = [
 ]
 
 TESTS_REQ = [
-    'tox==3.4.0',
-    'mock==2.0.0',
-    "pytest-sugar==0.9.1",
-    "pytest-html==1.19.0",
-    "pytest-cov==2.6.0",
-    "pytest-helpers-namespace==2017.11.11",
-    'pytest==3.8.2',
-    "GitPython==2.1.11",
+    'tox==3.13.2',
+    'mock==3.0.5',
+    "pytest-sugar==0.9.2",
+    "pytest-html==1.22.0",
+    "pytest-cov==2.7.1",
+    "pytest-helpers-namespace==2019.1.8",
+    'pytest==3.10.1',
+    "GitPython==2.1.14",
 ]
 
 # These are not direct dependencies, but we need to lock down their versions here
 EXTRA_REQ = [
-    "pluggy==0.7.1",
-    "prospector==1.1.2",
+    # "pluggy==0.12.0",
+    # "prospector==1.9.0",
 ]
 
 
@@ -89,10 +89,9 @@ def main():
             "Programming Language :: Python :: 2",
             "Programming Language :: Python :: 2.7",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.3",
-            "Programming Language :: Python :: 3.4",
             "Programming Language :: Python :: 3.5",
             "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.7",
             "Topic :: Internet",
             "Topic :: Software Development :: Libraries :: Python Modules",
             "Topic :: System :: Clustering",
