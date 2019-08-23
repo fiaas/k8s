@@ -3,7 +3,7 @@
 
 import cachetools
 
-from k8s.base import WatchEvent
+from .base import WatchEvent
 
 DEFAULT_CAPACITY = 1000
 
@@ -28,8 +28,8 @@ class Watcher(object):
     def watch(self, namespace=None):
         """Watch for events
 
-        :param str namespace: the namespace to watch for events in. The default (None) results in watching for events
-        in all namespaces.
+        :param str namespace: the namespace to watch for events in. The default (None) results in
+            watching for events in all namespaces.
         :return: a generator that yields :py:class:`~.WatchEvent` objects not seen before
         """
         while True:
