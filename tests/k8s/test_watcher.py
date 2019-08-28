@@ -26,34 +26,37 @@ class TestWatcher(object):
         number_of_events = 20
         events = [_event(i, ADDED, 1) for i in range(number_of_events)]
         api_watch_list.side_effect = [events]
-        gen = Watcher(WatchListExample).watch()
+        watcher = Watcher(WatchListExample)
+        gen = watcher.watch()
 
         for i in range(number_of_events):
             _assert_event(next(gen), i, ADDED, 1)
-        with pytest.raises(StopIteration):
-            next(gen)
+        watcher._run_forever = False
+        assert list(gen) == []
 
         api_watch_list.assert_called_with(namespace=None)
 
     def test_handle_reconnect(self, api_watch_list):
         events = [_event(0, ADDED, 1)]
         api_watch_list.side_effect = [events, events]
-        gen = Watcher(WatchListExample).watch()
+        watcher = Watcher(WatchListExample)
+        gen = watcher.watch()
 
         _assert_event(next(gen), 0, ADDED, 1)
-        with pytest.raises(StopIteration):
-            next(gen)
+        watcher._run_forever = False
+        assert list(gen) == []
 
     def test_handle_changes(self, api_watch_list):
         events = [_event(0, ADDED, 1), _event(0, MODIFIED, 2)]
         api_watch_list.side_effect = [events]
-        gen = Watcher(WatchListExample).watch()
+        watcher = Watcher(WatchListExample)
+        gen = watcher.watch()
 
         _assert_event(next(gen), 0, ADDED, 1)
         _assert_event(next(gen), 0, MODIFIED, 2)
 
-        with pytest.raises(StopIteration):
-            next(gen)
+        watcher._run_forever = False
+        assert list(gen) == []
 
     def test_complicated(self, api_watch_list):
         first = [_event(0, ADDED, 1), _event(1, ADDED, 1), _event(2, ADDED, 1)]
@@ -61,7 +64,8 @@ class TestWatcher(object):
         third = [_event(0, ADDED, 2), _event(1, DELETED, 2), _event(2, ADDED, 1), _event(2, MODIFIED, 2)]
         fourth = [_event(0, ADDED, 2), _event(0, ADDED, 1, "other"), _event(0, MODIFIED, 2, "other")]
         api_watch_list.side_effect = [first, second, third, fourth]
-        gen = Watcher(WatchListExample).watch()
+        watcher = Watcher(WatchListExample)
+        gen = watcher.watch()
 
         # First batch
         _assert_event(next(gen), 0, ADDED, 1)
@@ -80,17 +84,21 @@ class TestWatcher(object):
         _assert_event(next(gen), 0, ADDED, 1, "other")
         _assert_event(next(gen), 0, MODIFIED, 2, "other")
 
-        with pytest.raises(StopIteration):
-            next(gen)
+        watcher._run_forever = False
+        assert list(gen) == []
 
     def test_namespace(self, api_watch_list):
         namespace = "the-namespace"
-        api_watch_list.side_effect = []
+        watcher = Watcher(WatchListExample)
 
-        gen = Watcher(WatchListExample).watch(namespace=namespace)
+        def stop_iteration(*args, **kwargs):
+            watcher._run_forever = False
+            return []
+        api_watch_list.side_effect = stop_iteration
 
-        with pytest.raises(StopIteration):
-            next(gen)
+        gen = watcher.watch(namespace=namespace)
+
+        assert list(gen) == []
 
         api_watch_list.assert_called_with(namespace=namespace)
 
