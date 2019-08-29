@@ -1,0 +1,29 @@
+version: v1.0
+name: Publish k8s library
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Publish
+    task:
+      secrets:
+        - name: github-credentials
+        - name: pypi-credentials
+      env_vars:
+        - name: PIP_CACHE_DIR
+          value: .pip_cache
+      prologue:
+        commands:
+          - export PATH="${HOME}/.local/bin":"${PATH}"
+          - checkout
+          - mkdir "${PIP_CACHE_DIR}"
+          - cache restore "setup-${SEMAPHORE_GIT_BRANCH}-$(checksum setup.py)","setup-${SEMAPHORE_GIT_BRANCH}",setup-master
+          - pip install --user publish
+      jobs:
+        - name: Publish
+          commands:
+            - publish fiaas k8s
+      epilogue:
+        commands:
+          - cache store "setup-${SEMAPHORE_GIT_BRANCH}-$(checksum setup.py)" "${PIP_CACHE_DIR}"

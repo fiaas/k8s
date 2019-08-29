@@ -24,6 +24,7 @@ class Watcher(object):
     def __init__(self, model, capacity=DEFAULT_CAPACITY):
         self._seen = cachetools.LRUCache(capacity)
         self._model = model
+        self._run_forever = True
 
     def watch(self, namespace=None):
         """Watch for events
@@ -32,7 +33,7 @@ class Watcher(object):
             watching for events in all namespaces.
         :return: a generator that yields :py:class:`~.WatchEvent` objects not seen before
         """
-        while True:
+        while self._run_forever:
             for event in self._model.watch_list(namespace=namespace):
                 o = event.object
                 key = (o.metadata.name, o.metadata.namespace)

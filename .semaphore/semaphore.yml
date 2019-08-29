@@ -1,0 +1,41 @@
+version: v1.0
+name: Build k8s library
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: Run tests
+    task:
+      secrets:
+        - name: publish-codacy-token
+      env_vars:
+        - name: PIP_CACHE_DIR
+          value: .pip_cache
+      prologue:
+        commands:
+          - export PATH="${HOME}/.local/bin":"${PATH}"
+          - checkout
+          - mkdir "${PIP_CACHE_DIR}"
+          - cache restore "setup-${SEMAPHORE_GIT_BRANCH}-$(checksum setup.py)","setup-${SEMAPHORE_GIT_BRANCH}",setup-master
+          - pip install --user tox
+      jobs:
+        - name: Tests
+          commands:
+            - tox
+          matrix:
+            - env_var: TOXENV
+              values: ["py27", "py35", "py36", "py37"]
+        - name: Gather coverage data
+          commands:
+            - tox -e coverage
+      epilogue:
+        commands:
+          - cache store "setup-${SEMAPHORE_GIT_BRANCH}-$(checksum setup.py)" "${PIP_CACHE_DIR}"
+promotions:
+  - name: Make release
+    pipeline_file: make-release.yml
+    auto_promote_on:
+      - result: passed
+        branch:
+          - ^refs/tags/v\d+\.\d+\.\d+$

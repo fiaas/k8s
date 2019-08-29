@@ -81,10 +81,7 @@ To make a new release there are a couple steps to follow. Ideally, we want to re
 
     $ git push origin v0.0.2
 
-- Go to the build page on SemaphoreCI_ and click the "Deploy manually" button (you must be logged in, and have access to the project).
-
-- Select the "Make release" checkbox and continue
-- A new release with the version you selected as a tag should now be uploaded to PyPI_ and Github_
+- A new release with the version you selected as a tag should now be built and uploaded to PyPI_ and Github_
 
 .. _SemVer: http://semver.org/
 .. _SemaphoreCI: https://semaphoreci.com/fiaas/k8s
