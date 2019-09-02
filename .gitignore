@@ -91,6 +91,7 @@ htmlcov/
 .coverage
 .coverage.*
 .cache
+.pip_cache
 .pytest_cache
 nosetests.xml
 coverage.xml
