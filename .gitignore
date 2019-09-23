@@ -127,3 +127,6 @@ Temporary Items
 .python-version
 *.ipr
 *.iws
+
+# Sphinx generated files
+docs/source/modules/
