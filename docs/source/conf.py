@@ -1,4 +1,19 @@
 # -*- coding: utf-8 -*-
+
+# Copyright 2017-2019 The FIAAS Authors
+# 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#      http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 #
 # k8s documentation build configuration file, created by
 # sphinx-quickstart on Thu Aug  3 16:03:43 2017.
@@ -54,7 +69,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'k8s'
-copyright = u'2017, FIAAS authors'
+copyright = u'2017-2019, FIAAS authors'
 author = u'FIAAS authors'
 
 # The version info for the project you're documenting, acts as replacement for
