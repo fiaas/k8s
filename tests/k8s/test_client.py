@@ -21,7 +21,9 @@ import pytest
 
 from k8s import config
 from k8s.base import Model, Field
-from k8s.client import Client, SENSITIVE_HEADERS
+from k8s.client import Client, SENSITIVE_HEADERS, _session_factory
+
+import requests
 
 
 @pytest.mark.usefixtures("k8s_config")
@@ -49,6 +51,14 @@ class TestClient(object):
     @pytest.fixture
     def explicit_timeout(self):
         return 60
+
+    @pytest.mark.parametrize("url", ["http://api.k8s.example.com", "https://api.k8s.example.com"])
+    def test_session_configured_for_retry(self, url):
+        session = _session_factory()
+        adapter = session.get_adapter(url)
+        assert adapter.max_retries.total > 0
+        assert requests.codes.too_many_requests in adapter.max_retries.status_forcelist
+        assert requests.codes.ok not in adapter.max_retries.status_forcelist
 
     def test_get_should_use_default_timeout(self, session, client, url):
         client.get(url)
