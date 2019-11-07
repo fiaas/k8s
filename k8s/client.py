@@ -21,6 +21,8 @@ import logging
 
 import requests
 from requests import RequestException
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 from . import config
 
@@ -72,12 +74,28 @@ class ClientError(K8sClientException):
     """The client made a bad request"""
 
 
+def _session_factory():
+    """Retry on errors from the API-server. Retry-After header will be respected first, which
+    we expect to be set for too_many_requests, and for other errors it will back-off exponentially up
+    to the 120s maximum"""
+    session = requests.Session()
+    retry_statuses = [requests.codes.too_many_requests,
+                      requests.codes.internal_server_error,
+                      requests.codes.bad_gateway,
+                      requests.codes.service_unavailable,
+                      requests.codes.gateway_timeout]
+    retries = Retry(total=10, backoff_factor=1, status_forcelist=retry_statuses, method_whitelist=False)
+    session.mount('http://', HTTPAdapter(max_retries=retries))
+    session.mount('https://', HTTPAdapter(max_retries=retries))
+    return session
+
+
 class Client(object):
-    _session = requests.Session()
+    _session = _session_factory()
 
     @classmethod
     def clear_session(cls):
-        cls._session = requests.Session()
+        cls._session = _session_factory()
 
     @classmethod
     def init_session(cls):
