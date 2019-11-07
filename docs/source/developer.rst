@@ -25,12 +25,9 @@ If you want to contribute, read the rest of this guide, open an issue to discuss
 
 We strive to have good test coverage, and PRs with failing or ignored tests will not be accepted. We also encourage you to add at least a minimal set of tests for the new code you write. Since some parts of the library are harder to test than others, look at other, similar, parts of the library to see the level of testing wanted.
 
-Some tests in the codebase uses vcrpy_, but we are migrating away from those because of the difficulties in updating them when the code changes. If you find you are modifying code that is tested using vcrpy, the best thing would be if you rewrite the tests. If that is not an option, try to manually adjust the vcrpy "cassettes" to make the test work. Failing that, mark the test skipped, and mention this in the PR.
-
 We use Prospector_ for code quality/style checking, and PRs failing this check might be required to fix any issues before being merged. The code style in the project is close to PEP8, so should not present any big problems.
 
 .. _Prospector: https://prospector.landscape.io/
-.. _vcrpy: https://vcrpy.readthedocs.io/
 
 
 Adding support for new object types
