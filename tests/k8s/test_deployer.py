@@ -182,4 +182,4 @@ def _create_mock_response():
 
 
 def _uri(namespace, name=""):
-    return "/apis/extensions/v1beta1/namespaces/{namespace}/deployments/{name}".format(name=name, namespace=namespace)
+    return "/apis/apps/v1/namespaces/{namespace}/deployments/{name}".format(name=name, namespace=namespace)
