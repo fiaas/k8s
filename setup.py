@@ -21,7 +21,7 @@ import os
 from setuptools import setup, find_packages
 
 GENERIC_REQ = [
-    "six==1.12.0",
+    "six>=1.12.0",
     "requests==2.22.0",
     "pyrfc3339==1.1",
     "cachetools==3.1.1",

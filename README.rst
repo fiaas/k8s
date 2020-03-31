@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-k8s - Python client library for the Kubernetes API
+k8s - Python client library for the Kubernetes API!
 --------------------------------------------------
 
 |Codacy Quality Badge| |Codacy Coverage Badge|
