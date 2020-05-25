@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # Copyright 2017-2019 The FIAAS Authors
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ import mock
 import pytest
 
 from k8s.base import Model, Field, WatchEvent, Equality, Inequality, In, NotIn, Exists
+from k8s.models.common import DeleteOptions, Preconditions
 
 
 class Example(Model):
@@ -67,3 +68,38 @@ class TestFind(object):
     def test_find_by_selectors(self, client, value, selector):
         Example.find(labels={"my_key": value})
         client.get.assert_called_once_with("/example", params={"labelSelector": selector})
+
+
+class TestDeleteList(object):
+
+    @pytest.fixture
+    def client(self):
+        with mock.patch.object(Example, "_client") as m:
+            yield m
+
+    def test_delete_list(self, client):
+        Example.delete_list(labels={"foo": Equality("bar"), "cat": Inequality("dog")})
+
+        client.delete.assert_called_once_with("/example", body=None, params={"labelSelector": "cat!=dog,foo=bar"})
+
+    def test_delete_with_options(self, client):
+        opts = DeleteOptions(
+            apiVersion="foo/v1",
+            dryRun=[],
+            gracePeriodSeconds=30,
+            preconditions=Preconditions(uid="1234", resourceVersion="12"),
+            propagationPolicy="Foreground"
+        )
+        Example.delete_list(labels={"foo": "bar"}, delete_options=opts)
+
+        expected_body = {
+            "apiVersion": "foo/v1",
+            "dryRun": [],
+            "gracePeriodSeconds": 30,
+            "preconditions": {
+                "uid": "1234",
+                "resourceVersion": "12"
+            },
+            "propagationPolicy": "Foreground"
+        }
+        client.delete.assert_called_once_with("/example", params={"labelSelector": "foo=bar"}, body=expected_body)
