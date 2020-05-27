@@ -39,14 +39,6 @@ TESTS_REQ = [
     "pytest-cov==2.7.1",
     "pytest-helpers-namespace==2019.1.8",
     'pytest==3.10.1',
-    'gitdb2==2.0.6',
-    "GitPython==2.1.14",
-]
-
-# These are not direct dependencies, but we need to lock down their versions here
-EXTRA_REQ = [
-    # "pluggy==0.12.0",
-    # "prospector==1.9.0",
 ]
 
 
@@ -84,9 +76,8 @@ def main():
         install_requires=GENERIC_REQ,
         setup_requires=['pytest-runner', 'wheel', 'setuptools_scm'],
         extras_require={
-            "dev": TESTS_REQ + CODE_QUALITY_REQ + EXTRA_REQ,
+            "dev": TESTS_REQ + CODE_QUALITY_REQ,
             "codacy": ["codacy-coverage"],
-            "release": ["gitpython", "twine"],
             "docs": ["Sphinx>=1.6.3"]
         },
         tests_require=TESTS_REQ,
