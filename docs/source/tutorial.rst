@@ -150,6 +150,13 @@ objects, you need to pass a `DeleteOptions` object with a `propagationPolicy` to
   }
   >>> Deployment.delete('nginx', body=delete_options)
 
+To delete multiple resources in a single call, use the `delete_list` function. You can use label-selectors to
+filter what will be deleted, and you can pass `DeleteOptions` as explained above::
+
+  >>> delete_options = DeleteOptions(propagationPolicy='Foreground')
+  >>> label_selectors = {"foo": Equality("bar"), "dog": Inequality("cat")}
+  >>> Ingress.delete_list(labels=label_selectors, delete_options=delete_options)
+
 
 Watch resources
 ---------------

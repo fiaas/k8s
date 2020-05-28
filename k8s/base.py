@@ -2,13 +2,13 @@
 # -*- coding: utf-8
 
 # Copyright 2017-2019 The FIAAS Authors
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -185,6 +185,16 @@ class ApiMixIn(object):
         """Delete the named resource"""
         url = cls._build_url(name=name, namespace=namespace)
         cls._client.delete(url, **kwargs)
+
+    @classmethod
+    def delete_list(cls, namespace="default", labels=None, delete_options=None, **kwargs):
+        selector = ",".join("{}{}".format(k, v if isinstance(v, LabelSelector) else Equality(v))
+                            for k, v in sorted(labels.items(), key=lambda kv: kv[0]))
+        url = cls._build_url(name="", namespace=namespace)
+        if delete_options:
+            delete_options = delete_options.as_dict()
+
+        cls._client.delete(url, body=delete_options, params={"labelSelector": selector}, **kwargs)
 
     def save(self):
         """Save to API server, either update if existing, or create if new"""
