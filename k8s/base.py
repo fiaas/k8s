@@ -90,26 +90,7 @@ class ApiMixIn(object):
         :returns: A list of matching objects
 
         When a `labels` dictionary is supplied, the `name` parameter is ignored.
-        The dictionary is used to build the `labelSelector` parameter to the API,
-        and supports all the operations of the API through the use of :py:class:`~k8s.base.LabelSelector`.
-
-        Each key in the dictionary is a label name. The value defines which operation to perform.
-        Operations that take a single string value:
-
-            - :py:class:`~k8s.base.Equality`
-            - :py:class:`~k8s.base.Inequality`
-
-        A plain string will automatically be wrapped by :py:class:`~k8s.base.Equality` for compatability
-        with older versions of this method.
-
-        Operations that take a sequence of string values:
-
-            - :py:class:`~k8s.base.In`
-            - :py:class:`~k8s.base.NotIn`
-
-        Operations that takes no value:
-
-            - :py:class:`~k8s.base.Exists`
+        See the docs for _label_selector for more details
         """
         if namespace is None:
             if not cls._meta.list_url:
@@ -119,8 +100,7 @@ class ApiMixIn(object):
             url = cls._build_url(name="", namespace=namespace)
         if not labels:
             labels = {"app": Equality(name)}
-        selector = ",".join("{}{}".format(k, v if isinstance(v, LabelSelector) else Equality(v))
-                            for k, v in labels.items())
+        selector = cls._label_selector(labels)
         resp = cls._client.get(url, params={"labelSelector": selector})
         return [cls.from_dict(item) for item in resp.json()[u"items"]]
 
@@ -188,8 +168,7 @@ class ApiMixIn(object):
 
     @classmethod
     def delete_list(cls, namespace="default", labels=None, delete_options=None, **kwargs):
-        selector = ",".join("{}{}".format(k, v if isinstance(v, LabelSelector) else Equality(v))
-                            for k, v in sorted(labels.items(), key=lambda kv: kv[0]))
+        selector = cls._label_selector(labels)
         url = cls._build_url(name="", namespace=namespace)
         if delete_options:
             delete_options = delete_options.as_dict()
@@ -206,6 +185,38 @@ class ApiMixIn(object):
             url = self._build_url(name=self.metadata.name, namespace=self.metadata.namespace)
             resp = self._client.put(url, self.as_dict())
         self.update_from_dict(resp.json())
+
+    @staticmethod
+    def _label_selector(labels):
+        """ Build a labelSelector string from a collection of key/values. The parameter can be either
+        a dict, or a list of (key, value) tuples (this allows for repeating a key).
+
+        The keys/values are used to build the `labelSelector` parameter to the API,
+        and supports all the operations of the API through the use of :py:class:`~k8s.base.LabelSelector`.
+
+        Each key is a label name. The value defines which operation to perform.
+        Operations that take a single string value:
+
+            - :py:class:`~k8s.base.Equality`
+            - :py:class:`~k8s.base.Inequality`
+
+        A plain string will automatically be wrapped by :py:class:`~k8s.base.Equality` for compatability
+        with older versions of this method.
+
+        Operations that take a sequence of string values:
+
+            - :py:class:`~k8s.base.In`
+            - :py:class:`~k8s.base.NotIn`
+
+        Operations that takes no value:
+
+            - :py:class:`~k8s.base.Exists`
+        """
+
+        if hasattr(labels, "items"):
+            labels = sorted(labels.items(), key=lambda kv: kv[0])
+
+        return ",".join("{}{}".format(k, v if isinstance(v, LabelSelector) else Equality(v)) for k, v in labels)
 
 
 class Model(six.with_metaclass(MetaModel)):

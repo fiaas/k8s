@@ -69,6 +69,17 @@ class TestFind(object):
         Example.find(labels={"my_key": value})
         client.get.assert_called_once_with("/example", params={"labelSelector": selector})
 
+    def test_repeated_keys_in_label_selector(self, client):
+        labels = [
+            ("foo", Inequality("bar")),
+            ("foo", Exists())
+        ]
+        Example.find(labels=labels)
+
+        expected_selector = "foo!=bar,foo"
+
+        client.get.assert_called_once_with("/example", params={"labelSelector": expected_selector})
+
 
 class TestDeleteList(object):
 
