@@ -30,6 +30,8 @@ We use Prospector_ for code quality/style checking, and PRs failing this check m
 .. _Prospector: https://prospector.landscape.io/
 
 
+.. _adding-support-for-new-object-types:
+
 Adding support for new object types
 -----------------------------------
 
