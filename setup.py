@@ -28,7 +28,7 @@ GENERIC_REQ = [
 ]
 
 CODE_QUALITY_REQ = [
-    'prospector',
+    'prospector==1.2.0',  # Newer versions require Python 3
 ]
 
 TESTS_REQ = [
