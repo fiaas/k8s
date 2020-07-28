@@ -81,7 +81,7 @@ def _create_mock_response():
             u"name": u"my-name"
         },
         u"spec": {
-            u"schedule": u"*/1 * * * *"
+            u"schedule": u"*/1 * * * *",
             u"jobTemplate": {
                 u"spec": {
                     u"template": {
