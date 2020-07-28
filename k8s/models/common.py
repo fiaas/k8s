@@ -50,6 +50,7 @@ class ObjectMeta(Model):
     selfLink = ReadOnlyField(six.text_type)
     uid = ReadOnlyField(six.text_type)
 
+    
 class ObjectReference(Model):
     apiVersion = Field(six.text_type)
     fieldPath = Field(six.text_type)
@@ -59,15 +60,17 @@ class ObjectReference(Model):
     resourceVersion = Field(six.text_type)
     uid = Field(six.text_type)
 
+    
 class ListMeta(Model):
-
     _continue = Field(six.text_type) 
     remainingItemCount = Field(int)
     resourceVersion = Field(six.text_type)
     selfLink = Field(six.text_type)
 
+    
 class Time(Model):
     pass
+
 
 class Preconditions(Model):
     resourceVersion = Field(six.text_type)
