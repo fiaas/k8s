@@ -25,8 +25,10 @@ from k8s.models.cronjob import CronJob
 from k8s.models.job import Job, JobSpec
 from k8s.models.pod import Container, LocalObjectReference, PodTemplateSpec, PodSpec
 
+
 NAME = "my-name"
 NAMESPACE = "my-namespace"
+
 
 @pytest.mark.usefixtures("k8s_config")
 class TestCronJobs(object):
@@ -47,6 +49,7 @@ class TestCronJobs(object):
 
         pytest.helpers.assert_any_call(post, _uri(NAMESPACE), call_params)
 
+        
 def _create_default_cronjob():
     labels = {"test": "true"}
     object_meta = ObjectMeta(name=NAME, namespace=NAMESPACE)
@@ -66,7 +69,8 @@ def _create_default_cronjob():
 
     return cronjob
 
-    def _create_mock_response():
+
+def _create_mock_response():
     mock_response = mock.Mock()
     mock_response.json.return_value = {
         u"metadata": {
@@ -78,7 +82,7 @@ def _create_default_cronjob():
         },
         u"spec": {
             u"schedule": u"*/1 * * * *"
-            u"jobTemplate":{
+            u"jobTemplate": {
                 u"spec": {
                     u"template": {
                         u"spec": {
@@ -114,6 +118,6 @@ def _create_default_cronjob():
     }
     return mock_response
 
-    def _uri(namespace, name=""):
 
+def _uri(namespace, name=""):    
     return "/apis/batch/v1beta1/namespaces/{namespace}/cronjobs/{name}".format(name=name, namespace=namespace)
