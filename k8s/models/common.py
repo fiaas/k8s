@@ -61,7 +61,7 @@ class ObjectReference(Model):
 
 class ListMeta(Model):
 
-    #continue = Field(six.text_type) // continue cant be used as variable name (restrictade name), I am not sure how this can be fixed
+    _continue = Field(six.text_type) 
     remainingItemCount = Field(int)
     resourceVersion = Field(six.text_type)
     selfLink = Field(six.text_type)
