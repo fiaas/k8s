@@ -49,7 +49,7 @@ class ObjectMeta(Model):
     resourceVersion = ReadOnlyField(six.text_type)
     selfLink = ReadOnlyField(six.text_type)
     uid = ReadOnlyField(six.text_type)
-    
+
     
 class ObjectReference(Model):
     apiVersion = Field(six.text_type)
