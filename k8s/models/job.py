@@ -26,6 +26,7 @@ from ..fields import Field
 class LabelSelector(Model):
     matchLabels = Field(dict)
 
+    
 class JobSpec(Model):
     template = Field(PodTemplateSpec)
     backoffLimit = Field(int)
@@ -35,11 +36,12 @@ class JobSpec(Model):
     parallelism = Field(int)
     selector = Field(LabelSelector)
 
+    
 class JobTemplateSpec(Model):
     metadata = Field(ObjectMeta)
     spec = Field(JobSpec)
 
-
+    
 class Job(Model):
     class Meta:
         list_url = "/apis/batch/v1/jobs"
