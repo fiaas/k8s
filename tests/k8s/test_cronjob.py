@@ -21,9 +21,9 @@ import pytest
 
 from k8s.client import NotFound
 from k8s.models.common import ObjectMeta
-from k8s.models.cronjob import CronJob
-from k8s.models.job import Job, JobSpec
-from k8s.models.pod import Container, LocalObjectReference, PodTemplateSpec, PodSpec
+from k8s.models.cronjob import CronJob, CronJobSpec
+from k8s.models.job import JobSpec, JobTemplateSpec
+from k8s.models.pod import Container, PodTemplateSpec, PodSpec
 
 
 NAME = "my-name"
@@ -39,7 +39,7 @@ class TestCronJobs(object):
 
     def test_created_if_not_exists(self, post, api_get):
         api_get.side_effect = NotFound()
-        cronjob = _create_default_job()
+        cronjob = _create_default_cronjob()
         call_params = cronjob.as_dict()
         post.return_value.json.return_value = call_params
 
@@ -49,9 +49,8 @@ class TestCronJobs(object):
 
         pytest.helpers.assert_any_call(post, _uri(NAMESPACE), call_params)
 
-        
+
 def _create_default_cronjob():
-    labels = {"test": "true"}
     object_meta = ObjectMeta(name=NAME, namespace=NAMESPACE)
     container = Container(
         name="container",
