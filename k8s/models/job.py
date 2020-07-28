@@ -26,7 +26,6 @@ from ..fields import Field
 class LabelSelector(Model):
     matchLabels = Field(dict)
 
-
 class JobSpec(Model):
     template = Field(PodTemplateSpec)
     backoffLimit = Field(int)
@@ -35,6 +34,10 @@ class JobSpec(Model):
     manualSelector = Field(bool)
     parallelism = Field(int)
     selector = Field(LabelSelector)
+
+class JobTemplateSpec(Model):
+    metadata = Field(ObjectMeta)
+    spec = Field(JobSpec)
 
 
 class Job(Model):
