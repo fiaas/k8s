@@ -50,6 +50,24 @@ class ObjectMeta(Model):
     selfLink = ReadOnlyField(six.text_type)
     uid = ReadOnlyField(six.text_type)
 
+class ObjectReference(Model):
+    apiVersion = Field(six.text_type)
+    fieldPath = Field(six.text_type)
+    kind = Field(six.text_type)
+    name = Field(six.text_type)
+    namespace = Field(six.text_type)
+    resourceVersion = Field(six.text_type)
+    uid = Field(six.text_type)
+
+class ListMeta(Model):
+
+    #continue = Field(six.text_type) // continue cant be used as variable name (restrictade name), I am not sure how this can be fixed
+    remainingItemCount = Field(int)
+    resourceVersion = Field(six.text_type)
+    selfLink = Field(six.text_type)
+
+class Time(Model):
+    pass
 
 class Preconditions(Model):
     resourceVersion = Field(six.text_type)
