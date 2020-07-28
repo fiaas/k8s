@@ -19,7 +19,7 @@ from __future__ import absolute_import
 
 import six
 
-from .common import ObjectMeta, ObjectReference, Time, ListMeta
+from .common import ObjectMeta, ObjectReference, Time
 from .job import JobTemplateSpec
 from ..base import Model
 from ..fields import Field, ListField
