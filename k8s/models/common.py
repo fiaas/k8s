@@ -61,13 +61,6 @@ class ObjectReference(Model):
     uid = Field(six.text_type)
 
     
-class ListMeta(Model):
-    _continue = Field(six.text_type) 
-    remainingItemCount = Field(int)
-    resourceVersion = Field(six.text_type)
-    selfLink = Field(six.text_type)
-
-    
 class Time(Model):
     pass
 
