@@ -14,6 +14,8 @@ ignore-paths:
 pep8:
   options:
     max-line-length: 120
+  disable:
+    - N815 # mixedCase variable in class scope
 
 mccabe:
   max-complexity: 10
