@@ -2,13 +2,13 @@
 # -*- coding: utf-8
 
 # Copyright 2017-2020 The FIAAS Authors
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,8 @@ from __future__ import absolute_import
 
 import six
 
+import datetime
+
 from .common import ObjectMeta, ObjectReference, Time
 from .job import JobTemplateSpec
 from ..base import Model
@@ -26,7 +28,7 @@ from ..fields import Field, ListField
 
 
 class CronJobSpec(Model):
-    concurrencyPolicy = Field(six.text_type) 
+    concurrencyPolicy = Field(six.text_type)
     failedJobsHistoryLimit = Field(int)
     jobTemplate = Field(JobTemplateSpec)
     schedule = Field(six.text_type)
@@ -37,7 +39,7 @@ class CronJobSpec(Model):
 
 class CronJobStatus(Model):
     active = ListField(ObjectReference)
-    lastScheduleTime = Field(Time)
+    lastScheduleTime = ReadOnlyField(datetime.datetime)
 
 
 class CronJob(Model):
@@ -47,6 +49,6 @@ class CronJob(Model):
 
     metadata = Field(ObjectMeta)
     spec = Field(CronJobSpec)
-    status = Field(CronJobStatus) 
+    status = Field(CronJobStatus)
 
 

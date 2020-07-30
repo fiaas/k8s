@@ -61,10 +61,6 @@ class ObjectReference(Model):
     uid = Field(six.text_type)
 
 
-class Time(Model):
-    pass
-
-
 class Preconditions(Model):
     resourceVersion = Field(six.text_type)
     uid = Field(six.text_type)
