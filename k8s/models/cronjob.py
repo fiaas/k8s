@@ -21,7 +21,7 @@ import six
 
 import datetime
 
-from .common import ObjectMeta, ObjectReference, Time
+from .common import ObjectMeta, ObjectReference
 from .job import JobTemplateSpec
 from ..base import Model
 from ..fields import Field, ListField, ReadOnlyField
