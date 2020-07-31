@@ -51,6 +51,16 @@ class ObjectMeta(Model):
     uid = ReadOnlyField(six.text_type)
 
 
+class ObjectReference(Model):
+    apiVersion = Field(six.text_type)
+    fieldPath = Field(six.text_type)
+    kind = Field(six.text_type)
+    name = Field(six.text_type)
+    namespace = Field(six.text_type)
+    resourceVersion = Field(six.text_type)
+    uid = Field(six.text_type)
+
+
 class Preconditions(Model):
     resourceVersion = Field(six.text_type)
     uid = Field(six.text_type)
