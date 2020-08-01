@@ -61,7 +61,7 @@ def _create_default_cronjob():
     pod_template_spec = PodTemplateSpec(metadata=object_meta, spec=pod_spec)
     job_spec = JobSpec(template=pod_template_spec)
     job_template_spec = JobTemplateSpec(metadata=object_meta, spec=job_spec)
-    cronjob_spec = CronJobSpec(concurencyPolicy="Allow", failedJobsHistoryLimit=0, jobTemplate=job_template_spec, 
+    cronjob_spec = CronJobSpec(concurrencyPolicy="Allow", failedJobsHistoryLimit=0, jobTemplate=job_template_spec,
                                schedule="*/1 * * * *", startingDeadlineSeconds=5, successfulJobsHistoryLimit=100,
                                suspend=True)
     cronjob = CronJob(metadata=object_meta, spec=cronjob_spec)
