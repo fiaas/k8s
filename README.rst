@@ -16,8 +16,10 @@
 k8s - Python client library for the Kubernetes API
 --------------------------------------------------
 
-|Codacy Quality Badge| |Codacy Coverage Badge|
+|Semaphore Build Status Badge| |Codacy Quality Badge| |Codacy Coverage Badge|
 
+.. |Semaphore Build Status Badge| image:: https://fiaas-svc.semaphoreci.com/badges/k8s.svg?style=shields
+    :target: https://fiaas-svc.semaphoreci.com/branches/8e8fdc8c-cd55-4ba3-9dcf-38880531e601
 .. |Codacy Quality Badge| image:: https://api.codacy.com/project/badge/Grade/cb51fc9f95464f22b6084379e88fad77
     :target: https://www.codacy.com/app/mortenlj/k8s?utm_source=github.com&utm_medium=referral&utm_content=fiaas/k8s&utm_campaign=badger
 .. |Codacy Coverage Badge| image:: https://api.codacy.com/project/badge/Coverage/cb51fc9f95464f22b6084379e88fad77
