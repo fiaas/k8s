@@ -89,9 +89,6 @@ def _create_mock_response():
             'name': 'my-secret'
         }],
         'imagePullSecrets': [{
-            'name': 'my-image-pulsal-secret'
-        }],
-        'iqmagePullSecrets': [{
             'name': 'my-image-pull-secret'
         }]
     }
