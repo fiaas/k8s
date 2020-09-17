@@ -73,3 +73,7 @@ class DeleteOptions(Model):
     kind = Field(six.text_type)
     preconditions = Field(Preconditions)
     propagationPolicy = Field(six.text_type)
+
+
+class LocalObjectReference(Model):
+    name = Field(six.text_type)
