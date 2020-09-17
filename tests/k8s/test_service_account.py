@@ -46,10 +46,12 @@ class TestServiceAccount(object):
         get.return_value = mock_response
         service_account = _create_default_service_account()
 
-        from_api = ServiceAccount.get_or_create(metadata=service_account.metadata,
-                                                secrets=service_account.secrets,
-                                                imagePullSecrets=service_account.imagePullSecrets,
-                                                automountServiceAccountToken=service_account.automountServiceAccountToken)
+        from_api = ServiceAccount.get_or_create(
+            metadata=service_account.metadata,
+            secrets=service_account.secrets,
+            imagePullSecrets=service_account.imagePullSecrets,
+            automountServiceAccountToken=service_account.automountServiceAccountToken
+        )
         assert not from_api._new
         assert from_api.secrets == service_account.secrets
 

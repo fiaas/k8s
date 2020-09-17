@@ -16,7 +16,7 @@
 from __future__ import absolute_import
 
 
-from .common import ObjectMeta, ObjectReference, LocalObjectReference
+from .common import ObjectMeta, LocalObjectReference
 from ..base import Model
 from ..fields import Field, ListField
 
