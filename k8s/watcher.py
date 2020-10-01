@@ -27,32 +27,36 @@ class Watcher(object):
     """Higher-level interface to watch for changes in objects
 
     The low-level :py:meth:`~.watch_list` method will stop when the API-server drops the connection.
-    When reconnecting, the API-server will send a list of :py:const:`~k8s.base.WatchEvent.ADDED`
-    events for all objects, even if they have been seen before.
+    When reconnecting, the API-server lets the caller specify which watch event to restart from.
 
     The Watcher will hide this complexity for you, and make sure to reconnect when the
-    connection drops, and skip events that have already been seen.
+    connection drops, and restart the watch from the last observed event. 
 
     :param Model model: The model class to watch
-    :param int capacity: How many seen objects to keep track of
     """
-    def __init__(self, model, capacity=DEFAULT_CAPACITY):
-        self._seen = cachetools.LRUCache(capacity)
+    def __init__(self, model):
         self._model = model
         self._run_forever = True
 
-    def watch(self, namespace=None):
+    def watch(self, namespace=None, start_at_resource_version=None):
         """Watch for events
 
         :param str namespace: the namespace to watch for events in. The default (None) results in
             watching for events in all namespaces.
+        :param int start_at_resource_version: the resource version to begin watching at, excluding 
+            the version number itself. The default (None) will send the most recent event, then 
+            begin watching events occuring thereafter.
         :return: a generator that yields :py:class:`~.WatchEvent` objects not seen before
         """
+
+        last_seen_version = start_at_resource_version
+
         while self._run_forever:
-            for event in self._model.watch_list(namespace=namespace):
+            for event in self._model.watch_list(
+                namespace=namespace, 
+                start_at_resource_version=last_seen_version
+            ):
                 o = event.object
-                key = (o.metadata.name, o.metadata.namespace)
-                if self._seen.get(key) == o.metadata.resourceVersion and event.type != WatchEvent.DELETED:
-                    continue
-                self._seen[key] = o.metadata.resourceVersion
-                yield event
+                last_seen_version = event.resourceVersion
+                if event.type != WatchEvent.BOOKMARK:
+                    yield event
