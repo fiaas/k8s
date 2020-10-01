@@ -31,19 +31,27 @@ class Example(Model):
 
 
 class TestWatchEvent(object):
+
+    common_object = {"value": 42, "metadata": {"resourceVersion":1}}
+
     def test_watch_event_added(self):
-        watch_event = WatchEvent({"type": "ADDED", "object": {"value": 42, "metadata": {"resourceVersion":1}}}, Example)
+        watch_event = WatchEvent({"type": "ADDED", "object": self.common_object}, Example)
         assert watch_event.type == WatchEvent.ADDED
         assert watch_event.object == Example(value=42)
 
     def test_watch_event_modified(self):
-        watch_event = WatchEvent({"type": "MODIFIED", "object": {"value": 42, "metadata": {"resourceVersion":1}}}, Example)
+        watch_event = WatchEvent({"type": "MODIFIED", "object": self.common_object}, Example)
         assert watch_event.type == WatchEvent.MODIFIED
         assert watch_event.object == Example(value=42)
 
     def test_watch_event_deleted(self):
-        watch_event = WatchEvent({"type": "DELETED","object": {"value": 42, "metadata": {"resourceVersion":1}}}, Example)
+        watch_event = WatchEvent({"type": "DELETED", "object": self.common_object}, Example)
         assert watch_event.type == WatchEvent.DELETED
+        assert watch_event.object == Example(value=42)
+
+    def test_watch_event_bookmark(self):
+        watch_event = WatchEvent({"type": "BOOKMARK", "object": self.common_object}, Example)
+        assert watch_event.type == WatchEvent.BOOKMARK
         assert watch_event.object == Example(value=42)
 
 
