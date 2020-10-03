@@ -122,7 +122,8 @@ class TestClient(object):
     def test_watch_list(self, session):
         list(WatchListExample.watch_list())
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/watch/example?watch=1&allowWatchBookmarks=true"), json=None, timeout=config.stream_timeout, stream=True
+            "GET", _absolute_url("/watch/example?watch=1&allowWatchBookmarks=true"), 
+            json=None, timeout=config.stream_timeout, stream=True
         )
 
     def test_watch_list_with_namespace(self, session):
@@ -135,7 +136,7 @@ class TestClient(object):
     def test_watch_list_starting_from_resource_version(self, session):
         list(WatchListExample.watch_list(start_at_resource_version=10))
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/watch/example?watch=1&resourceVersion=10&allowWatchBookmarks=true"), 
+            "GET", _absolute_url("/watch/example?watch=1&allowWatchBookmarks=true&resourceVersion=10"), 
             json=None, timeout=config.stream_timeout, stream=True
         )
 

@@ -123,9 +123,13 @@ class ApiMixIn(object):
         url_query_params = parse_qs(query)
 
         url_query_params["watch"] = [1]
-        url_query_params["resourceVersion"] = [start_at_resource_version] if start_at_resource_version != None else []
         url_query_params["allowWatchBookmarks"] = ["true"]
-        
+
+        if start_at_resource_version is None:
+            url_query_params["resourceVersion"] = []
+        else:
+            url_query_params["resourceVersion"] = [start_at_resource_version]
+
         query = urlencode(url_query_params, doseq=True)
         return urlunsplit((scheme, netloc, path, query, fragment))
 

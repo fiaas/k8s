@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import cachetools
-
 from .base import WatchEvent
 
 DEFAULT_CAPACITY = 1000
@@ -56,7 +53,6 @@ class Watcher(object):
                 namespace=namespace, 
                 start_at_resource_version=last_seen_version
             ):
-                o = event.object
                 last_seen_version = event.resourceVersion
                 if event.type != WatchEvent.BOOKMARK:
                     yield event

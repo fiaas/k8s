@@ -32,7 +32,7 @@ class Example(Model):
 
 class TestWatchEvent(object):
 
-    common_object = {"value": 42, "metadata": {"resourceVersion":1}}
+    common_object = {"value": 42, "metadata": {"resourceVersion": 1}}
 
     def test_watch_event_added(self):
         watch_event = WatchEvent({"type": "ADDED", "object": self.common_object}, Example)
