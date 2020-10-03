@@ -17,6 +17,7 @@
 
 
 import mock
+from mock import call
 import pytest
 import six
 
@@ -74,7 +75,7 @@ class TestWatcher(object):
         watcher._run_forever = False
         assert list(gen) == []
 
-    def test_complicated(self, api_watch_list):
+    def test_many_reconnections(self, api_watch_list):
         first = [_event(0, ADDED, 1), _event(1, ADDED, 1), _event(2, ADDED, 1)]
         second = [_event(3, ADDED, 1), _event(4, ADDED, 2), _event(5, ADDED, 1), _event(6, MODIFIED, 2)]
         third = [_event(7, ADDED, 2), _event(8, DELETED, 2), _event(9, ADDED, 1), _event(20, BOOKMARK, 2)]
@@ -106,6 +107,26 @@ class TestWatcher(object):
 
         watcher._run_forever = False
         assert list(gen) == []
+
+    def test_start_watching_from_bookmark(self, api_watch_list):
+
+        bookmark_event = _event(30, BOOKMARK, 1)
+        first = [_event(0, ADDED, 1), _event(1, ADDED, 1), _event(2, ADDED, 1), bookmark_event]
+        second = [_event(31, ADDED, 1)]
+
+        api_watch_list.side_effect = [first, second]
+        watcher = Watcher(WatchListExample)
+        gen = watcher.watch()
+
+        _assert_event(next(gen), 0, ADDED, 1)
+        _assert_event(next(gen), 1, ADDED, 1)
+        _assert_event(next(gen), 2, ADDED, 1)
+        _assert_event(next(gen), 31, ADDED, 1)
+
+        api_watch_list.assert_has_calls([
+            call(namespace=None, start_at_resource_version=None),
+            call(namespace=None, start_at_resource_version=bookmark_event.resourceVersion),
+        ])
 
     def test_namespace(self, api_watch_list):
         namespace = "the-namespace"
