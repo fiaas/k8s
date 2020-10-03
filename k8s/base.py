@@ -118,20 +118,8 @@ class ApiMixIn(object):
         return [cls.from_dict(item) for item in resp.json()[u"items"]]
 
     @classmethod
-    def watch_list(cls, namespace=None, start_at_resource_version=None):
-        """Return a generator that yields WatchEvents of cls"""
-        if namespace:
-            if cls._meta.watch_list_url_template:
-                url = cls._meta.watch_list_url_template.format(namespace=namespace)
-            else:
-                raise NotImplementedError(
-                    "Cannot watch_list with namespace, no watch_list_url_template defined on class {}".format(cls))
-        else:
-            url = cls._meta.watch_list_url
-            if not url:
-                raise NotImplementedError("Cannot watch_list, no watch_list_url defined on class {}".format(cls))
-
-        scheme, netloc, path, query, fragment = urlsplit(url)
+    def _watch_url_from_base_resource_url(cls, base_resource_url, start_at_resource_version=None):
+        scheme, netloc, path, query, fragment = urlsplit(base_resource_url)
         url_query_params = parse_qs(query)
 
         url_query_params["watch"] = [1]
@@ -139,9 +127,25 @@ class ApiMixIn(object):
         url_query_params["allowWatchBookmarks"] = ["true"]
         
         query = urlencode(url_query_params, doseq=True)
-        new_url = urlunsplit((scheme, netloc, path, query, fragment))
+        return urlunsplit((scheme, netloc, path, query, fragment))
 
-        resp = cls._client.get(new_url, stream=True, timeout=config.stream_timeout)
+    @classmethod
+    def watch_list(cls, namespace=None, start_at_resource_version=None):
+        """Return a generator that yields WatchEvents of cls"""
+        if namespace:
+            if cls._meta.watch_list_url_template:
+                base_resource_url = cls._meta.watch_list_url_template.format(namespace=namespace)
+            else:
+                raise NotImplementedError(
+                    "Cannot watch_list with namespace, no watch_list_url_template defined on class {}".format(cls))
+        else:
+            base_resource_url = cls._meta.watch_list_url
+            if not base_resource_url:
+                raise NotImplementedError("Cannot watch_list, no watch_list_url defined on class {}".format(cls))
+
+        watch_url = cls._watch_url_from_base_resource_url(base_resource_url, start_at_resource_version)
+
+        resp = cls._client.get(watch_url, stream=True, timeout=config.stream_timeout)
         for line in resp.iter_lines(chunk_size=None):
             if line:
                 try:
