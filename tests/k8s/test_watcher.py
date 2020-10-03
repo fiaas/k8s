@@ -28,6 +28,7 @@ from k8s.watcher import Watcher
 ADDED = WatchEvent.ADDED
 MODIFIED = WatchEvent.MODIFIED
 DELETED = WatchEvent.DELETED
+BOOKMARK = WatchEvent.BOOKMARK
 
 
 @pytest.mark.usefixtures("k8s_config", "logger")
@@ -49,7 +50,7 @@ class TestWatcher(object):
         watcher._run_forever = False
         assert list(gen) == []
 
-        api_watch_list.assert_called_with(namespace=None)
+        api_watch_list.assert_called_with(namespace=None, start_at_resource_version=None)
 
     def test_handle_reconnect(self, api_watch_list):
         events = [_event(0, ADDED, 1)]
@@ -75,9 +76,9 @@ class TestWatcher(object):
 
     def test_complicated(self, api_watch_list):
         first = [_event(0, ADDED, 1), _event(1, ADDED, 1), _event(2, ADDED, 1)]
-        second = [_event(0, ADDED, 1), _event(1, ADDED, 2), _event(2, ADDED, 1), _event(0, MODIFIED, 2)]
-        third = [_event(0, ADDED, 2), _event(1, DELETED, 2), _event(2, ADDED, 1), _event(2, MODIFIED, 2)]
-        fourth = [_event(0, ADDED, 2), _event(0, ADDED, 1, "other"), _event(0, MODIFIED, 2, "other")]
+        second = [_event(3, ADDED, 1), _event(4, ADDED, 2), _event(5, ADDED, 1), _event(6, MODIFIED, 2)]
+        third = [_event(7, ADDED, 2), _event(8, DELETED, 2), _event(9, ADDED, 1), _event(20, BOOKMARK, 2)]
+        fourth = [_event(25, ADDED, 2), _event(26, ADDED, 1), _event(27, MODIFIED, 2)]
         api_watch_list.side_effect = [first, second, third, fourth]
         watcher = Watcher(WatchListExample)
         gen = watcher.watch()
@@ -88,16 +89,20 @@ class TestWatcher(object):
         _assert_event(next(gen), 2, ADDED, 1)
 
         # Second batch
-        _assert_event(next(gen), 1, ADDED, 2)
-        _assert_event(next(gen), 0, MODIFIED, 2)
+        _assert_event(next(gen), 3, ADDED, 1)
+        _assert_event(next(gen), 4, ADDED, 2)
+        _assert_event(next(gen), 5, ADDED, 1)
+        _assert_event(next(gen), 6, MODIFIED, 2)
 
         # Third batch
-        _assert_event(next(gen), 1, DELETED, 2)
-        _assert_event(next(gen), 2, MODIFIED, 2)
+        _assert_event(next(gen), 7, ADDED, 2)
+        _assert_event(next(gen), 8, DELETED, 2)
+        _assert_event(next(gen), 9, ADDED, 1)
 
         # Fourth batch
-        _assert_event(next(gen), 0, ADDED, 1, "other")
-        _assert_event(next(gen), 0, MODIFIED, 2, "other")
+        _assert_event(next(gen), 25, ADDED, 2)
+        _assert_event(next(gen), 26, ADDED, 1)
+        _assert_event(next(gen), 27, MODIFIED, 2)
 
         watcher._run_forever = False
         assert list(gen) == []
@@ -115,22 +120,27 @@ class TestWatcher(object):
 
         assert list(gen) == []
 
-        api_watch_list.assert_called_with(namespace=namespace)
+        api_watch_list.assert_called_with(namespace=namespace, start_at_resource_version=None)
 
 
-def _event(id, event_type, rv, namespace="default"):
-    metadict = {"name": "name{}".format(id), "namespace": namespace, "resourceVersion": rv}
-    metadata = ObjectMeta.from_dict(metadict)
-    wle = WatchListExample(metadata=metadata, value=(id * 100) + rv)
-    return mock.NonCallableMagicMock(type=event_type, object=wle)
+def _event(id, event_type, rv):
+    event_json = {
+        "type": event_type,
+        "object": {
+            "value": (id * 100) + rv,
+            "metadata": {
+                "resourceVersion": rv
+            }
+        },
+    }
+    we = WatchEvent(event_json, WatchListExample)
+    return mock.NonCallableMagicMock(type=event_type, object=we)
 
 
-def _assert_event(event, id, event_type, rv, namespace="default"):
+def _assert_event(event, id, event_type, rv):
     assert event.type == event_type
-    o = event.object
+    o = event.object.object
     assert o.kind == "Example"
-    assert o.metadata.name == "name{}".format(id)
-    assert o.metadata.namespace == namespace
     assert o.value == (id * 100) + rv
 
 
