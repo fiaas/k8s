@@ -33,6 +33,7 @@ blocks:
           - checkout
           - mkdir "${PIP_CACHE_DIR}"
           - cache restore "setup-${SEMAPHORE_GIT_BRANCH}-$(checksum setup.py)","setup-${SEMAPHORE_GIT_BRANCH}",setup-master
+          - pip install --upgrade pip
           - pip install --user tox
       jobs:
         - name: Tests
@@ -40,7 +41,7 @@ blocks:
             - tox
           matrix:
             - env_var: TOXENV
-              values: ["py27", "py36", "py37"]
+              values: ["py27", "py36", "py37", "py39"]
         - name: Gather coverage data
           commands:
             - tox -e coverage
