@@ -40,7 +40,7 @@ blocks:
             - tox
           matrix:
             - env_var: TOXENV
-              values: ["py27", "py36", "py37"]
+              values: ["py27", "py36", "py37", "py39"]
         - name: Gather coverage data
           commands:
             - tox -e coverage
