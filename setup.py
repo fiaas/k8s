@@ -21,7 +21,7 @@ import os
 from setuptools import setup, find_packages
 
 GENERIC_REQ = [
-    "six==1.12.0",
+    "six>=1.12.0",
     "requests==2.22.0",
     "pyrfc3339==1.1",
     "cachetools==3.1.1",
@@ -32,7 +32,8 @@ CODE_QUALITY_REQ = [
 ]
 
 TESTS_REQ = [
-    'tox==3.13.2',
+    "virtualenv==20.4.2",
+    'tox==3.23.0',
     'mock==3.0.5',
     "pytest-sugar==0.9.2",
     "pytest-html==1.22.0",
@@ -74,7 +75,7 @@ def main():
 
         # Requirements
         install_requires=GENERIC_REQ,
-        setup_requires=['pytest-runner', 'wheel', 'setuptools_scm'],
+        setup_requires=['pytest-runner', 'wheel', 'setuptools_scm==5.0.2'],
         extras_require={
             "dev": TESTS_REQ + CODE_QUALITY_REQ,
             "codacy": ["codacy-coverage"],
