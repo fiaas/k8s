@@ -75,7 +75,7 @@ def main():
 
         # Requirements
         install_requires=GENERIC_REQ,
-        setup_requires=['pytest-runner', 'wheel', 'setuptools_scm'],
+        setup_requires=['pytest-runner', 'wheel', 'setuptools_scm==5.0.2'],
         extras_require={
             "dev": TESTS_REQ + CODE_QUALITY_REQ,
             "codacy": ["codacy-coverage"],
