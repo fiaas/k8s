@@ -32,7 +32,6 @@ CODE_QUALITY_REQ = [
 ]
 
 TESTS_REQ = [
-    "virtualenv==20.4.2",
     'tox==3.23.0',
     'mock==3.0.5',
     "pytest-sugar==0.9.2",
