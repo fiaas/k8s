@@ -21,7 +21,7 @@ import os
 from setuptools import setup, find_packages
 
 GENERIC_REQ = [
-    "six==1.12.0",
+    "six>=1.12.0",
     "requests==2.22.0",
     "pyrfc3339==1.1",
     "cachetools==3.1.1",
@@ -32,7 +32,7 @@ CODE_QUALITY_REQ = [
 ]
 
 TESTS_REQ = [
-    'tox==3.13.2',
+    'tox==3.23.0',
     'mock==3.0.5',
     "pytest-sugar==0.9.2",
     "pytest-html==1.22.0",
@@ -99,6 +99,7 @@ def main():
             "Programming Language :: Python :: 3.5",
             "Programming Language :: Python :: 3.6",
             "Programming Language :: Python :: 3.7",
+            "Programming Language :: Python :: 3.9",
             "Topic :: Internet",
             "Topic :: Software Development :: Libraries :: Python Modules",
             "Topic :: System :: Clustering",
