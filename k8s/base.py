@@ -19,6 +19,7 @@ from __future__ import absolute_import
 
 import json
 import logging
+from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qs
 from collections import namedtuple
 
 import six
@@ -117,20 +118,38 @@ class ApiMixIn(object):
         return [cls.from_dict(item) for item in resp.json()[u"items"]]
 
     @classmethod
-    def watch_list(cls, namespace=None):
+    def _watch_url_from_base_resource_url(cls, base_resource_url, start_at_resource_version=None):
+        scheme, netloc, path, query, fragment = urlsplit(base_resource_url)
+        url_query_params = parse_qs(query)
+
+        url_query_params["watch"] = [1]
+        url_query_params["allowWatchBookmarks"] = ["true"]
+
+        if start_at_resource_version is None:
+            url_query_params["resourceVersion"] = []
+        else:
+            url_query_params["resourceVersion"] = [start_at_resource_version]
+
+        query = urlencode(url_query_params, doseq=True)
+        return urlunsplit((scheme, netloc, path, query, fragment))
+
+    @classmethod
+    def watch_list(cls, namespace=None, start_at_resource_version=None):
         """Return a generator that yields WatchEvents of cls"""
         if namespace:
             if cls._meta.watch_list_url_template:
-                url = cls._meta.watch_list_url_template.format(namespace=namespace)
+                base_resource_url = cls._meta.watch_list_url_template.format(namespace=namespace)
             else:
                 raise NotImplementedError(
                     "Cannot watch_list with namespace, no watch_list_url_template defined on class {}".format(cls))
         else:
-            url = cls._meta.watch_list_url
-            if not url:
+            base_resource_url = cls._meta.watch_list_url
+            if not base_resource_url:
                 raise NotImplementedError("Cannot watch_list, no watch_list_url defined on class {}".format(cls))
 
-        resp = cls._client.get(url, stream=True, timeout=config.stream_timeout)
+        watch_url = cls._watch_url_from_base_resource_url(base_resource_url, start_at_resource_version)
+
+        resp = cls._client.get(watch_url, stream=True, timeout=config.stream_timeout)
         for line in resp.iter_lines(chunk_size=None):
             if line:
                 try:
@@ -288,14 +307,20 @@ class WatchEvent(object):
     ADDED = "ADDED"
     MODIFIED = "MODIFIED"
     DELETED = "DELETED"
+    BOOKMARK = "BOOKMARK"
 
     def __init__(self, event_json, cls):
         self.type = event_json["type"]
         self.object = cls.from_dict(event_json["object"])
+        self.resourceVersion = event_json["object"]["metadata"]["resourceVersion"]
 
     def __repr__(self):
-        return "{cls}(type={type}, object={object})".format(cls=self.__class__.__name__, type=self.type,
-                                                            object=self.object)
+        return "{cls}(type={type}, object={object}, rv={resourceVersion})".format(
+            cls=self.__class__.__name__, 
+            type=self.type,
+            object=self.object,
+            resourceVersion=self.resourceVersion
+        )
 
 
 class LabelSelector(object):

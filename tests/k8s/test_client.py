@@ -122,13 +122,22 @@ class TestClient(object):
     def test_watch_list(self, session):
         list(WatchListExample.watch_list())
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/watch/example"), json=None, timeout=config.stream_timeout, stream=True
+            "GET", _absolute_url("/watch/example?watch=1&allowWatchBookmarks=true"), 
+            json=None, timeout=config.stream_timeout, stream=True
         )
 
     def test_watch_list_with_namespace(self, session):
         list(WatchListExample.watch_list(namespace="explicitly-set"))
         session.request.assert_called_once_with(
-            "GET", _absolute_url("/watch/explicitly-set/example"), json=None, timeout=config.stream_timeout, stream=True
+            "GET", _absolute_url("/watch/explicitly-set/example?watch=1&allowWatchBookmarks=true"), 
+            json=None, timeout=config.stream_timeout, stream=True
+        )
+
+    def test_watch_list_starting_from_resource_version(self, session):
+        list(WatchListExample.watch_list(start_at_resource_version=10))
+        session.request.assert_called_once_with(
+            "GET", _absolute_url("/watch/example?watch=1&allowWatchBookmarks=true&resourceVersion=10"), 
+            json=None, timeout=config.stream_timeout, stream=True
         )
 
     def test_list_without_namespace_should_raise_exception_when_list_url_is_not_set_on_metaclass(self, session):
