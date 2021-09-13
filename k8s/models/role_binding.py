@@ -16,7 +16,7 @@
 from __future__ import absolute_import
 
 
-from .common import ObjectMeta, LocalObjectReference
+from .common import ObjectMeta
 from ..base import Model
 from ..fields import Field, ListField
 
@@ -39,4 +39,3 @@ class RoleBinding(Model):
     metadata = Field(ObjectMeta)
     roleRef = Field(RoleRef)
     subjects = ListField(Subject)
-
