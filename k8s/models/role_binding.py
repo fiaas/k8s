@@ -16,20 +16,23 @@
 from __future__ import absolute_import
 
 
-from .common import ObjectMeta, LocalObjectReference
+from .common import ObjectMeta
 from ..base import Model
 from ..fields import Field, ListField
+
 
 class RoleRef(Model):
     apiGroup = Field(str)
     kind = Field(str)
     roleRef = Field(str)
 
+
 class Subject(Model):
     kind = Field(str)
     name = Field(str)
     apiGroup = Field(str)
     namespace = Field(str)
+
 
 class RoleBinding(Model):
     class Meta:
@@ -39,4 +42,3 @@ class RoleBinding(Model):
     metadata = Field(ObjectMeta)
     roleRef = Field(RoleRef)
     subjects = ListField(Subject)
-
