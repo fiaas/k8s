@@ -48,10 +48,12 @@ class TestRoleBinding(object):
 
         from_api = RoleBinding.get_or_create(
             metadata=role_binding.metadata,
-            rules=role_binding.rules,
+            roleRef=role_binding.roleRef,
+            subjects=role_binding.subjects,
         )
         assert not from_api._new
-        assert from_api.rules == role_binding.rules
+        assert from_api.roleRef == role_binding.roleRef
+        assert from_api.subjects == role_binding.subjects
 
     def test_deleted(self, delete):
         RoleBinding.delete(NAME, namespace=NAMESPACE)
@@ -93,8 +95,8 @@ def _create_mock_response():
 
 def _create_default_role_binding():
     object_meta = ObjectMeta(name=NAME, namespace=NAMESPACE, labels={"test": "true"})
-    role_ref = RoleRef(apiGroup=[], kind=[], name=[])
-    subject = Subject(kind=[], name=[], apiGroup=[], namespace=[])
+    role_ref = RoleRef(apiGroup=["rbac.authorization.k8s.io"], kind=["Role"], name=["my-role"])
+    subject = Subject(kind=["ServiceAccount"], name=["my-service-account"], apiGroup=[], namespace=["default"])
     return RoleBinding(metadata=object_meta, roleRef=role_ref, subjects=[subject])
 
 
