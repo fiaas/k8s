@@ -15,6 +15,7 @@
 
 from __future__ import absolute_import
 
+import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -22,11 +23,11 @@ from ..fields import Field, ListField
 
 
 class PolicyRule(Model):
-    api_groups = ListField(str)
-    resources = ListField(str)
-    verbs = ListField(str)
-    resourceNames = ListField(str)
-    nonResourceUrls = ListField(str)
+    apiGroups = ListField(six.text_type)
+    resources = ListField(six.text_type)
+    verbs = ListField(six.text_type)
+    resourceNames = ListField(six.text_type)
+    nonResourceURLs = ListField(six.text_type)
 
 
 class Role(Model):

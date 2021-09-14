@@ -15,6 +15,7 @@
 
 from __future__ import absolute_import
 
+import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -22,16 +23,16 @@ from ..fields import Field, ListField
 
 
 class RoleRef(Model):
-    apiGroup = Field(str)
-    kind = Field(str)
-    roleRef = Field(str)
+    apiGroup = Field(six.text_type)
+    kind = Field(six.text_type)
+    name = Field(six.text_type)
 
 
 class Subject(Model):
-    kind = Field(str)
-    name = Field(str)
-    apiGroup = Field(str)
-    namespace = Field(str)
+    kind = Field(six.text_type)
+    name = Field(six.text_type)
+    apiGroup = Field(six.text_type)
+    namespace = Field(six.text_type)
 
 
 class RoleBinding(Model):
