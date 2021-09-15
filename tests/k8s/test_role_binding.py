@@ -96,7 +96,7 @@ def _create_mock_response():
 def _create_default_role_binding():
     object_meta = ObjectMeta(name=NAME, namespace=NAMESPACE, labels={"test": "true"})
     role_ref = RoleRef(apiGroup=["rbac.authorization.k8s.io"], kind=["Role"], name=["my-role"])
-    subject = Subject(kind=["ServiceAccount"], name=["my-service-account"], apiGroup=[], namespace=["default"])
+    subject = Subject(kind="ServiceAccount", name="my-service-account", namespace="default")
     return RoleBinding(metadata=object_meta, roleRef=role_ref, subjects=[subject])
 
 
