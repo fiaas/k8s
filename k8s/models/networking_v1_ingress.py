@@ -19,7 +19,7 @@ from __future__ import absolute_import
 
 import six
 
-from .common import ObjectMeta
+from .common import ObjectMeta, TypedLocalObjectReference
 from ..base import Model
 from ..fields import Field, ListField
 
@@ -32,12 +32,6 @@ class ServiceBackendPort(Model):
 class IngressServiceBackend(Model):
     name = Field(six.text_type)
     port = Field(ServiceBackendPort)
-
-
-class TypedLocalObjectReference(Model):
-    apiGroup = Field(six.text_type)
-    kind = Field(six.text_type)
-    name = Field(six.text_type)
 
 
 class IngressBackend(Model):
