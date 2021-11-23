@@ -51,6 +51,12 @@ class ObjectMeta(Model):
     uid = ReadOnlyField(six.text_type)
 
 
+class TypedLocalObjectReference(Model):
+    apiGroup = Field(six.text_type)
+    kind = Field(six.text_type)
+    name = Field(six.text_type)
+
+
 class ObjectReference(Model):
     apiVersion = Field(six.text_type)
     fieldPath = Field(six.text_type)
