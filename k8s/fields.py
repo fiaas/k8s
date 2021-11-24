@@ -16,6 +16,7 @@
 # limitations under the License.
 
 from __future__ import absolute_import
+from inspect import isclass
 
 import copy
 from datetime import datetime
@@ -72,7 +73,7 @@ class Field(object):
     @property
     def default_value(self):
         from .base import Model
-        if issubclass(self.type, Model) and self._default_value is None:
+        if isclass(self.type) and issubclass(self.type, Model) and self._default_value is None:
             return self.type(new=False)
         return copy.copy(self._default_value)
 
@@ -97,6 +98,8 @@ class Field(object):
         try:
             return self.type.from_dict(value)
         except AttributeError:
+            if self.type == "any":
+                return value
             if isinstance(value, self.type) or (self.alt_type and isinstance(value, self.alt_type)):
                 return value
             if self.type is datetime:
@@ -151,3 +154,20 @@ class RequiredField(Field):
     def is_valid(self, instance):
         value = self.__get__(instance)
         return value is not None and super(RequiredField, self).is_valid(instance)
+
+
+class AnyField(Field):
+    """Field without type validation."""
+
+    def __init__(self, default_value=None, name="__unset__"):
+        self.name = name
+        self._default_value = default_value
+
+    @property
+    def default_value(self):
+        return copy.copy(self._default_value)
+
+    def _from_dict(self, value):
+        if value is None:
+            return self.default_value
+        return value
