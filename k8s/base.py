@@ -62,6 +62,8 @@ class MetaModel(type):
             if isinstance(v, Field):
                 if v.name == "__unset__":
                     v.name = k
+                if v.type == "self":
+                    v.type = cls.__class__
                 field_names.append(k)
                 fields.append(v)
         Meta = namedtuple("Meta", meta.keys())
