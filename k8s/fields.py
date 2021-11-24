@@ -152,3 +152,22 @@ class RequiredField(Field):
     def is_valid(self, instance):
         value = self.__get__(instance)
         return value is not None and super(RequiredField, self).is_valid(instance)
+
+
+class AnyField(Field):
+    """Field without type validation."""
+
+    def __init__(self, default_value=None, name="__unset__"):
+        self.type = None
+        self.alt_type = None
+        self.name = name
+        self._default_value = default_value
+
+    @property
+    def default_value(self):
+        return copy.copy(self._default_value)
+
+    def _from_dict(self, value):
+        if value is None:
+            return self.default_value
+        return value
