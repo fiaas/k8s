@@ -31,6 +31,7 @@ class Field(object):
         self.alt_type = alt_type
         self.name = name
         self._default_value = default_value
+        self.default_value_create_instance = True
 
     def dump(self, instance):
         value = getattr(instance, self.name)
@@ -72,7 +73,7 @@ class Field(object):
     @property
     def default_value(self):
         from .base import Model
-        if issubclass(self.type, Model) and self._default_value is None:
+        if issubclass(self.type, Model) and self.default_value_create_instance and self._default_value is None:
             return self.type(new=False)
         return copy.copy(self._default_value)
 
