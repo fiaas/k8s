@@ -51,9 +51,6 @@ class CustomResourceDefinitionNames(Model):
 
 
 class CustomResourceValidation(Model):
-    # This field is fully defined in the API Reference, but in essence it is simply a JSON-schema
-    # following Specification Draft 4 (http://json-schema.org/)
-    # TODO specify full schema
     openAPIV3Schema = Field(JSONSchemaProps)
 
 
