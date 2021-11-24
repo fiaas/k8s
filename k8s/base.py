@@ -60,7 +60,8 @@ class MetaModel(type):
         fields = meta["fields"]
         for k, v in list(attrs.items()):
             if isinstance(v, Field):
-                v.name = k
+                if v.name == "__unset__":
+                    v.name = k
                 field_names.append(k)
                 fields.append(v)
         Meta = namedtuple("Meta", meta.keys())

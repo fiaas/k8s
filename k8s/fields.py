@@ -26,10 +26,10 @@ import pyrfc3339
 class Field(object):
     """Generic field on a k8s model"""
 
-    def __init__(self, type, default_value=None, alt_type=None):
+    def __init__(self, type, default_value=None, alt_type=None, name="__unset__"):
         self.type = type
         self.alt_type = alt_type
-        self.name = "__unset__"
+        self.name = name
         self._default_value = default_value
 
     def dump(self, instance):
@@ -131,10 +131,10 @@ class OnceField(Field):
 class ListField(Field):
     """ListField is a list (array) of a single type on a model"""
 
-    def __init__(self, type, default_value=None):
+    def __init__(self, type, default_value=None, name='__unset__'):
         if default_value is None:
             default_value = []
-        super(ListField, self).__init__(type, default_value)
+        super(ListField, self).__init__(type, default_value, name=name)
 
     def dump(self, instance):
         return [self._as_dict(v) for v in getattr(instance, self.name)]
