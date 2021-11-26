@@ -90,7 +90,7 @@ def _create_default_role():
     object_meta = ObjectMeta(name=NAME, namespace=NAMESPACE, labels={"test": "true"})
     policy_rules = [
         PolicyRule(
-            apiGroups=["fiaas-schibsted.io"],
+            apiGroups=["fiaas.schibsted.io"],
             resources=["applications", "application-statuses"],
             verbs=["get", "list", "watch"],
             resourceNames=[],
