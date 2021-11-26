@@ -62,6 +62,7 @@ class MetaModel(type):
             if isinstance(v, Field):
                 if v.name == "__unset__":
                     v.name = k
+                v.attr_name = k
                 field_names.append(k)
                 fields.append(v)
         Meta = namedtuple("Meta", meta.keys())
@@ -248,7 +249,7 @@ class Model(six.with_metaclass(MetaModel)):
                 raise TypeError("Value of field {} is not valid on {}".format(field.name, self))
 
     def as_dict(self):
-        if all(getattr(self, field.name) == field.default_value for field in self._meta.fields):
+        if all(getattr(self, field.attr_name) == field.default_value for field in self._meta.fields):
             return None
         d = {}
         for field in self._meta.fields:
