@@ -34,7 +34,7 @@ class Field(object):
         self.default_value_create_instance = True
 
     def dump(self, instance):
-        value = getattr(instance, self.name)
+        value = getattr(instance, self.attr_name)
         return self._as_dict(value)
 
     def load(self, instance, value):
@@ -138,7 +138,7 @@ class ListField(Field):
         super(ListField, self).__init__(type, default_value, name=name)
 
     def dump(self, instance):
-        return [self._as_dict(v) for v in getattr(instance, self.name)]
+        return [self._as_dict(v) for v in getattr(instance, self.attr_name)]
 
     def load(self, instance, value):
         if value is None:
