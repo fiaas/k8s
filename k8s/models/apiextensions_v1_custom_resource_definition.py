@@ -82,8 +82,8 @@ class CustomResourceDefinitionSpec(Model):
     conversion = Field(CustomResourceConversion)
     group = Field(six.text_type)
     names = Field(CustomResourceDefinitionNames)
+    preserveUnknownFields = Field(bool)
     scope = Field(six.text_type)
-    validation = Field(CustomResourceValidation)
     versions = ListField(CustomResourceDefinitionVersion)
 
 
