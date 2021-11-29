@@ -23,8 +23,77 @@ import six
 
 from .common import ObjectMeta
 from .apiextensions_v1 import JSONSchemaProps, WebhookConversion
-from ..base import Model
-from ..fields import Field, ListField
+from ..base import Model, SelfModel
+from ..fields import Field, ListField, AnyField
+
+
+class ExternalDocumentation(Model):
+    description = Field(six.text_type)
+    url = Field(six.text_type)
+
+
+class JSONSchemaProps(Model):
+    ref = Field(six.text_type, name='$ref')
+    schema = Field(six.text_type, name='$schema')
+    additionalItems = Field(SelfModel, alt_type=bool)
+    additionalProperties = Field(SelfModel, alt_type=bool)
+    allOf = ListField(SelfModel)
+    anyOf = ListField(SelfModel)
+    default = AnyField()
+    definitions = Field(dict)
+    dependencies = Field(dict)
+    description = Field(six.text_type)
+    enum = AnyField()
+    example = AnyField()
+    exclusiveMaximum = Field(bool)
+    exclusiveMinimum = Field(bool)
+    externalDocs = Field(ExternalDocumentation)
+    format = Field(six.text_type)
+    id = Field(six.text_type)
+    items = Field(SelfModel, alt_type=list)
+    maxItems = Field(int)
+    maxLength = Field(int)
+    maxProperties = Field(int)
+    maximum = Field(int, alt_type=float)
+    minItems = Field(int)
+    minLength = Field(int)
+    minProperties = Field(int)
+    minimum = Field(int, alt_type=float)
+    multipleOf = Field(int, alt_type=float)
+    _not = Field(SelfModel)
+    nullable = Field(bool)
+    oneOf = ListField(SelfModel)
+    pattern = Field(six.text_type)
+    patternProperties = Field(dict)
+    properties = Field(dict)
+    required = ListField(six.text_type)
+    title = Field(six.text_type)
+    type = Field(six.text_type)
+    uniqueItems = Field(bool)
+    x_kubernetes_embedded_resource = Field(bool, name='x-kubernetes-embedded-resource')
+    x_kubernetes_int_or_string = Field(bool, name='x-kubernetes-int-or-string')
+    x_kubernetes_list_map_keys = ListField(six.text_type, name='x-kubernetes-list-map-keys')
+    x_kubernetes_list_type = Field(six.text_type, name="x-kubernetes-list-type")
+    x_kubernetes_map_type = Field(six.text_type, name='x-kubernetes-map-type')
+    x_kubernetes_preserve_unknown_fields = Field(bool, name="x-kubernetes-preserve-unknown-fields")
+
+
+class ServiceReference(Model):
+    name = Field(six.text_type)
+    namespace = Field(six.text_type)
+    path = Field(six.text_type)
+    port = Field(int)
+
+
+class WebhookClientConfig(Model):
+    caBundle = Field(six.text_type)
+    service = Field(ServiceReference)
+    url = Field(six.text_type)
+
+
+class WebhookConversion(Model):
+    clientConfig = Field(WebhookClientConfig)
+    conversionReviewVersions = ListField(six.text_type)
 
 
 class CustomResourceColumnDefinition(Model):
