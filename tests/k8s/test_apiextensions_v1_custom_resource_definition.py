@@ -65,7 +65,7 @@ class TestCustomResourceDefinition(object):
     def test_nested_json_schema_props(self, put):
         crd_dict = _json_schema_props_crd_dict()
         crd = CustomResourceDefinition.from_dict(crd_dict)
-    
+
         call_params = crd.as_dict()
         put.return_value.json.return_value = call_params
 
@@ -79,7 +79,7 @@ class TestCustomResourceDefinition(object):
         for default in [42, "string", True, [], {}]:
             crd_dict = _json_schema_props_crd_dict(default)
             crd = CustomResourceDefinition.from_dict(crd_dict)
-        
+
             call_params = crd.as_dict()
             put.return_value.json.return_value = call_params
 
@@ -143,6 +143,7 @@ def _json_schema_props_crd_dict(default=None):
             }]
         }
     }
+
 
 def _create_mock_response():
     mock_response = mock.Mock()
