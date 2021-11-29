@@ -23,8 +23,7 @@ from k8s.client import NotFound
 from k8s.models.common import ObjectMeta
 from k8s.models.apiextensions_v1_custom_resource_definition import (
     CustomResourceConversion, CustomResourceDefinition, CustomResourceDefinitionNames,
-    CustomResourceDefinitionSpec, CustomResourceDefinitionVersion)
-from k8s.models.apiextensions_v1 import JSONSchemaProps
+    CustomResourceDefinitionSpec, CustomResourceDefinitionVersion, JSONSchemaProps)
 
 NAME = "my-name"
 
