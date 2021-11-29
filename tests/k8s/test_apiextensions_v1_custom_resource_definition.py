@@ -70,7 +70,7 @@ class TestCustomResourceDefinition(object):
         put.return_value.json.return_value = call_params
 
         assert isinstance(crd.spec.versions[0].schema.openAPIV3Schema, JSONSchemaProps)
-        assert isinstance(crd.spec.versions[0].schema.openAPIV3Schema.not_, JSONSchemaProps)
+        assert isinstance(crd.spec.versions[0].schema.openAPIV3Schema._not, JSONSchemaProps)
 
         crd.save()
         pytest.helpers.assert_any_call(put, _uri(NAME), call_params)

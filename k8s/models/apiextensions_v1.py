@@ -56,7 +56,7 @@ class JSONSchemaProps(Model):
     minProperties = Field(int)
     minimum = Field(int, alt_type=float)
     multipleOf = Field(int, alt_type=float)
-    not_ = Field(SelfModel, name='not')
+    _not = Field(SelfModel)
     nullable = Field(bool)
     oneOf = ListField(SelfModel)
     pattern = Field(six.text_type)
