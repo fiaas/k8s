@@ -41,6 +41,7 @@ stream_timeout = 3600
 watcher_cache_size = 1000
 
 
+# pylint: disable=B107
 def use_in_cluster_config(token_file="/var/run/secrets/kubernetes.io/serviceaccount/token",
                           ca_cert_file="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"):
     """
