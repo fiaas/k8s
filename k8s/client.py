@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # Copyright 2017-2019 The FIAAS Authors
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -99,7 +99,9 @@ class Client(object):
 
     @classmethod
     def init_session(cls):
-        if "Authorization" not in cls._session.headers and config.api_token:
+        if config.api_token_source:
+            cls._session.headers["Authorization"] = "Bearer {}".format(config.api_token_source.token())
+        elif "Authorization" not in cls._session.headers and config.api_token:
             cls._session.headers.update({"Authorization": "Bearer {}".format(config.api_token)})
         if cls._session.cert is None and config.cert:
             cls._session.cert = config.cert
