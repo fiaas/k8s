@@ -5,6 +5,7 @@ import pytest
 from k8s.config import FileTokenSource
 
 
+# pylint: disable=R0201
 class TestFileTokenSource(object):
 
     @pytest.fixture
@@ -17,14 +18,14 @@ class TestFileTokenSource(object):
                 fpath.remove()
 
     def test_token_read(self, token_file):
-        token = "secret token"
+        token = "secret token"  # nosec
         token_file.write(token)
         token_source = FileTokenSource(token_file=str(token_file))
 
         assert token_source.token() == token
 
     def test_token_re_read_after_expiry(self, token_file):
-        initial_token = "secret token 1"
+        initial_token = "secret token 1"  # nosec
         token_file.write(initial_token)
         initial_time = datetime(2021, 1, 1, 10, 10)
 
@@ -32,7 +33,7 @@ class TestFileTokenSource(object):
 
         assert token_source.token(now_func=lambda: initial_time) == initial_token
 
-        updated_token = "secret token 2"
+        updated_token = "secret token 2"  # nosec
         token_file.write(updated_token)
 
         assert token_source.token(now_func=lambda: initial_time + timedelta(seconds=30)) == initial_token

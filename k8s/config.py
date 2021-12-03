@@ -41,7 +41,8 @@ stream_timeout = 3600
 watcher_cache_size = 1000
 
 
-def use_in_cluster_config(token_file="/var/run/secrets/kubernetes.io/serviceaccount/token",
+# disables bandit warning for this line which triggers because the string contains 'token', which is fine
+def use_in_cluster_config(token_file="/var/run/secrets/kubernetes.io/serviceaccount/token",  # nosec
                           ca_cert_file="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"):
     """
     Configure the client using the recommended configuration for accessing the API from within a Kubernetes cluster:
