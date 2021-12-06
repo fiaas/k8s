@@ -165,9 +165,8 @@ class TestSelfField(object):
     def test_get_or_create_merge(self, get):
         get.return_value = _create_mock_response()
         object_meta = ObjectMeta(name=NAME, labels={"test": "true"})
-        model = ModelTest.get_or_create(metadata=object_meta, self_field=ModelTest(_exec=1), model_field=MergeModelTest(second_field=2))
-        print(model)
-        assert getattr(model, "self_field") == ModelTest(_exec=1, json_field="string")
+        model = ModelTest.get_or_create(metadata=object_meta, model_field=MergeModelTest(second_field=2))
+        assert getattr(model, "model_field") == MergeModelTest(first_field=1, second_field=2)
 
 
 def _create_mock_response():
@@ -185,9 +184,6 @@ def _create_mock_response():
             "resourceVersion": "96758807",
             "selfLink": _uri(NAME),
             "uid": "d8f1ba26-b182-11e6-a364-fa163ea2a9c4"
-        },
-        "self_field": {
-            "json_field": "string"
         },
         "model_field": {
             "first_field": 1
