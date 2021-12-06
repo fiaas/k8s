@@ -259,6 +259,11 @@ class Model(six.with_metaclass(MetaModel)):
         return d
 
     def merge(self, other):
+        """
+        `merge` sets each field in `self` to the value provided by `other`
+        This is mostly equivalent to just replacing `self` with `other`,
+        except read only fields in `self` are preserved.
+        """
         for field in self._meta.fields:
             setattr(self, field.name, getattr(other, field.name))
     update = merge  # For backwards compatibility
