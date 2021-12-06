@@ -26,14 +26,15 @@ import pyrfc3339
 class Field(object):
     """Generic field on a k8s model"""
 
-    def __init__(self, type, default_value=None, alt_type=None):
-        self.type = type
+    def __init__(self, field_type, default_value=None, alt_type=None, name="__unset__"):
+        self.type = field_type
         self.alt_type = alt_type
-        self.name = "__unset__"
+        self.name = name
         self._default_value = default_value
+        self.default_value_create_instance = True
 
     def dump(self, instance):
-        value = getattr(instance, self.name)
+        value = getattr(instance, self.attr_name)
         return self._as_dict(value)
 
     def load(self, instance, value):
@@ -72,7 +73,7 @@ class Field(object):
     @property
     def default_value(self):
         from .base import Model
-        if issubclass(self.type, Model) and self._default_value is None:
+        if issubclass(self.type, Model) and self.default_value_create_instance and self._default_value is None:
             return self.type(new=False)
         return copy.copy(self._default_value)
 
@@ -131,13 +132,13 @@ class OnceField(Field):
 class ListField(Field):
     """ListField is a list (array) of a single type on a model"""
 
-    def __init__(self, type, default_value=None):
+    def __init__(self, field_type, default_value=None, name='__unset__'):
         if default_value is None:
             default_value = []
-        super(ListField, self).__init__(type, default_value)
+        super(ListField, self).__init__(field_type, default_value, name=name)
 
     def dump(self, instance):
-        return [self._as_dict(v) for v in getattr(instance, self.name)]
+        return [self._as_dict(v) for v in getattr(instance, self.attr_name)]
 
     def load(self, instance, value):
         if value is None:
@@ -151,3 +152,51 @@ class RequiredField(Field):
     def is_valid(self, instance):
         value = self.__get__(instance)
         return value is not None and super(RequiredField, self).is_valid(instance)
+
+
+class JSONField(Field):
+    """
+    Field with allowed types `bool`, `int`, `float`, `str`, `dict`, `list`
+    Items of dicts and lists have the same allowed types
+    """
+
+    def __init__(self, default_value={}, name="__unset__"):
+        self.type = None
+        self.alt_type = None
+        self.allowed_types = [bool, int, float, str, dict, list]
+        self.name = name
+        self._default_value = default_value
+
+    @property
+    def default_value(self):
+        return copy.copy(self._default_value)
+
+    def _from_dict(self, value):
+        if value is None:
+            return self.default_value
+        elif self._check_allowed_types(value, [self.name]):
+            return value
+
+    def set(self, instance, kwargs):
+        value = kwargs.get(self.name, self.default_value)
+        if self._check_allowed_types(value, [self.name]):
+            self.__set__(instance, value)
+
+    def _check_allowed_types(self, value, chain):
+        if type(value) in self.allowed_types:
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    self._check_allowed_types(k, chain.append(k))
+                    self._check_allowed_types(v, chain.append(k))
+            if isinstance(value, list):
+                for v in value:
+                    self._check_allowed_types(v, chain.append("[\"{value}\"]".format(value=v)))
+            return True
+        else:
+            def typename(i):
+                return i.__name__
+            raise TypeError("{name} has invalid type {type}. Allowed types are {allowed_types}.".format(
+                name=".".join(chain),
+                type=type(value).__name__,
+                allowed_types=", ".join(map(typename, self.allowed_types))
+            ))
