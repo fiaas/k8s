@@ -154,12 +154,16 @@ class RequiredField(Field):
         return value is not None and super(RequiredField, self).is_valid(instance)
 
 
-class AnyField(Field):
-    """Field without type validation."""
+class JSONField(Field):
+    """
+    Field with allowed types `bool`, `int`, `float`, `str`, `dict`, `list`
+    Items of dicts and lists have the same allowed types
+    """
 
-    def __init__(self, default_value=None, name="__unset__"):
+    def __init__(self, default_value={}, name="__unset__"):
         self.type = None
         self.alt_type = None
+        self.allowed_types = [bool, int, float, str, dict, list]
         self.name = name
         self._default_value = default_value
 
@@ -170,4 +174,29 @@ class AnyField(Field):
     def _from_dict(self, value):
         if value is None:
             return self.default_value
-        return value
+        elif self._check_allowed_types(value, [self.name]):
+            return value
+
+    def set(self, instance, kwargs):
+        value = kwargs.get(self.name, self.default_value)
+        if self._check_allowed_types(value, [self.name]):
+            self.__set__(instance, value)
+
+    def _check_allowed_types(self, value, chain):
+        if type(value) in self.allowed_types:
+            if isinstance(value, dict):
+                for k, v in value.items():
+                    self._check_allowed_types(k, chain.append(k))
+                    self._check_allowed_types(v, chain.append(k))
+            if isinstance(value, list):
+                for v in value:
+                    self._check_allowed_types(v, chain.append("[\"{value}\"]".format(value=v)))
+            return True
+        else:
+            def typename(i):
+                return i.__name__
+            raise TypeError("{name} has invalid type {type}. Allowed types are {allowed_types}.".format(
+                name=".".join(chain),
+                type=type(value).__name__,
+                allowed_types=", ".join(map(typename, self.allowed_types))
+            ))

@@ -23,7 +23,7 @@ import six
 
 from .common import ObjectMeta
 from ..base import Model, SelfModel
-from ..fields import Field, ListField, AnyField
+from ..fields import Field, ListField, JSONField
 
 
 class ExternalDocumentation(Model):
@@ -38,12 +38,12 @@ class JSONSchemaProps(Model):
     additionalProperties = Field(SelfModel, alt_type=bool)
     allOf = ListField(SelfModel)
     anyOf = ListField(SelfModel)
-    default = AnyField()
+    default = JSONField()
     definitions = Field(dict)
     dependencies = Field(dict)
     description = Field(six.text_type)
-    enum = AnyField()
-    example = AnyField()
+    enum = JSONField()
+    example = JSONField()
     exclusiveMaximum = Field(bool)
     exclusiveMinimum = Field(bool)
     externalDocs = Field(ExternalDocumentation)
