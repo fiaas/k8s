@@ -19,16 +19,19 @@ from datetime import datetime
 import pytest
 import pytz
 import six
+import mock
 
 from k8s import config
-from k8s.base import Model
-from k8s.fields import Field, ListField, OnceField, ReadOnlyField, RequiredField
+from k8s.base import Model, SelfModel
+from k8s.fields import Field, JSONField, ListField, OnceField, ReadOnlyField, RequiredField
 from k8s.models.common import ObjectMeta
+
+NAME = "my-model-test"
 
 
 class ModelTest(Model):
     class Meta:
-        pass
+        url_template = "/apis/v1/modeltests/{name}"
 
     metadata = Field(ObjectMeta)
     field = Field(int)
@@ -39,6 +42,8 @@ class ModelTest(Model):
     dict_field = Field(dict)
     _exec = Field(int)
     time_field = Field(datetime)
+    json_field = JSONField()
+    self_field = Field(SelfModel)
 
 
 class TestFields(object):
@@ -50,7 +55,8 @@ class TestFields(object):
         ("field", 1, 2),
         ("list_field", [1], [1, 2]),
         ("once_field", 1, 2),
-        ("_exec", 1, 2)
+        ("_exec", 1, 2),
+        ("json_field", 1, [1, 2]),
     ))
     def test_field_new(self, field_name, initial_value, other_value):
         kwargs = {"new": True, field_name: initial_value}
@@ -139,3 +145,42 @@ class TestRequiredField(object):
     def test_create_fails_when_field_missing(self):
         with pytest.raises(TypeError):
             RequiredFieldTest(new=True, field=1)
+
+
+class TestSelfField(object):
+    def test_create_from_dict(self):
+        model = ModelTest.from_dict({"self_field": {"exec": 1}})
+        assert getattr(model, "self_field") == ModelTest(_exec=1)
+
+    def test_get_or_create_merge(self, get):
+        get.return_value = _create_mock_response()
+        object_meta = ObjectMeta(name=NAME, labels={"test": "true"})
+        model = ModelTest.get_or_create(metadata=object_meta, self_field=ModelTest(_exec=1))
+        assert getattr(model, "self_field") == ModelTest.from_dict({"read_only_field": 1, "exec": 1})
+
+
+def _create_mock_response():
+    mock_response = mock.Mock()
+    mock_response.json.return_value = {
+        "apiVersion": "v1",
+        "kind": "ModelTest",
+        "metadata": {
+            "creationTimestamp": "2019-11-23T13:43:42Z",
+            "generation": 7,
+            "labels": {
+                "test": "true"
+            },
+            "name": NAME,
+            "resourceVersion": "96758807",
+            "selfLink": _uri(NAME),
+            "uid": "d8f1ba26-b182-11e6-a364-fa163ea2a9c4"
+        },
+        "self_field": {
+            "read_only_field": 1
+        }
+    }
+    return mock_response
+
+
+def _uri(name=""):
+    return "/apis/v1/modeltests/{name}".format(name=name)
