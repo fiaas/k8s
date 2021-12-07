@@ -125,6 +125,26 @@ class TestFields(object):
         d = model.as_dict()
         assert d["time_field"] == "2009-01-01T17:59:59Z"
 
+    @pytest.mark.parametrize("value,is_valid", (
+        (None, True),
+        (1, True),
+        (1.1, True),
+        ("string", True),
+        ([1, 2], True),
+        ({"key": "value"}, True),
+        (ModelTest(), False),
+        ([1, None], False),
+    ))
+    def test_json_field_validation(self, value, is_valid):
+        model = ModelTest()
+        if is_valid:
+            setattr(model, "json_field", value)
+            assert model.json_field == value
+        else:
+            with pytest.raises(TypeError):
+                setattr(model, "json_field", value)
+            assert model.json_field is None
+
 
 class RequiredFieldTest(Model):
     required_field = RequiredField(int)
