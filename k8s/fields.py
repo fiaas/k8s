@@ -160,29 +160,34 @@ class JSONField(Field):
     Items of dicts and lists have the same allowed types
     """
 
-    def __init__(self, default_value={}, name="__unset__"):
+    def __init__(self, default_value=None, name="__unset__"):
         self.type = None
         self.alt_type = None
         self.allowed_types = [bool, int, float, str, dict, list]
         self.name = name
         self._default_value = default_value
 
-    @property
-    def default_value(self):
-        return copy.copy(self._default_value)
-
-    def _from_dict(self, value):
+    def load(self, instance, value):
         if value is None:
-            return self.default_value
-        elif self._check_allowed_types(value, [self.name]):
-            return value
+            value = self.default_value
+        self.__set__(instance, value)
 
-    def set(self, instance, kwargs):
-        value = kwargs.get(self.name, self.default_value)
-        if self._check_allowed_types(value, [self.name]):
-            self.__set__(instance, value)
+    def is_valid(self, instance):
+        value = self.__get__(instance)
+        if value is None:
+            return True
+        try:
+            return self._check_allowed_types(value)
+        except TypeError:
+            return False
 
-    def _check_allowed_types(self, value, chain):
+    def __set__(self, instance, new_value):
+        if (new_value is None) or self._check_allowed_types(new_value, chain=[type(instance).__name__, self.name]):
+            instance._values[self.name] = new_value
+
+    def _check_allowed_types(self, value, chain=None):
+        if chain is None:
+            chain = []
         if type(value) in self.allowed_types:
             if isinstance(value, dict):
                 for k, v in value.items():
@@ -200,3 +205,7 @@ class JSONField(Field):
                 type=type(value).__name__,
                 allowed_types=", ".join(map(typename, self.allowed_types))
             ))
+
+    @property
+    def default_value(self):
+        return copy.copy(self._default_value)
