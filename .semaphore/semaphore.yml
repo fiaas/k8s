@@ -44,7 +44,7 @@ blocks:
               values: ["py27", "py36", "py37", "py39"]
         - name: Gather coverage data
           commands:
-            - tox -e coverage
+            - CODACY_PROJECT_TOKEN=$CODACY_K8S_API_TOKEN tox -e coverage
       epilogue:
         commands:
           - cache store "setup-${SEMAPHORE_GIT_BRANCH}-$(checksum setup.py)" "${PIP_CACHE_DIR}"
