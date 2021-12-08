@@ -60,7 +60,9 @@ class MetaModel(type):
         fields = meta["fields"]
         for k, v in list(attrs.items()):
             if isinstance(v, Field):
-                v.name = k
+                if v.name == "__unset__":
+                    v.name = k
+                v.attr_name = k
                 field_names.append(k)
                 fields.append(v)
         Meta = namedtuple("Meta", meta.keys())
@@ -232,6 +234,9 @@ class Model(six.with_metaclass(MetaModel)):
         for field in self._meta.fields:
             kwarg_names.discard(field.name)
             field.set(self, kwargs)
+            if field.type == SelfModel:
+                field.type = self.__class__
+                field.default_value_create_instance = False
         if kwarg_names:
             raise TypeError(
                 "{}() got unexpected keyword-arguments: {}".format(self.__class__.__name__, ", ".join(kwarg_names)))
@@ -244,7 +249,7 @@ class Model(six.with_metaclass(MetaModel)):
                 raise TypeError("Value of field {} is not valid on {}".format(field.name, self))
 
     def as_dict(self):
-        if all(getattr(self, field.name) == field.default_value for field in self._meta.fields):
+        if all(getattr(self, field.attr_name) == field.default_value for field in self._meta.fields):
             return None
         d = {}
         for field in self._meta.fields:
@@ -254,6 +259,11 @@ class Model(six.with_metaclass(MetaModel)):
         return d
 
     def merge(self, other):
+        """
+        `merge` sets each field in `self` to the value provided by `other`
+        This is mostly equivalent to just replacing `self` with `other`,
+        except read only fields in `self` are preserved.
+        """
         for field in self._meta.fields:
             setattr(self, field.name, getattr(other, field.name))
     update = merge  # For backwards compatibility
@@ -338,3 +348,20 @@ class Exists(LabelSelector):
 
     def __str__(self):
         return ""
+
+
+class SelfModel:
+    """
+    Use `SelfModel` as `Field.type` to set `Field.type` to the model the
+    `Field` was defined in during model instantiation.
+
+    This allows models to have fields with their own type.
+    It is not possible to reference a class in its own attributes.
+
+    Example:
+    ```
+    class MyModel(Model):
+        submodel = Field(SelfModel) # submodel gets the type `MyModel`
+    ```
+    """
+    pass
