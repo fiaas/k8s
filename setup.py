@@ -22,9 +22,9 @@ from setuptools import setup, find_packages
 
 GENERIC_REQ = [
     "six>=1.12.0",
-    "requests==2.22.0",
+    "requests==2.27.1",
     "pyrfc3339==1.1",
-    "cachetools==3.1.1",
+    "cachetools==3.1.1",  # Newer versions require Python 3
 ]
 
 CODE_QUALITY_REQ = [
@@ -32,13 +32,13 @@ CODE_QUALITY_REQ = [
 ]
 
 TESTS_REQ = [
-    'tox==3.23.0',
-    'mock==3.0.5',
-    "pytest-sugar==0.9.2",
-    "pytest-html==1.22.0",
+    'tox==3.24.5',
+    'mock==3.0.5',  # Newer versions require Python 3
+    "pytest-sugar==0.9.4",
+    "pytest-html==1.22.0",  # Newer versions require Python 3
     "pytest-cov==2.7.1",
     "pytest-helpers-namespace==2019.1.8",
-    'pytest==3.10.1',
+    'pytest==4.6.11',  # Newer versions require Python 3
 ]
 
 
