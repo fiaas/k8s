@@ -212,6 +212,7 @@ class PodSpec(Model):
     terminationGracePeriodSeconds = Field(int)
     activeDeadlineSeconds = Field(int)
     dnsPolicy = Field(six.text_type, "ClusterFirst")
+    nodeName = Field(six.text_type)
     nodeSelector = Field(dict)
     selector = Field(dict)
     serviceAccountName = Field(six.text_type, "default")
