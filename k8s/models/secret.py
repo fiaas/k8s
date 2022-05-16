@@ -24,6 +24,8 @@ from ..base import Model
 from ..fields import Field
 
 class WriteOnlyField(Field):
+    """WriteOnlyField can only be set"""
+
     def __get__(self, instance, obj_type=None):
         pass
 
@@ -34,4 +36,4 @@ class Secret(Model):
     metadata = Field(ObjectMeta)
     data = Field(dict)
     type = Field(six.text_type)
-    stringData = WriteOnlyField(Field(dict))
+    stringData = WriteOnlyField(dict)

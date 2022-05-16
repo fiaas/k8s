@@ -91,7 +91,8 @@ def _create_default_secret():
     object_meta = ObjectMeta(name=NAME, namespace=NAMESPACE, labels={"test": "true"})
     data = {"foo": "bar"}
     object_type = "kubernetes.io/tls"
-    secret = Secret(metadata=object_meta, data=data, type=object_type)
+    string_data = {"boo": "baz"}
+    secret = Secret(metadata=object_meta, data=data, type=object_type, stringData=string_data)
     return secret
 
 
