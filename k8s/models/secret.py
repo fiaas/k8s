@@ -23,11 +23,13 @@ from .common import ObjectMeta
 from ..base import Model
 from ..fields import Field
 
+
 class WriteOnlyField(Field):
     """WriteOnlyField can only be set"""
 
     def __get__(self, instance, obj_type=None):
         pass
+
 
 class Secret(Model):
     class Meta:
