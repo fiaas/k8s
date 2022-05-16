@@ -23,6 +23,9 @@ from .common import ObjectMeta
 from ..base import Model
 from ..fields import Field
 
+class WriteOnlyField(Field):
+    def __get__(self, instance, obj_type=None):
+        pass
 
 class Secret(Model):
     class Meta:
@@ -31,3 +34,4 @@ class Secret(Model):
     metadata = Field(ObjectMeta)
     data = Field(dict)
     type = Field(six.text_type)
+    stringData = WriteOnlyField(Field(dict))

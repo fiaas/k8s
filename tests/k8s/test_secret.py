@@ -90,8 +90,8 @@ def _create_mock_response():
 def _create_default_secret():
     object_meta = ObjectMeta(name=NAME, namespace=NAMESPACE, labels={"test": "true"})
     data = {"foo": "bar"}
-    secret_type = "kubernetes.io/tls"
-    secret = Secret(metadata=object_meta, data=data, type=secret_type)
+    object_type = "kubernetes.io/tls"
+    secret = Secret(metadata=object_meta, data=data, type=object_type)
     return secret
 
 
