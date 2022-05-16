@@ -48,9 +48,9 @@ class TestSecret(object):
 
         from_api = Secret.get_or_create(metadata=secret.metadata, data=secret.data, type=secret.type)
         assert not from_api._new
-        assert from_api.data == {"foo": "bar"}
+        assert from_api.data == {"token": "NWVtaXRq"}
 
-        from_api.data = {"baz": "quux"}
+        from_api.data = {"boo": "baz"}
         call_params = from_api.as_dict()
         put.return_value.json.return_value = call_params
 
@@ -68,19 +68,19 @@ def _create_mock_response():
         "apiVersion": "v1",
         "kind": "Secret",
         "metadata": {
-            "creationTimestamp": "2017-09-08T13:37:00Z",
+            "creationTimestamp": "2022-05-01T13:37:00Z",
             "generation": 1,
             "labels": {
                 "test": "true"
             },
             "name": NAME,
             "namespace": NAMESPACE,
-            "resourceVersion": "42",
+            "resourceVersion": "178",
             "selfLink": _uri(NAMESPACE, NAME),
-            "uid": "d8f1ba26-b182-11e6-a364-fa163ea2a9c4"
+            "uid": "51ae75dc-c3fc-4b08-842f-1d546b88ae98"
         },
         "data": {
-            "foo": "bar",
+            "token": "NWVtaXRq",
         },
         "type": "kubernetes.io/tls",
     }
@@ -89,7 +89,7 @@ def _create_mock_response():
 
 def _create_default_secret():
     object_meta = ObjectMeta(name=NAME, namespace=NAMESPACE, labels={"test": "true"})
-    data = {"foo": "bar"}
+    data = {"token": "NWVtaXRq"}
     object_type = "kubernetes.io/tls"
     string_data = {"boo": "baz"}
     secret = Secret(metadata=object_meta, data=data, type=object_type, stringData=string_data)
