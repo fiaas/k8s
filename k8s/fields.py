@@ -120,11 +120,13 @@ class ReadOnlyField(Field):
     def __set__(self, instance, value):
         pass
 
+
 class WriteOnlyField(Field):
     """WriteOnlyField can only be set"""
 
     def __get__(self, instance, obj_type=None):
         pass
+
 
 class OnceField(Field):
     """OnceField can only be set on new instances, and is immutable after creation on the server"""
