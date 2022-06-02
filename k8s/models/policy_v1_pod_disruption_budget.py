@@ -41,6 +41,15 @@ class PodDisruptionBudgetSpec(Model):
     selector = Field(LabelSelector)
 
 
+class PodDisruptionBudgetStatus(Model):
+    observedGeneration = Field(int)
+    disruptedPods = Field(dict)
+    disruptionsAllowed = Field(int)
+    currentHealthy = Field(int)
+    desiredHealthy = Field(int)
+    expectedPods = Field(int)
+
+
 class PodDisruptionBudget(Model):
     class Meta:
         list_url = "/apis/policy/v1/poddisruptionbudgets"
@@ -48,3 +57,4 @@ class PodDisruptionBudget(Model):
 
     metadata = Field(ObjectMeta)
     spec = Field(PodDisruptionBudgetSpec)
+    status = Field(PodDisruptionBudgetStatus)
