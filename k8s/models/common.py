@@ -83,3 +83,14 @@ class DeleteOptions(Model):
 
 class LocalObjectReference(Model):
     name = Field(six.text_type)
+
+
+class LabelSelectorRequirement(Model):
+    key = Field(six.text_type)
+    operator = Field(six.text_type)
+    values = ListField(six.text_type)
+
+
+class LabelSelector(Model):
+    matchExpressions = Field(LabelSelectorRequirement)
+    matchLabels = Field(dict)
