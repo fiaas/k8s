@@ -27,6 +27,7 @@ NAME = "my-pod-disruption-budget"
 NAMESPACE = "my-namespace"
 
 
+# pylint: disable=R0201
 @pytest.mark.usefixtures("k8s_config")
 class TestPodDisruptionBudget(object):
     def test_created_if_not_exists(self, post, api_get):
