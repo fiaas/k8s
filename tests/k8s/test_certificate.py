@@ -28,6 +28,7 @@ NAME = "my-name"
 NAMESPACE = "my-namespace"
 REF_NAME = "example_tls"
 
+
 # pylint: disable=R0201
 @pytest.mark.usefixtures("k8s_config")
 class TestCertificate(object):
