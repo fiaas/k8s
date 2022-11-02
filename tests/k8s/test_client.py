@@ -258,6 +258,46 @@ definitely not valid json
         items = list(WatchListExample.watch_list())
         assert items == expected
 
+    def test_watch_list_payload_invalid_object(self, get):
+        """
+        verify event which contains a resource not valid according to the Model class is discarded
+        """
+        response = mock.create_autospec(requests.Response)
+        response.status_code = 200
+        response.iter_lines.return_value = ['''
+{
+  "type": "ADDED",
+  "object": {
+    "value": 1,
+    "requiredValue": 2
+  }
+}
+''', '''
+{
+  "type": "ADDED",
+  "object": {
+    "value": 10,
+  }
+}
+''', '''
+{
+  "type": "ADDED",
+  "object": {
+    "value": 5,
+    "requiredValue": 6
+  }
+}''']
+        get.return_value = response
+
+        expected = [
+            _create_watchevent(WatchEvent.ADDED, WatchListExample(value=1, requiredValue=2)),
+            # event with value=10 and requiredValue missing should be discarded
+            _create_watchevent(WatchEvent.ADDED, WatchListExample(value=5, requiredValue=6)),
+        ]
+
+        items = list(WatchListExample.watch_list())
+        assert items == expected
+
 
 def _create_watchevent(type, object):
     """factory function for WatchEvent to make it easier to create test data from actual objects, as the constructor

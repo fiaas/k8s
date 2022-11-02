@@ -137,8 +137,13 @@ class ApiMixIn(object):
             if line:
                 try:
                     event_json = json.loads(line)
-                    event = WatchEvent(event_json, cls)
-                    yield event
+                    try:
+                        event = WatchEvent(event_json, cls)
+                        yield event
+                    except TypeError:
+                        LOG.exception(
+                            "Unable to create instance of %s from watch event json, discarding event. event_json=%r",
+                            cls.__name__, event_json)
                 except ValueError:
                     LOG.exception("Unable to parse JSON on watch event, discarding event. Line: %r", line)
 
