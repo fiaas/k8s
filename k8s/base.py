@@ -307,6 +307,9 @@ class WatchEvent(object):
         return "{cls}(type={type}, object={object})".format(cls=self.__class__.__name__, type=self.type,
                                                             object=self.object)
 
+    def __eq__(self, other):
+        return self.type == other.type and self.object == other.object
+
 
 class LabelSelector(object):
     """Base for label select operations"""
