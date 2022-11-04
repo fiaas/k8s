@@ -301,10 +301,10 @@ definitely not valid json
         assert items == expected
 
 
-def _create_watchevent(type, object):
+def _create_watchevent(event_type, event_object):
     """factory function for WatchEvent to make it easier to create test data from actual objects, as the constructor
     takes a dict (unmarshaled json)"""
-    return WatchEvent({"type": type, "object": object.as_dict()}, object.__class__)
+    return WatchEvent({"type": event_type, "object": event_object.as_dict()}, event_object.__class__)
 
 
 def _absolute_url(url):
