@@ -2,13 +2,13 @@
 # -*- coding: utf-8 -*-
 
 # Copyright 2017-2019 The FIAAS Authors
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,8 @@ import mock
 import pytest
 
 from k8s import config
-from k8s.base import Model, Field
+from k8s.base import Model, WatchEvent
+from k8s.fields import Field, RequiredField
 from k8s.client import Client, SENSITIVE_HEADERS, _session_factory
 
 import requests
@@ -187,6 +188,123 @@ class TestClient(object):
         assert sensitive_value not in text
 
 
+@pytest.mark.usefixtures("k8s_config")
+class TestWatchListEvents(object):
+
+    def test_watch_list_payload_ok(self, get):
+        """
+        verify watch events of WatchListExample create WatchEvent with the appropriate type and object
+        """
+        response = mock.create_autospec(requests.Response)
+        response.status_code = 200
+        response.iter_lines.return_value = ['''
+{
+  "type": "ADDED",
+  "object": {
+    "value": 1,
+    "requiredValue": 2
+  }
+}''', '''
+{
+  "type": "MODIFIED",
+  "object": {
+    "value": 3,
+    "requiredValue": 4
+  }
+}
+''']
+        get.return_value = response
+
+        expected = [
+            _create_watchevent(WatchEvent.ADDED, WatchListExample(value=1, requiredValue=2)),
+            _create_watchevent(WatchEvent.MODIFIED, WatchListExample(value=3, requiredValue=4)),
+        ]
+
+        items = list(WatchListExample.watch_list())
+        assert items == expected
+
+    def test_watch_list_payload_invalid_json(self, get):
+        """
+        verify event which does not cleanly unmarshal from json to dict is discarded
+        """
+        response = mock.create_autospec(requests.Response)
+        response.status_code = 200
+        response.iter_lines.return_value = ['''
+{
+  "type": "ADDED",
+  "object": {
+    "value": 1,
+    "requiredValue": 2
+  }
+}
+''', '''
+definitely not valid json
+''', '''
+{
+  "type": "ADDED",
+  "object": {
+    "value": 5,
+    "requiredValue": 6
+  }
+}''']
+        get.return_value = response
+
+        expected = [
+            _create_watchevent(WatchEvent.ADDED, WatchListExample(value=1, requiredValue=2)),
+            # "definitely not valid json" should be discarded
+            _create_watchevent(WatchEvent.ADDED, WatchListExample(value=5, requiredValue=6)),
+        ]
+
+        items = list(WatchListExample.watch_list())
+        assert items == expected
+
+    def test_watch_list_payload_invalid_object(self, get):
+        """
+        verify event which contains a resource not valid according to the Model class is discarded
+        """
+        response = mock.create_autospec(requests.Response)
+        response.status_code = 200
+        response.iter_lines.return_value = ['''
+{
+  "type": "ADDED",
+  "object": {
+    "value": 1,
+    "requiredValue": 2
+  }
+}
+''', '''
+{
+  "type": "ADDED",
+  "object": {
+    "value": 10,
+  }
+}
+''', '''
+{
+  "type": "ADDED",
+  "object": {
+    "value": 5,
+    "requiredValue": 6
+  }
+}''']
+        get.return_value = response
+
+        expected = [
+            _create_watchevent(WatchEvent.ADDED, WatchListExample(value=1, requiredValue=2)),
+            # event with value=10 and requiredValue missing should be discarded
+            _create_watchevent(WatchEvent.ADDED, WatchListExample(value=5, requiredValue=6)),
+        ]
+
+        items = list(WatchListExample.watch_list())
+        assert items == expected
+
+
+def _create_watchevent(type, object):
+    """factory function for WatchEvent to make it easier to create test data from actual objects, as the constructor
+    takes a dict (unmarshaled json)"""
+    return WatchEvent({"type": type, "object": object.as_dict()}, object.__class__)
+
+
 def _absolute_url(url):
     return config.api_server + url
 
@@ -199,6 +317,7 @@ class WatchListExample(Model):
         watch_list_url_template = "/watch/{namespace}/example"
 
     value = Field(int)
+    requiredValue = RequiredField(int)
 
 
 class WatchListExampleUnsupported(Model):
