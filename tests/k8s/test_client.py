@@ -27,6 +27,7 @@ from k8s.client import Client, SENSITIVE_HEADERS, _session_factory
 import requests
 
 
+# pylint: disable=R0201
 @pytest.mark.usefixtures("k8s_config")
 class TestClient(object):
     @pytest.fixture
@@ -188,6 +189,7 @@ class TestClient(object):
         assert sensitive_value not in text
 
 
+# pylint: disable=R0201
 @pytest.mark.usefixtures("k8s_config")
 class TestWatchListEvents(object):
 
