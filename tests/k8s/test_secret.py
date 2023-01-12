@@ -29,6 +29,7 @@ NAMESPACE = "my-namespace"
 STRING_DATA = {"boo": "baz"}
 
 
+# pylint: disable=R0201
 @pytest.mark.usefixtures("k8s_config")
 class TestSecret(object):
     def test_created_if_not_exists(self, post, api_get):
