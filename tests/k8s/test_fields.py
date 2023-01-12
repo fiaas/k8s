@@ -18,14 +18,14 @@
 
 from datetime import datetime
 
+import mock
 import pytest
 import pytz
 import six
-import mock
 
 from k8s import config
 from k8s.base import Model, SelfModel
-from k8s.fields import Field, JSONField, ListField, OnceField, ReadOnlyField, RequiredField
+from k8s.fields import Field, JSONField, ListField, OnceField, ReadOnlyField, RequiredField, WriteOnlyField
 from k8s.models.common import ObjectMeta
 
 NAME = "my-model-test"
@@ -40,6 +40,8 @@ class ModelTest(Model):
     list_field = ListField(int)
     once_field = OnceField(int)
     read_only_field = ReadOnlyField(int)
+    write_only_field_int = WriteOnlyField(int)
+    write_only_field_dict = WriteOnlyField(dict)
     alt_type_field = Field(int, alt_type=six.text_type)
     dict_field = Field(dict)
     _exec = Field(int)
@@ -66,6 +68,19 @@ class TestFields(object):
         assert getattr(model, field_name) == initial_value
         setattr(model, field_name, other_value)
         assert getattr(model, field_name) == other_value
+
+    @pytest.mark.parametrize("field_name,initial_value,get_value", (
+        ("write_only_field_int", 1, 1),
+        ("write_only_field_dict", {1: 1}, {1: 1}),
+    ))
+    def test_write_only_field(self, field_name, initial_value, get_value):
+        kwargs = {"new": True, field_name: initial_value, "metadata": ObjectMeta(name="name")}
+        model = ModelTest(**kwargs)
+        assert getattr(model, field_name) == get_value
+        data = model.as_dict()
+        assert data[field_name] == initial_value
+        from_api = ModelTest.from_dict(data)
+        assert getattr(from_api, field_name) is None
 
     @pytest.mark.parametrize("field_name,initial_value,other_value", (
         ("field", 1, 2),

@@ -1,5 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8
+import base64
+import copy
+
+import mock
+import pytest
+
+from k8s.client import NotFound
+from k8s.models.common import ObjectMeta
+from k8s.models.secret import Secret
 
 # Copyright 2017-2022 The FIAAS Authors
 #
@@ -15,16 +24,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import mock
-import pytest
-
-from k8s.client import NotFound
-from k8s.models.common import ObjectMeta
-from k8s.models.secret import Secret
-
 NAME = "my-name"
 NAMESPACE = "my-namespace"
+STRING_DATA = {"boo": "baz"}
 
 
 @pytest.mark.usefixtures("k8s_config")
@@ -33,7 +35,8 @@ class TestSecret(object):
         api_get.side_effect = NotFound()
         secret = _create_default_secret()
         call_params = secret.as_dict()
-        post.return_value.json.return_value = call_params
+        ret_val = _convert_string_data(call_params)
+        post.return_value.json.return_value = ret_val
 
         assert secret._new
         secret.save()
@@ -60,6 +63,11 @@ class TestSecret(object):
     def test_deleted(self, delete):
         Secret.delete(NAME, namespace=NAMESPACE)
         pytest.helpers.assert_any_call(delete, _uri(NAMESPACE, NAME))
+
+    def test_string_data(self):
+        secret = _create_default_secret()
+        serialized = secret.as_dict()
+        assert serialized["stringData"] == STRING_DATA
 
 
 def _create_mock_response():
@@ -91,10 +99,20 @@ def _create_default_secret():
     object_meta = ObjectMeta(name=NAME, namespace=NAMESPACE, labels={"test": "true"})
     data = {"token": "NWVtaXRq"}
     object_type = "kubernetes.io/tls"
-    string_data = {"boo": "baz"}
+    string_data = STRING_DATA
     secret = Secret(metadata=object_meta, data=data, type=object_type, stringData=string_data)
     return secret
 
 
 def _uri(namespace, name=""):
     return "/api/v1/namespaces/{namespace}/secrets/{name}".format(name=name, namespace=namespace)
+
+
+def _convert_string_data(call_params):
+    converted = copy.deepcopy(call_params)
+    string_data = converted.get("stringData")
+    if string_data:
+        del converted["stringData"]
+        for key, value in string_data.items():
+            converted["data"][key] = base64.b64encode(value.encode("utf-8"))
+    return converted
