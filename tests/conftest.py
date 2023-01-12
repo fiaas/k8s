@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import itertools
-
 import pytest
+import six
+from six.moves import zip_longest
 
 pytest_plugins = ['helpers_namespace']
 
@@ -50,7 +50,7 @@ def assert_dicts(actual, expected):
     try:
         assert actual == expected
     except AssertionError as ae:
-        raise AssertionError(ae.message + _add_argument_diff(actual, expected))
+        raise AssertionError(str(ae) + _add_argument_diff(actual, expected))
 
 
 def _add_useful_error_message(assertion, mockk, first, args):
@@ -68,7 +68,7 @@ def _add_useful_error_message(assertion, mockk, first, args):
                 _format_call(call) for call in other_calls))
             if len(other_calls) == 1 and len(other_calls[0]) == 2 and args is not None:
                 extra_info += _add_argument_diff(other_calls[0][1], args[0])
-            raise AssertionError(ae.message + extra_info)
+            six.raise_from(AssertionError(str(ae) + extra_info), None)
         else:
             raise
 
@@ -81,14 +81,14 @@ def _add_argument_diff(actual, expected, indent=0, acc=None):
     if type(actual) != type(expected):
         acc.append("{}{!r} {} {!r}".format(" " * indent * 2, actual, "==" if actual == expected else "!=", expected))
     elif isinstance(actual, dict):
-        for k in set(actual.keys() + expected.keys()):
+        for k in set(actual.keys()) | set(expected.keys()):
             acc.append("{}{}:".format(" " * indent * 2, k))
             a = actual.get(k)
             e = expected.get(k)
             if a != e:
                 _add_argument_diff(a, e, indent + 1, acc)
     elif isinstance(actual, list):
-        for a, e in itertools.izip_longest(actual, expected):
+        for a, e in zip_longest(actual, expected):
             acc.append("{}-".format(" " * indent * 2))
             if a != e:
                 _add_argument_diff(a, e, indent + 1, acc)

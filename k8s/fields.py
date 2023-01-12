@@ -124,8 +124,8 @@ class ReadOnlyField(Field):
 class WriteOnlyField(Field):
     """WriteOnlyField can only be set"""
 
-    def __get__(self, instance, obj_type=None):
-        pass
+    def _from_dict(self, value):
+        return self.default_value
 
 
 class OnceField(Field):
