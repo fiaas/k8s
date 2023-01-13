@@ -137,8 +137,13 @@ class ApiMixIn(object):
             if line:
                 try:
                     event_json = json.loads(line)
-                    event = WatchEvent(event_json, cls)
-                    yield event
+                    try:
+                        event = WatchEvent(event_json, cls)
+                        yield event
+                    except TypeError:
+                        LOG.exception(
+                            "Unable to create instance of %s from watch event json, discarding event. event_json=%r",
+                            cls.__name__, event_json)
                 except ValueError:
                     LOG.exception("Unable to parse JSON on watch event, discarding event. Line: %r", line)
 
@@ -306,6 +311,9 @@ class WatchEvent(object):
     def __repr__(self):
         return "{cls}(type={type}, object={object})".format(cls=self.__class__.__name__, type=self.type,
                                                             object=self.object)
+
+    def __eq__(self, other):
+        return self.type == other.type and self.object == other.object
 
 
 class LabelSelector(object):
