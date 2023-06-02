@@ -22,7 +22,8 @@ from setuptools import setup, find_packages
 
 GENERIC_REQ = [
     "six>=1.12.0",
-    "requests==2.27.1",
+    "requests==2.31.0",
+    "urllib3==1.*", #  deprecated API usage for Retry should be resolved before upgrading to 2.x
     "pyrfc3339==1.1",
     "cachetools==3.1.1",  # Newer versions require Python 3
 ]
@@ -93,8 +94,6 @@ def main():
             "License :: OSI Approved :: Apache Software License",
             "Operating System :: OS Independent",
             "Programming Language :: Python",
-            "Programming Language :: Python :: 2",
-            "Programming Language :: Python :: 2.7",
             "Programming Language :: Python :: 3",
             "Programming Language :: Python :: 3.5",
             "Programming Language :: Python :: 3.6",
