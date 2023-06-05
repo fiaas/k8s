@@ -30,11 +30,11 @@ blocks:
           value: .pip_cache
       prologue:
         commands:
-          - export PATH="${HOME}/.local/bin":"${PATH}"
+          - sem-version python 3.9
           - checkout
           - mkdir "${PIP_CACHE_DIR}"
           - cache restore "setup-${SEMAPHORE_GIT_BRANCH}-$(checksum setup.py)","setup-${SEMAPHORE_GIT_BRANCH}",setup-master
-          - pip install --user publish
+          - pip install publish
       jobs:
         - name: Publish
           commands:
