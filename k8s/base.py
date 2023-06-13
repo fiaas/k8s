@@ -193,6 +193,12 @@ class ApiMixIn(object):
             resp = self._client.put(url, self.as_dict())
         self.update_from_dict(resp.json())
 
+    def save_status(self):
+        """Save status to API server, always updating"""
+        url = self._build_url(name=self.metadata.name, namespace=self.metadata.namespace) + "/status"
+        resp = self._client.put(url, self.as_dict())
+        self.update_from_dict(resp.json())
+
     @staticmethod
     def _label_selector(labels):
         """ Build a labelSelector string from a collection of key/values. The parameter can be either
