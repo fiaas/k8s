@@ -70,7 +70,9 @@ Once you have created a class for your API type, some of the fields will refer t
 
 .. note::
 
-    If the Kubernetes documentation says the type is ``object``, the python type should be ``dict``. If the Kubernetes documentation says the type is ``string``, we use ``str`` to maintain compatibility with both Python 2 and 3. Most other simple types are obvious.
+    If the Kubernetes documentation says the type is ``object``, the python type should be ``dict``.
+    If the Kubernetes documentation says the type is ``string``, the python type should be ``str``.
+    Most other simple types are obvious.
 
 
 .. literalinclude:: ../../k8s/models/autoscaler.py
