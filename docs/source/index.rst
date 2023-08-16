@@ -27,7 +27,6 @@ Welcome to k8s's documentation!
 
    tutorial
    crds
-   gotchas
    developer
    modules/modules
 
