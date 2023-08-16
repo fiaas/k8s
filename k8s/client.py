@@ -84,7 +84,7 @@ def _session_factory():
                       requests.codes.bad_gateway,
                       requests.codes.service_unavailable,
                       requests.codes.gateway_timeout]
-    retries = Retry(total=10, backoff_factor=1, status_forcelist=retry_statuses, method_whitelist=False)
+    retries = Retry(total=10, backoff_factor=1, status_forcelist=retry_statuses, allowed_methods=False)
     session.mount('http://', HTTPAdapter(max_retries=retries))
     session.mount('https://', HTTPAdapter(max_retries=retries))
     return session
