@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 import datetime
 
@@ -28,10 +25,10 @@ from ..fields import Field, ListField, ReadOnlyField
 
 
 class CronJobSpec(Model):
-    concurrencyPolicy = Field(six.text_type)
+    concurrencyPolicy = Field(str)
     failedJobsHistoryLimit = Field(int)
     jobTemplate = Field(JobTemplateSpec)
-    schedule = Field(six.text_type)
+    schedule = Field(str)
     startingDeadlineSeconds = Field(int)
     successfulJobsHistoryLimit = Field(int)
     suspend = Field(bool)
@@ -50,5 +47,3 @@ class CronJob(Model):
     metadata = Field(ObjectMeta)
     spec = Field(CronJobSpec)
     status = Field(CronJobStatus)
-
-

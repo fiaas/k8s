@@ -15,9 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from itertools import zip_longest
+
 import pytest
-import six
-from six.moves import zip_longest
 
 pytest_plugins = ['helpers_namespace']
 
@@ -68,7 +68,7 @@ def _add_useful_error_message(assertion, mockk, first, args):
                 _format_call(call) for call in other_calls))
             if len(other_calls) == 1 and len(other_calls[0]) == 2 and args is not None:
                 extra_info += _add_argument_diff(other_calls[0][1], args[0])
-            six.raise_from(AssertionError(str(ae) + extra_info), None)
+            raise AssertionError(str(ae) + extra_info) from None
         else:
             raise
 

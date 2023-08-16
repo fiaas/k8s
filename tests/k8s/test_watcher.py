@@ -18,7 +18,6 @@
 
 import mock
 import pytest
-import six
 
 from k8s.base import Model, Field, WatchEvent
 from k8s.models.common import ObjectMeta
@@ -109,6 +108,7 @@ class TestWatcher(object):
         def stop_iteration(*args, **kwargs):
             watcher._run_forever = False
             return []
+
         api_watch_list.side_effect = stop_iteration
 
         gen = watcher.watch(namespace=namespace)
@@ -140,8 +140,8 @@ class WatchListExample(Model):
         watch_list_url = '/watch/example'
         watch_list_url_template = '/watch/{namespace}/example'
 
-    apiVersion = Field(six.text_type, "example.com/v1")
-    kind = Field(six.text_type, "Example")
+    apiVersion = Field(str, "example.com/v1")
+    kind = Field(str, "Example")
     metadata = Field(ObjectMeta)
     value = Field(int)
 

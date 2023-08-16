@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 from .common import ObjectMeta, TypedLocalObjectReference
 from ..base import Model
@@ -25,12 +22,12 @@ from ..fields import Field, ListField
 
 
 class ServiceBackendPort(Model):
-    name = Field(six.text_type)
+    name = Field(str)
     number = Field(int)
 
 
 class IngressServiceBackend(Model):
-    name = Field(six.text_type)
+    name = Field(str)
     port = Field(ServiceBackendPort)
 
 
@@ -41,8 +38,8 @@ class IngressBackend(Model):
 
 class HTTPIngressPath(Model):
     backend = Field(IngressBackend)
-    path = Field(six.text_type)
-    pathType = Field(six.text_type)
+    path = Field(str)
+    pathType = Field(str)
 
 
 class HTTPIngressRuleValue(Model):
@@ -50,31 +47,31 @@ class HTTPIngressRuleValue(Model):
 
 
 class IngressRule(Model):
-    host = Field(six.text_type)
+    host = Field(str)
     http = Field(HTTPIngressRuleValue)
 
 
 class IngressTLS(Model):
-    hosts = ListField(six.text_type)
-    secretName = Field(six.text_type)
+    hosts = ListField(str)
+    secretName = Field(str)
 
 
 class IngressSpec(Model):
     defaultBackend = Field(IngressBackend)
-    ingressClassName = Field(six.text_type)
+    ingressClassName = Field(str)
     rules = ListField(IngressRule)
     tls = ListField(IngressTLS)
 
 
 class PortStatus(Model):
-    error = Field(six.text_type)
+    error = Field(str)
     port = Field(int)
-    protocol = Field(six.text_type)
+    protocol = Field(str)
 
 
 class LoadBalancerIngress(Model):
-    hostname = Field(six.text_type)
-    ip = Field(six.text_type)
+    hostname = Field(str)
+    ip = Field(str)
     ports = ListField(PortStatus)
 
 
