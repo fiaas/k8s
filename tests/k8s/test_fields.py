@@ -21,7 +21,6 @@ from datetime import datetime
 import mock
 import pytest
 import pytz
-import six
 
 from k8s import config
 from k8s.base import Model, SelfModel
@@ -42,7 +41,7 @@ class ModelTest(Model):
     read_only_field = ReadOnlyField(int)
     write_only_field_int = WriteOnlyField(int)
     write_only_field_dict = WriteOnlyField(dict)
-    alt_type_field = Field(int, alt_type=six.text_type)
+    alt_type_field = Field(int, alt_type=str)
     dict_field = Field(dict)
     _exec = Field(int)
     time_field = Field(datetime)
@@ -55,13 +54,13 @@ class TestFields(object):
     def set_config_debug(self, monkeypatch):
         monkeypatch.setattr(config, "debug", True)
 
-    @pytest.mark.parametrize("field_name,initial_value,other_value", (
+    @pytest.mark.parametrize("field_name,initial_value,other_value", [
         ("field", 1, 2),
         ("list_field", [1], [1, 2]),
         ("once_field", 1, 2),
         ("_exec", 1, 2),
         ("json_field", 1, [1, 2]),
-    ))
+    ])
     def test_field_new(self, field_name, initial_value, other_value):
         kwargs = {"new": True, field_name: initial_value}
         model = ModelTest(**kwargs)
@@ -69,10 +68,10 @@ class TestFields(object):
         setattr(model, field_name, other_value)
         assert getattr(model, field_name) == other_value
 
-    @pytest.mark.parametrize("field_name,initial_value,get_value", (
+    @pytest.mark.parametrize("field_name,initial_value,get_value", [
         ("write_only_field_int", 1, 1),
         ("write_only_field_dict", {1: 1}, {1: 1}),
-    ))
+    ])
     def test_write_only_field(self, field_name, initial_value, get_value):
         kwargs = {"new": True, field_name: initial_value, "metadata": ObjectMeta(name="name")}
         model = ModelTest(**kwargs)
@@ -82,10 +81,10 @@ class TestFields(object):
         from_api = ModelTest.from_dict(data)
         assert getattr(from_api, field_name) is None
 
-    @pytest.mark.parametrize("field_name,initial_value,other_value", (
+    @pytest.mark.parametrize("field_name,initial_value,other_value", [
         ("field", 1, 2),
         ("list_field", [1], [1, 2]),
-    ))
+    ])
     def test_field_old(self, field_name, initial_value, other_value):
         model = ModelTest.from_dict({field_name: initial_value})
         assert getattr(model, field_name) == initial_value
@@ -128,10 +127,10 @@ class TestFields(object):
         model.alt_type_field = modifier(value)
         assert model.alt_type_field == modifier(value)
 
-    @pytest.mark.parametrize("input,dt", (
+    @pytest.mark.parametrize("input,dt", [
         ("2009-01-01T17:59:59Z", datetime(2009, 1, 1, 17, 59, 59, tzinfo=pytz.UTC)),
         ("2009-01-01T17:59:59+01:00", datetime(2009, 1, 1, 16, 59, 59, tzinfo=pytz.UTC)),
-    ))
+    ])
     def test_time_field_from_dict(self, input, dt):
         model = ModelTest.from_dict({"time_field": input})
         assert isinstance(model.time_field, datetime)
@@ -142,7 +141,7 @@ class TestFields(object):
         d = model.as_dict()
         assert d["time_field"] == "2009-01-01T17:59:59Z"
 
-    @pytest.mark.parametrize("value,is_valid", (
+    @pytest.mark.parametrize("value,is_valid", [
         (None, True),
         (1, True),
         (1.1, True),
@@ -151,7 +150,7 @@ class TestFields(object):
         ({"key": "value"}, True),
         (ModelTest(), False),
         ([1, None], False),
-    ))
+    ])
     def test_json_field_validation(self, value, is_valid):
         model = ModelTest()
         if is_valid:

@@ -15,10 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import unicode_literals
-
 import pytest
-import six
 from mock import create_autospec
 from requests import Response
 
@@ -37,7 +34,7 @@ class ModelTest(Model):
     list_field = ListField(int)
     once_field = OnceField(int)
     read_only_field = ReadOnlyField(int)
-    alt_type_field = Field(int, alt_type=six.text_type)
+    alt_type_field = Field(int, alt_type=str)
     dict_field = Field(dict)
     _exec = Field(int)
 

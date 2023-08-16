@@ -1,4 +1,3 @@
-
 # Copyright 2017-2020 The FIAAS Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -23,16 +19,16 @@ from ..fields import Field, ListField
 
 
 class RoleRef(Model):
-    apiGroup = Field(six.text_type)
-    kind = Field(six.text_type)
-    name = Field(six.text_type)
+    apiGroup = Field(str)
+    kind = Field(str)
+    name = Field(str)
 
 
 class Subject(Model):
-    kind = Field(six.text_type)
-    name = Field(six.text_type)
-    apiGroup = Field(six.text_type)
-    namespace = Field(six.text_type)
+    kind = Field(str)
+    name = Field(str)
+    apiGroup = Field(str)
+    namespace = Field(str)
 
 
 class RoleBinding(Model):

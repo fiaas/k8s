@@ -15,23 +15,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
 import datetime
-
-import six
 
 from ..base import Model
 from ..fields import Field, ReadOnlyField, ListField
 
 
 class OwnerReference(Model):
-    apiVersion = Field(six.text_type)
+    apiVersion = Field(str)
     blockOwnerDeletion = Field(bool)
     controller = Field(bool)
-    kind = Field(six.text_type)
-    name = Field(six.text_type)
-    uid = Field(six.text_type)
+    kind = Field(str)
+    name = Field(str)
+    uid = Field(str)
 
 
 class ObjectMeta(Model):
@@ -39,47 +35,47 @@ class ObjectMeta(Model):
     creationTimestamp = ReadOnlyField(datetime.datetime)
     deletionGracePeriodSeconds = ReadOnlyField(int)
     deletionTimestamp = ReadOnlyField(datetime.datetime)
-    finalizers = ListField(six.text_type)
-    generateName = Field(six.text_type)
+    finalizers = ListField(str)
+    generateName = Field(str)
     generation = ReadOnlyField(int)
     labels = Field(dict)
-    name = Field(six.text_type)
-    namespace = Field(six.text_type, "default")
+    name = Field(str)
+    namespace = Field(str, "default")
     ownerReferences = ListField(OwnerReference)
-    resourceVersion = ReadOnlyField(six.text_type)
-    selfLink = ReadOnlyField(six.text_type)
-    uid = ReadOnlyField(six.text_type)
+    resourceVersion = ReadOnlyField(str)
+    selfLink = ReadOnlyField(str)
+    uid = ReadOnlyField(str)
 
 
 class TypedLocalObjectReference(Model):
-    apiGroup = Field(six.text_type)
-    kind = Field(six.text_type)
-    name = Field(six.text_type)
+    apiGroup = Field(str)
+    kind = Field(str)
+    name = Field(str)
 
 
 class ObjectReference(Model):
-    apiVersion = Field(six.text_type)
-    fieldPath = Field(six.text_type)
-    kind = Field(six.text_type)
-    name = Field(six.text_type)
-    namespace = Field(six.text_type)
-    resourceVersion = Field(six.text_type)
-    uid = Field(six.text_type)
+    apiVersion = Field(str)
+    fieldPath = Field(str)
+    kind = Field(str)
+    name = Field(str)
+    namespace = Field(str)
+    resourceVersion = Field(str)
+    uid = Field(str)
 
 
 class Preconditions(Model):
-    resourceVersion = Field(six.text_type)
-    uid = Field(six.text_type)
+    resourceVersion = Field(str)
+    uid = Field(str)
 
 
 class DeleteOptions(Model):
-    apiVersion = Field(six.text_type)
-    dryRun = ListField(six.text_type)
+    apiVersion = Field(str)
+    dryRun = ListField(str)
     gracePeriodSeconds = Field(int)
-    kind = Field(six.text_type)
+    kind = Field(str)
     preconditions = Field(Preconditions)
-    propagationPolicy = Field(six.text_type)
+    propagationPolicy = Field(str)
 
 
 class LocalObjectReference(Model):
-    name = Field(six.text_type)
+    name = Field(str)

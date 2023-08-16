@@ -18,7 +18,7 @@ name: Build k8s library
 agent:
   machine:
     type: e1-standard-2
-    os_image: ubuntu1804
+    os_image: ubuntu2004
 blocks:
   - name: Run tests
     task:
@@ -41,7 +41,7 @@ blocks:
             - tox
           matrix:
             - env_var: TOXENV
-              values: ["py27", "py36", "py37", "py39"]
+              values: ["py38", "py39"]
         - name: Gather coverage data
           commands:
             - CODACY_PROJECT_TOKEN=$CODACY_K8S_API_TOKEN tox -e coverage

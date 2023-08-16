@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -31,7 +28,7 @@ NotBestEffort = "NotBestEffort"
 
 class ResourceQuotaSpec(Model):
     hard = Field(dict)
-    scopes = ListField(six.text_type)
+    scopes = ListField(str)
 
 
 class ResourceQuotaStatus(Model):

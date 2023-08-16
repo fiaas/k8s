@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -25,9 +22,9 @@ from ..fields import Field, ListField
 
 
 class LabelSelectorRequirement(Model):
-    key = Field(six.text_type)
-    operator = Field(six.text_type)
-    values = ListField(six.text_type)
+    key = Field(str)
+    operator = Field(str)
+    values = ListField(str)
 
 
 class LabelSelector(Model):
@@ -36,8 +33,8 @@ class LabelSelector(Model):
 
 
 class PodDisruptionBudgetSpec(Model):
-    minAvailable = Field(six.text_type, alt_type=int)
-    maxUnavailable = Field(six.text_type, alt_type=int)
+    minAvailable = Field(str, alt_type=int)
+    maxUnavailable = Field(str, alt_type=int)
     selector = Field(LabelSelector)
 
 

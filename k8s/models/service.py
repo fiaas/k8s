@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -25,21 +22,21 @@ from ..fields import Field, OnceField, ListField
 
 
 class ServicePort(Model):
-    name = Field(six.text_type)
-    protocol = Field(six.text_type, "TCP")
+    name = Field(str)
+    protocol = Field(str, "TCP")
     port = Field(int)
-    targetPort = Field(six.text_type)
+    targetPort = Field(str)
     nodePort = Field(int)
 
 
 class ServiceSpec(Model):
     ports = ListField(ServicePort)
     selector = Field(dict)
-    clusterIP = OnceField(six.text_type)
-    loadBalancerIP = OnceField(six.text_type)
-    type = Field(six.text_type, "ClusterIP")
-    sessionAffinity = Field(six.text_type, "None")
-    loadBalancerSourceRanges = ListField(six.text_type)
+    clusterIP = OnceField(str)
+    loadBalancerIP = OnceField(str)
+    type = Field(str, "ClusterIP")
+    sessionAffinity = Field(str, "None")
+    loadBalancerSourceRanges = ListField(str)
 
 
 class Service(Model):
