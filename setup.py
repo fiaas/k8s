@@ -21,7 +21,6 @@ import os
 from setuptools import setup, find_packages
 
 GENERIC_REQ = [
-    "six>=1.12.0",
     "requests==2.31.0",
     "pyrfc3339==1.1",
     "cachetools==3.1.1",  # Newer versions require Python 3
@@ -93,13 +92,10 @@ def main():
             "License :: OSI Approved :: Apache Software License",
             "Operating System :: OS Independent",
             "Programming Language :: Python",
-            "Programming Language :: Python :: 2",
-            "Programming Language :: Python :: 2.7",
             "Programming Language :: Python :: 3",
-            "Programming Language :: Python :: 3.5",
-            "Programming Language :: Python :: 3.6",
-            "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.9",
+            "Programming Language :: Python :: 3.10",
+            "Programming Language :: Python :: 3.11",
             "Topic :: Internet",
             "Topic :: Software Development :: Libraries :: Python Modules",
             "Topic :: System :: Clustering",

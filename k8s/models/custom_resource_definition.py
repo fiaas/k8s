@@ -15,11 +15,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
 
 import datetime
-
-import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -27,11 +24,11 @@ from ..fields import Field, ListField
 
 
 class CustomResourceDefinitionNames(Model):
-    kind = Field(six.text_type)
-    listKind = Field(six.text_type)
-    plural = Field(six.text_type)
-    shortNames = ListField(six.text_type)
-    singular = Field(six.text_type)
+    kind = Field(str)
+    listKind = Field(str)
+    plural = Field(str)
+    shortNames = ListField(str)
+    singular = Field(str)
 
 
 class CustomResourceValidation(Model):
@@ -41,19 +38,19 @@ class CustomResourceValidation(Model):
 
 
 class CustomResourceDefinitionSpec(Model):
-    group = Field(six.text_type)
+    group = Field(str)
     names = Field(CustomResourceDefinitionNames)
-    scope = Field(six.text_type)
+    scope = Field(str)
     validation = Field(CustomResourceValidation)
-    version = Field(six.text_type)
+    version = Field(str)
 
 
 class CustomResourceDefinitionCondition(Model):
     lastTransitionTime = Field(datetime.datetime)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-    status = Field(six.text_type)
-    type = Field(six.text_type)
+    message = Field(str)
+    reason = Field(str)
+    status = Field(str)
+    type = Field(str)
 
 
 class CustomResourceDefinitionStatus(Model):

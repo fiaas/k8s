@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -25,7 +22,7 @@ from ..fields import Field, ListField
 
 
 class APIVersion(Model):
-    name = Field(six.text_type)
+    name = Field(str)
 
 
 class ThirdPartyResource(Model):
@@ -33,5 +30,5 @@ class ThirdPartyResource(Model):
         url_template = "/apis/extensions/v1beta1/thirdpartyresources/{name}"
 
     metadata = Field(ObjectMeta)
-    description = Field(six.text_type)
+    description = Field(str)
     versions = ListField(APIVersion)

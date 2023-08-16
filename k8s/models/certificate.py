@@ -15,11 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
 import datetime
-
-import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -27,19 +23,19 @@ from ..fields import Field, ListField
 
 
 class IssuerReference(Model):
-    name = Field(six.text_type)
-    kind = Field(six.text_type)
-    group = Field(six.text_type)
+    name = Field(str)
+    kind = Field(str)
+    group = Field(str)
 
 
 class CertificateSpec(Model):
-    secretName = Field(six.text_type)
+    secretName = Field(str)
     issuerRef = Field(IssuerReference)
 
 
 class CertificateCondition(Model):
-    type = Field(six.text_type)
-    status = Field(six.text_type)
+    type = Field(str)
+    status = Field(str)
 
 
 class CertificateStatus(Model):
