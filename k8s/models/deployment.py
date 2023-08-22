@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 from .common import ObjectMeta
 from .pod import PodTemplateSpec
@@ -30,12 +27,12 @@ class LabelSelector(Model):
 
 
 class RollingUpdateDeployment(Model):
-    maxUnavailable = Field(int, alt_type=six.text_type)
-    maxSurge = Field(int, alt_type=six.text_type)
+    maxUnavailable = Field(int, alt_type=str)
+    maxSurge = Field(int, alt_type=str)
 
 
 class DeploymentStrategy(Model):
-    type = Field(six.text_type, "RollingUpdate")
+    type = Field(str, "RollingUpdate")
     rollingUpdate = Field(RollingUpdateDeployment)
 
 
@@ -44,9 +41,9 @@ class DeploymentSpec(Model):
     selector = Field(LabelSelector)
     template = Field(PodTemplateSpec)
     strategy = Field(DeploymentStrategy)
-    minReadySeconds = Field(six.text_type, alt_type=int)
+    minReadySeconds = Field(str, alt_type=int)
     revisionHistoryLimit = Field(int)
-    paused = Field(six.text_type)
+    paused = Field(str)
 
 
 class DeploymentStatus(Model):

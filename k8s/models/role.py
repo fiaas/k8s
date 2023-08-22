@@ -1,4 +1,3 @@
-
 # Copyright 2017-2020 The FIAAS Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -23,11 +19,11 @@ from ..fields import Field, ListField
 
 
 class PolicyRule(Model):
-    apiGroups = ListField(six.text_type)
-    resources = ListField(six.text_type)
-    verbs = ListField(six.text_type)
-    resourceNames = ListField(six.text_type)
-    nonResourceURLs = ListField(six.text_type)
+    apiGroups = ListField(str)
+    resources = ListField(str)
+    verbs = ListField(str)
+    resourceNames = ListField(str)
+    nonResourceURLs = ListField(str)
 
 
 class Role(Model):

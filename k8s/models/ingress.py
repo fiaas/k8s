@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -25,12 +22,12 @@ from ..fields import Field, ListField
 
 
 class IngressBackend(Model):
-    serviceName = Field(six.text_type)
-    servicePort = Field(six.text_type)
+    serviceName = Field(str)
+    servicePort = Field(str)
 
 
 class HTTPIngressPath(Model):
-    path = Field(six.text_type)
+    path = Field(str)
     backend = Field(IngressBackend)
 
 
@@ -39,13 +36,13 @@ class HTTPIngressRuleValue(Model):
 
 
 class IngressRule(Model):
-    host = Field(six.text_type)
+    host = Field(str)
     http = Field(HTTPIngressRuleValue)
 
 
 class IngressTLS(Model):
-    hosts = ListField(six.text_type)
-    secretName = Field(six.text_type)
+    hosts = ListField(str)
+    secretName = Field(str)
 
 
 class IngressSpec(Model):
