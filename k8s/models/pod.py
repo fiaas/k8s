@@ -202,6 +202,13 @@ class Volume(Model):
     secret = Field(SecretVolumeSource)
 
 
+class Toleration(Model):
+    key = Field(six.text_type)
+    operator = Field(six.text_type)
+    value = Field(six.text_type)
+    effect = Field(six.text_type)
+    tolerationSeconds = Field(int)
+
 class PodSpec(Model):
     volumes = ListField(Volume)
     containers = ListField(Container)
@@ -216,6 +223,7 @@ class PodSpec(Model):
     automountServiceAccountToken = Field(bool)
     imagePullSecrets = ListField(LocalObjectReference)
     initContainers = ListField(Container)
+    tolerations = ListField(Toleration)
 
 
 class PodTemplateSpec(Model):
