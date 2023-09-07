@@ -15,11 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
 import datetime
-
-import six
 
 from .common import ObjectMeta
 from ..base import Model, SelfModel
@@ -27,13 +23,13 @@ from ..fields import Field, ListField, JSONField
 
 
 class ExternalDocumentation(Model):
-    description = Field(six.text_type)
-    url = Field(six.text_type)
+    description = Field(str)
+    url = Field(str)
 
 
 class JSONSchemaProps(Model):
-    ref = Field(six.text_type, name='$ref')
-    schema = Field(six.text_type, name='$schema')
+    ref = Field(str, name='$ref')
+    schema = Field(str, name='$schema')
     additionalItems = Field(SelfModel, alt_type=bool)
     additionalProperties = Field(SelfModel, alt_type=bool)
     allOf = ListField(SelfModel)
@@ -41,14 +37,14 @@ class JSONSchemaProps(Model):
     default = JSONField()
     definitions = Field(dict)
     dependencies = Field(dict)
-    description = Field(six.text_type)
+    description = Field(str)
     enum = JSONField()
     example = JSONField()
     exclusiveMaximum = Field(bool)
     exclusiveMinimum = Field(bool)
     externalDocs = Field(ExternalDocumentation)
-    format = Field(six.text_type)
-    id = Field(six.text_type)
+    format = Field(str)
+    id = Field(str)
     items = Field(SelfModel, alt_type=list)
     maxItems = Field(int)
     maxLength = Field(int)
@@ -62,60 +58,60 @@ class JSONSchemaProps(Model):
     _not = Field(SelfModel)
     nullable = Field(bool)
     oneOf = ListField(SelfModel)
-    pattern = Field(six.text_type)
+    pattern = Field(str)
     patternProperties = Field(dict)
     properties = Field(dict)
-    required = ListField(six.text_type)
-    title = Field(six.text_type)
-    type = Field(six.text_type)
+    required = ListField(str)
+    title = Field(str)
+    type = Field(str)
     uniqueItems = Field(bool)
     x_kubernetes_embedded_resource = Field(bool, name='x-kubernetes-embedded-resource')
     x_kubernetes_int_or_string = Field(bool, name='x-kubernetes-int-or-string')
-    x_kubernetes_list_map_keys = ListField(six.text_type, name='x-kubernetes-list-map-keys')
-    x_kubernetes_list_type = Field(six.text_type, name="x-kubernetes-list-type")
-    x_kubernetes_map_type = Field(six.text_type, name='x-kubernetes-map-type')
+    x_kubernetes_list_map_keys = ListField(str, name='x-kubernetes-list-map-keys')
+    x_kubernetes_list_type = Field(str, name="x-kubernetes-list-type")
+    x_kubernetes_map_type = Field(str, name='x-kubernetes-map-type')
     x_kubernetes_preserve_unknown_fields = Field(bool, name="x-kubernetes-preserve-unknown-fields")
 
 
 class ServiceReference(Model):
-    name = Field(six.text_type)
-    namespace = Field(six.text_type)
-    path = Field(six.text_type)
+    name = Field(str)
+    namespace = Field(str)
+    path = Field(str)
     port = Field(int)
 
 
 class WebhookClientConfig(Model):
-    caBundle = Field(six.text_type)
+    caBundle = Field(str)
     service = Field(ServiceReference)
-    url = Field(six.text_type)
+    url = Field(str)
 
 
 class WebhookConversion(Model):
     clientConfig = Field(WebhookClientConfig)
-    conversionReviewVersions = ListField(six.text_type)
+    conversionReviewVersions = ListField(str)
 
 
 class CustomResourceColumnDefinition(Model):
-    description = Field(six.text_type)
-    format = Field(six.text_type)
-    jsonPath = Field(six.text_type)
-    name = Field(six.text_type)
+    description = Field(str)
+    format = Field(str)
+    jsonPath = Field(str)
+    name = Field(str)
     priority = Field(int)
-    type = Field(six.text_type)
+    type = Field(str)
 
 
 class CustomResourceConversion(Model):
-    strategy = Field(six.text_type)
+    strategy = Field(str)
     webhook = Field(WebhookConversion)
 
 
 class CustomResourceDefinitionNames(Model):
-    categories = ListField(six.text_type)
-    kind = Field(six.text_type)
-    listKind = Field(six.text_type)
-    plural = Field(six.text_type)
-    shortNames = ListField(six.text_type)
-    singular = Field(six.text_type)
+    categories = ListField(str)
+    kind = Field(str)
+    listKind = Field(str)
+    plural = Field(str)
+    shortNames = ListField(str)
+    singular = Field(str)
 
 
 class CustomResourceValidation(Model):
@@ -123,9 +119,9 @@ class CustomResourceValidation(Model):
 
 
 class CustomResourceSubresourceScale(Model):
-    labelSelectorPath = Field(six.text_type)
-    specReplicasPath = Field(six.text_type)
-    statusReplicasPath = Field(six.text_type)
+    labelSelectorPath = Field(str)
+    specReplicasPath = Field(str)
+    statusReplicasPath = Field(str)
 
 
 class CustomResourceSubresources(Model):
@@ -138,8 +134,8 @@ class CustomResourceSubresources(Model):
 class CustomResourceDefinitionVersion(Model):
     additionalPrinterColumns = ListField(CustomResourceColumnDefinition)
     deprecated = Field(bool)
-    deprecationWarning = Field(six.text_type)
-    name = Field(six.text_type)
+    deprecationWarning = Field(str)
+    name = Field(str)
     schema = Field(CustomResourceValidation)
     served = Field(bool)
     storage = Field(bool)
@@ -148,25 +144,25 @@ class CustomResourceDefinitionVersion(Model):
 
 class CustomResourceDefinitionSpec(Model):
     conversion = Field(CustomResourceConversion)
-    group = Field(six.text_type)
+    group = Field(str)
     names = Field(CustomResourceDefinitionNames)
     preserveUnknownFields = Field(bool)
-    scope = Field(six.text_type)
+    scope = Field(str)
     versions = ListField(CustomResourceDefinitionVersion)
 
 
 class CustomResourceDefinitionCondition(Model):
     lastTransitionTime = Field(datetime.datetime)
-    message = Field(six.text_type)
-    reason = Field(six.text_type)
-    status = Field(six.text_type)
-    type = Field(six.text_type)
+    message = Field(str)
+    reason = Field(str)
+    status = Field(str)
+    type = Field(str)
 
 
 class CustomResourceDefinitionStatus(Model):
     acceptedNames = Field(CustomResourceDefinitionNames)
     conditions = ListField(CustomResourceDefinitionCondition)
-    storedVersions = ListField(six.text_type)
+    storedVersions = ListField(str)
 
 
 class CustomResourceDefinition(Model):

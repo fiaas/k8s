@@ -15,13 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
 import json
 import logging
 from collections import namedtuple
-
-import six
 
 from . import config
 from .client import Client, NotFound
@@ -226,7 +222,7 @@ class ApiMixIn(object):
         return ",".join("{}{}".format(k, v if isinstance(v, LabelSelector) else Equality(v)) for k, v in labels)
 
 
-class Model(six.with_metaclass(MetaModel)):
+class Model(metaclass=MetaModel):
     """A kubernetes Model object
 
     Contains fields for each attribute in the API specification, and methods for export/import.
@@ -271,6 +267,7 @@ class Model(six.with_metaclass(MetaModel)):
         """
         for field in self._meta.fields:
             setattr(self, field.name, getattr(other, field.name))
+
     update = merge  # For backwards compatibility
 
     def update_from_dict(self, d):

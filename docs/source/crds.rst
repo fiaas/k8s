@@ -47,8 +47,8 @@ This is similar to how we describe the built in models in this library. Check ou
 Example::
 
     class ApplicationSpec(Model):
-        application = RequiredField(six.text_type)
-        image = RequiredField(six.text_type)
+        application = RequiredField(str)
+        image = RequiredField(str)
         config = RequiredField(dict)
 
     class Application(Model):
@@ -59,8 +59,8 @@ Example::
             watch_list_url_template = "/apis/fiaas.schibsted.io/v1/watch/namespaces/{namespace}/applications"
 
         # Workaround for https://github.com/kubernetes/kubernetes/issues/44182
-        apiVersion = Field(six.text_type, "fiaas.schibsted.io/v1")  # NOQA
-        kind = Field(six.text_type, "Application")
+        apiVersion = Field(str, "fiaas.schibsted.io/v1")  # NOQA
+        kind = Field(str, "Application")
 
         metadata = Field(ObjectMeta)
         spec = Field(ApplicationSpec)

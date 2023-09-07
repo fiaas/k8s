@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -30,5 +27,5 @@ class Secret(Model):
 
     metadata = Field(ObjectMeta)
     data = Field(dict)
-    type = Field(six.text_type)
+    type = Field(str)
     stringData = WriteOnlyField(dict)

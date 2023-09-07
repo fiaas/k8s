@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 from .common import ObjectMeta
 from ..base import Model
@@ -25,9 +22,9 @@ from ..fields import Field, RequiredField
 
 
 class CrossVersionObjectReference(Model):
-    kind = RequiredField(six.text_type)
-    name = RequiredField(six.text_type)
-    apiVersion = Field(six.text_type)
+    kind = RequiredField(str)
+    name = RequiredField(str)
+    apiVersion = Field(str)
 
 
 class HorizontalPodAutoscalerSpec(Model):

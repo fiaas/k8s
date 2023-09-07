@@ -15,9 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
-import six
 
 from .common import ObjectMeta, LocalObjectReference
 from ..base import Model
@@ -25,31 +22,31 @@ from ..fields import Field, ListField, RequiredField
 
 
 class ContainerPort(Model):
-    name = Field(six.text_type)
+    name = Field(str)
     hostPort = Field(int)
     containerPort = Field(int)
-    protocol = Field(six.text_type, "TCP")
+    protocol = Field(str, "TCP")
 
 
 class ObjectFieldSelector(Model):
-    apiVersion = Field(six.text_type)
-    fieldPath = RequiredField(six.text_type)
+    apiVersion = Field(str)
+    fieldPath = RequiredField(str)
 
 
 class ResourceFieldSelector(Model):
-    containerName = Field(six.text_type)
-    resource = RequiredField(six.text_type)
-    divisor = Field(six.text_type)
+    containerName = Field(str)
+    resource = RequiredField(str)
+    divisor = Field(str)
 
 
 class ConfigMapKeySelector(Model):
-    name = Field(six.text_type)
-    key = RequiredField(six.text_type)
+    name = Field(str)
+    key = RequiredField(str)
 
 
 class SecretKeySelector(Model):
-    name = Field(six.text_type)
-    key = RequiredField(six.text_type)
+    name = Field(str)
+    key = RequiredField(str)
 
 
 class EnvVarSource(Model):
@@ -60,12 +57,12 @@ class EnvVarSource(Model):
 
 
 class SecretEnvSource(Model):
-    name = Field(six.text_type)
+    name = Field(str)
     optional = Field(bool)
 
 
 class ConfigMapEnvSource(Model):
-    name = Field(six.text_type)
+    name = Field(str)
     optional = Field(bool)
 
 
@@ -75,8 +72,8 @@ class EnvFromSource(Model):
 
 
 class EnvVar(Model):
-    name = Field(six.text_type)
-    value = Field(six.text_type)
+    name = Field(str)
+    value = Field(str)
     valueFrom = Field(EnvVarSource)
 
 
@@ -86,25 +83,25 @@ class ResourceRequirements(Model):
 
 
 class VolumeMount(Model):
-    name = Field(six.text_type)
+    name = Field(str)
     readOnly = Field(bool)
-    mountPath = Field(six.text_type)
+    mountPath = Field(str)
 
 
 class HTTPHeader(Model):
-    name = Field(six.text_type)
-    value = Field(six.text_type)
+    name = Field(str)
+    value = Field(str)
 
 
 class HTTPGetAction(Model):
-    path = Field(six.text_type)
-    port = Field(six.text_type, alt_type=int)
-    scheme = Field(six.text_type, "HTTP")
+    path = Field(str)
+    port = Field(str, alt_type=int)
+    scheme = Field(str, "HTTP")
     httpHeaders = ListField(HTTPHeader)
 
 
 class TCPSocketAction(Model):
-    port = Field(six.text_type, alt_type=int)
+    port = Field(str, alt_type=int)
 
 
 class ExecAction(Model):
@@ -134,8 +131,8 @@ class Lifecycle(Model):
 
 
 class Container(Model):
-    name = Field(six.text_type)
-    image = Field(six.text_type)
+    name = Field(str)
+    image = Field(str)
     ports = ListField(ContainerPort)
     env = ListField(EnvVar)
     envFrom = ListField(EnvFromSource)
@@ -144,58 +141,58 @@ class Container(Model):
     lifecycle = Field(Lifecycle)
     livenessProbe = Field(Probe)
     readinessProbe = Field(Probe)
-    imagePullPolicy = Field(six.text_type, "IfNotPresent")
-    command = ListField(six.text_type)
-    args = ListField(six.text_type)
+    imagePullPolicy = Field(str, "IfNotPresent")
+    command = ListField(str)
+    args = ListField(str)
 
 
 class SecretVolumeSource(Model):
-    secretName = Field(six.text_type)
+    secretName = Field(str)
     optional = Field(bool)
     defaultMode = Field(int)
 
 
 class KeyToPath(Model):
-    key = RequiredField(six.text_type)
-    path = RequiredField(six.text_type)
+    key = RequiredField(str)
+    path = RequiredField(str)
 
 
 class ConfigMapVolumeSource(Model):
-    name = Field(six.text_type)
+    name = Field(str)
     optional = Field(bool)
     defaultMode = Field(int)
 
 
 class EmptyDirVolumeSource(Model):
-    medium = Field(six.text_type)
+    medium = Field(str)
 
 
 class NFSVolumeSource(Model):
-    path = Field(six.text_type)
+    path = Field(str)
     readOnly = Field(bool)
-    server = Field(six.text_type)
+    server = Field(str)
 
 
 class HostPathVolumeSource(Model):
-    path = Field(six.text_type)
+    path = Field(str)
 
 
 class GCEPersistentDiskVolumeSource(Model):
-    fsType = Field(six.text_type)
+    fsType = Field(str)
     partition = Field(int)
-    pdName = Field(six.text_type)
+    pdName = Field(str)
     readOnly = Field(bool)
 
 
 class AWSElasticBlockStoreVolumeSource(Model):
-    fsType = Field(six.text_type)
+    fsType = Field(str)
     partition = Field(int)
     readOnly = Field(bool)
-    volumeID = Field(six.text_type)
+    volumeID = Field(str)
 
 
 class Volume(Model):
-    name = Field(six.text_type)
+    name = Field(str)
     awsElasticBlockStore = Field(AWSElasticBlockStoreVolumeSource)
     configMap = Field(ConfigMapVolumeSource)
     emptyDir = Field(EmptyDirVolumeSource)
@@ -215,14 +212,14 @@ class Toleration(Model):
 class PodSpec(Model):
     volumes = ListField(Volume)
     containers = ListField(Container)
-    restartPolicy = Field(six.text_type, "Always")
+    restartPolicy = Field(str, "Always")
     terminationGracePeriodSeconds = Field(int)
     activeDeadlineSeconds = Field(int)
-    dnsPolicy = Field(six.text_type, "ClusterFirst")
-    nodeName = Field(six.text_type)
+    dnsPolicy = Field(str, "ClusterFirst")
+    nodeName = Field(str)
     nodeSelector = Field(dict)
     selector = Field(dict)
-    serviceAccountName = Field(six.text_type, "default")
+    serviceAccountName = Field(str, "default")
     automountServiceAccountToken = Field(bool)
     imagePullSecrets = ListField(LocalObjectReference)
     initContainers = ListField(Container)

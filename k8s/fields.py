@@ -15,8 +15,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from __future__ import absolute_import
-
 import copy
 from datetime import datetime
 
@@ -207,6 +205,7 @@ class JSONField(Field):
         else:
             def typename(i):
                 return i.__name__
+
             raise TypeError("{name} has invalid type {type}. Allowed types are {allowed_types}.".format(
                 name=".".join(chain),
                 type=type(value).__name__,
