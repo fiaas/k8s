@@ -203,10 +203,10 @@ class Volume(Model):
 
 
 class Toleration(Model):
-    key = Field(six.text_type)
-    operator = Field(six.text_type)
-    value = Field(six.text_type)
-    effect = Field(six.text_type)
+    key = Field(str)
+    operator = Field(str)
+    value = Field(str)
+    effect = Field(str)
     tolerationSeconds = Field(int)
 
 class PodSpec(Model):
