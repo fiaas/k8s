@@ -73,6 +73,31 @@ class JSONSchemaProps(Model):
     x_kubernetes_preserve_unknown_fields = Field(bool, name="x-kubernetes-preserve-unknown-fields")
 
 
+class JSONSchemaPropsStatusEnabled(Model):
+    ref = Field(str, name='$ref')
+    schema = Field(str, name='$schema')
+
+    description = Field(str)
+    example = JSONField()
+    exclusiveMaximum = Field(bool)
+    exclusiveMinimum = Field(bool)
+    externalDocs = Field(ExternalDocumentation)
+    format = Field(str)
+    items = Field(SelfModel, alt_type=list)
+    maxItems = Field(int)
+    maxLength = Field(int)
+    maximum = Field(int, alt_type=float)
+    minItems = Field(int)
+    minLength = Field(int)
+    minimum = Field(int, alt_type=float)
+    multipleOf = Field(int, alt_type=float)
+    pattern = Field(str)
+    properties = Field(dict)
+    required = ListField(str)
+    title = Field(str)
+    type = Field(str)
+
+
 class ServiceReference(Model):
     name = Field(str)
     namespace = Field(str)
@@ -115,7 +140,7 @@ class CustomResourceDefinitionNames(Model):
 
 
 class CustomResourceValidation(Model):
-    openAPIV3Schema = Field(JSONSchemaProps)
+    openAPIV3Schema = Field(JSONSchemaProps, alt_type=JSONSchemaPropsStatusEnabled)
 
 
 class CustomResourceSubresourceScale(Model):
