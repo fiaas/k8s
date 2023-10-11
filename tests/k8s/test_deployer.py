@@ -81,6 +81,20 @@ class TestDeployer(object):
         Deployment.delete(NAME, namespace=NAMESPACE)
         pytest.helpers.assert_any_call(delete, _uri(NAMESPACE, NAME))
 
+    def test_save_status(self, get, put):
+        mock_response = _create_mock_response()
+        get.return_value = mock_response
+        deployment = _create_default_deployment()
+
+        from_api = Deployment.get_or_create(metadata=deployment.metadata, spec=deployment.spec)
+        assert not from_api._new
+        assert from_api.spec.replicas == 2
+        call_params = from_api.as_dict()
+        put.return_value.json.return_value = call_params
+
+        from_api.save_status()
+        pytest.helpers.assert_any_call(put, _uri(NAMESPACE, NAME) + "/status", call_params)
+
 
 def _create_default_deployment():
     labels = {"test": "true"}
