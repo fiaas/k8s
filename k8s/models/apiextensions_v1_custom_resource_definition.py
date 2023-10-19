@@ -148,12 +148,14 @@ class CustomResourceSubresourceScale(Model):
     specReplicasPath = Field(str)
     statusReplicasPath = Field(str)
 
+class CustomResourceSubresourceStatus(Model):
+    pass
 
 class CustomResourceSubresources(Model):
     scale = Field(CustomResourceSubresourceScale)
     # CustomResourceSubresourceStatus contains no fields,
     # so we use the dict type instead
-    status = Field(dict)
+    status = Field(CustomResourceSubresourceStatus)
 
 
 class CustomResourceDefinitionVersion(Model):
