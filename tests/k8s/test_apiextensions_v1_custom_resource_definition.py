@@ -23,7 +23,9 @@ from k8s.client import NotFound
 from k8s.models.common import ObjectMeta
 from k8s.models.apiextensions_v1_custom_resource_definition import (
     CustomResourceConversion, CustomResourceDefinition, CustomResourceDefinitionNames,
-    CustomResourceDefinitionSpec, CustomResourceDefinitionVersion, JSONSchemaProps)
+    CustomResourceDefinitionSpec, CustomResourceDefinitionVersion, JSONSchemaProps,
+    CustomResourceSubresourcesStatusEnabled, CustomResourceSubresourcesStatusDisabled,
+    CustomResourceSubresourceScale)
 
 NAME = "my-name"
 
@@ -86,6 +88,44 @@ class TestCustomResourceDefinition(object):
 
             crd.save()
             pytest.helpers.assert_any_call(put, _uri(NAME), call_params)
+
+    def test_custom_resource_definition_with_status_enabled(self):
+
+        crd = _create_subresource_with_status_enabled_crd(status={})
+
+        result = crd.as_dict()
+
+        assert 'status' in result['spec']['versions'][0]['subresources']
+
+    def test_custom_resource_definition_with_no_subresource_enabled_version(self):
+        crd = _create_subresource_with_status_enabled_crd()
+
+        result = crd.as_dict()
+
+        assert 'subresources' not in result['spec']['versions'][0]
+
+    def test_custom_resource_definition_with_no_subresource_disabled_version(self):
+        crd = _create_subresource_with_status_disabled_crd()
+
+        result = crd.as_dict()
+
+        assert 'subresources' not in result['spec']['versions'][0]
+
+    def test_custom_resource_definition_with_scale_and_status_enabled(self):
+        crd = _create_subresource_with_status_enabled_crd(scale=_create_subresource_scale())
+
+        result = crd.as_dict()
+
+        assert 'scale' in result['spec']['versions'][0]['subresources']
+        assert 'status' in result['spec']['versions'][0]['subresources']
+
+    def test_custom_resource_definition_with_scale_and_status_disabled(self):
+        crd = _create_subresource_with_status_disabled_crd(scale=_create_subresource_scale())
+
+        result = crd.as_dict()
+
+        assert 'scale' in result['spec']['versions'][0]['subresources']
+        assert 'status' not in result['spec']['versions'][0]['subresources']
 
 
 def _json_schema_props_crd_dict(default=None):
@@ -188,6 +228,42 @@ def _create_default_crd():
     )
     crd = CustomResourceDefinition(metadata=object_meta, spec=spec)
     return crd
+
+
+def _create_subresource_with_status_enabled_crd(scale=None, status=None):
+    object_meta = ObjectMeta(name=NAME, labels={"test": "true"})
+    subresources = CustomResourceSubresourcesStatusEnabled(status=status, scale=scale)
+    spec = CustomResourceDefinitionSpec(
+        conversion=CustomResourceConversion(strategy="None"),
+        group="example.com",
+        names=CustomResourceDefinitionNames(kind="MyCustomResource", plural="mycustomresources"),
+        scope="Namespaced",
+        versions=[CustomResourceDefinitionVersion(name="v42", served=True,
+                                                  subresources=subresources)]
+    )
+    crd = CustomResourceDefinition(metadata=object_meta, spec=spec)
+    return crd
+
+
+def _create_subresource_with_status_disabled_crd(scale=None):
+    object_meta = ObjectMeta(name=NAME, labels={"test": "true"})
+    subresources = CustomResourceSubresourcesStatusDisabled(scale=scale)
+    spec = CustomResourceDefinitionSpec(
+        conversion=CustomResourceConversion(strategy="None"),
+        group="example.com",
+        names=CustomResourceDefinitionNames(kind="MyCustomResource", plural="mycustomresources"),
+        scope="Namespaced",
+        versions=[CustomResourceDefinitionVersion(name="v42", served=True,
+                                                  subresources=subresources)]
+    )
+    crd = CustomResourceDefinition(metadata=object_meta, spec=spec)
+    return crd
+
+
+def _create_subresource_scale():
+    return CustomResourceSubresourceScale(labelSelectorPath="label",
+                                          specReplicasPath="spec",
+                                          statusReplicasPath="status")
 
 
 def _uri(name=""):
