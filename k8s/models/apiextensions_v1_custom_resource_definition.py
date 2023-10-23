@@ -150,7 +150,8 @@ class CustomResourceSubresourceScale(Model):
 
 
 class CustomResourceSubresourceStatus(Model):
-    pass
+    def _as_dict(self, value):
+        return {}
 
 
 class CustomResourceSubresources(Model):
