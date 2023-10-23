@@ -149,7 +149,11 @@ class CustomResourceSubresourceScale(Model):
     statusReplicasPath = Field(str)
 
 
-class CustomResourceSubresources(Model):
+class CustomResourceSubresourcesStatusDisabled(Model):
+    scale = Field(CustomResourceSubresourceScale)
+
+
+class CustomResourceSubresourcesStatusEnabled(Model):
     scale = Field(CustomResourceSubresourceScale)
     status = EmptyField(dict)
 
@@ -162,7 +166,8 @@ class CustomResourceDefinitionVersion(Model):
     schema = Field(CustomResourceValidation)
     served = Field(bool)
     storage = Field(bool)
-    subresources = Field(CustomResourceSubresources)
+    subresources = Field(CustomResourceSubresourcesStatusEnabled,
+                         alt_type=CustomResourceSubresourcesStatusDisabled)
 
 
 class CustomResourceDefinitionSpec(Model):
