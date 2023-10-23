@@ -215,3 +215,8 @@ class JSONField(Field):
     @property
     def default_value(self):
         return copy.copy(self._default_value)
+
+
+class EmptyField(Field):
+    def _as_dict(self, value):
+        return {}
