@@ -19,7 +19,7 @@ import datetime
 
 from .common import ObjectMeta
 from ..base import Model, SelfModel
-from ..fields import Field, ListField, JSONField, EmptyField
+from ..fields import Field, ListField, JSONField
 
 
 class ExternalDocumentation(Model):
@@ -149,13 +149,18 @@ class CustomResourceSubresourceScale(Model):
     statusReplicasPath = Field(str)
 
 
-class CustomResourceSubresourcesStatusDisabled(Model):
-    scale = Field(CustomResourceSubresourceScale)
+class CustomResourceSubresourceStatusEnabled(Model):
+    def as_dict(self):
+        return {}
 
 
-class CustomResourceSubresourcesStatusEnabled(Model):
+class CustomResourceSubresourceStatusDisabled(Model):
+    pass
+
+
+class CustomResourceSubresources(Model):
     scale = Field(CustomResourceSubresourceScale)
-    status = EmptyField(dict)
+    status = Field(CustomResourceSubresourceStatusDisabled, alt_type=CustomResourceSubresourceStatusEnabled)
 
 
 class CustomResourceDefinitionVersion(Model):
@@ -166,8 +171,7 @@ class CustomResourceDefinitionVersion(Model):
     schema = Field(CustomResourceValidation)
     served = Field(bool)
     storage = Field(bool)
-    subresources = Field(CustomResourceSubresourcesStatusEnabled,
-                         alt_type=CustomResourceSubresourcesStatusDisabled)
+    subresources = Field(CustomResourceSubresources)
 
 
 class CustomResourceDefinitionSpec(Model):
