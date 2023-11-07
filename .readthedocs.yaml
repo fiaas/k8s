@@ -10,6 +10,12 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.9"
+  apt_packages:
+    - make
+  jobs:
+    pre_build:
+      # generate API reference docs .rst files from module source
+      - make -C docs/ apidocs
 
 # Build documentation in the docs/ directory with Sphinx
 sphinx:
