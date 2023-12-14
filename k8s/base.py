@@ -19,6 +19,9 @@ import json
 import logging
 from collections import namedtuple
 
+import requests
+import requests.packages.urllib3 as urllib3
+
 from . import config
 from .client import Client, NotFound
 from .fields import Field
@@ -128,20 +131,38 @@ class ApiMixIn(object):
             if not url:
                 raise NotImplementedError("Cannot watch_list, no watch_list_url defined on class {}".format(cls))
 
-        resp = cls._client.get(url, stream=True, timeout=config.stream_timeout)
-        for line in resp.iter_lines(chunk_size=None):
-            if line:
-                try:
-                    event_json = json.loads(line)
+        try:
+            # The timeout here appears to be per call to the poll (or similar) system call, so each time data is received, the timeout will reset.
+            resp = cls._client.get(url, stream=True, timeout=config.stream_timeout)
+            for line in resp.iter_lines(chunk_size=None):
+                if line:
                     try:
-                        event = WatchEvent(event_json, cls)
-                        yield event
-                    except TypeError:
+                        event_json = json.loads(line)
+                        try:
+                            event = WatchEvent(event_json, cls)
+                            yield event
+                        except TypeError:
+                            LOG.exception(
+                                "Unable to create instance of %s from watch event json, discarding event. event_json=%r",
+                                cls.__name__,
+                                event_json,
+                            )
+                    except ValueError:
                         LOG.exception(
-                            "Unable to create instance of %s from watch event json, discarding event. event_json=%r",
-                            cls.__name__, event_json)
-                except ValueError:
-                    LOG.exception("Unable to parse JSON on watch event, discarding event. Line: %r", line)
+                            "Unable to parse JSON on watch event, discarding event. Line: %r",
+                            line,
+                        )
+        except requests.ConnectionError as e:
+            # ConnectionError is fairly generic, but check for ReadTimeoutError from urllib3.
+            # If we get this, there were no events received for the timeout period, which might not be an error, just a quiet period.
+            underlying = e.args[0]
+            if isinstance(underlying, urllib3.exceptions.ReadTimeoutError):
+                LOG.warning(
+                    "Read timeout while streaming from API server. Error: %s",
+                    e,
+                )
+                return
+            raise
 
     @classmethod
     def get(cls, name, namespace="default"):
