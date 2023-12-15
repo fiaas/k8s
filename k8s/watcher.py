@@ -49,7 +49,8 @@ class Watcher(object):
             watching for events in all namespaces.
         :return: a generator that yields :py:class:`~.WatchEvent` objects not seen before
         """
-        # last_seen_resource_version is used to resume the watch from the last seen event. Only used on reconnects, the first call to watch does a quorum read.
+        # last_seen_resource_version is used to resume the watch from the last seen event.
+        # Only used on reconnects, the first call to watch does a quorum read.
         last_seen_resource_version = None
         while self._run_forever:
             try:

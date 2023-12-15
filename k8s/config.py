@@ -38,10 +38,15 @@ timeout = 20
 #: Default timeout for streaming operations, used while waiting for more events.
 #: When reached, the library will usually info log and reconnect.
 #: There's a few considerations when setting this value:
-#: * On some servers, it might take this long to detect a dropped connection. This speaks for a low value, to detect the issue faster.
-#: * When connecting, a resourceVersion is used to resume, if still valid. This speaks for a low value, to avoid them expiring.
-#: * During idle periods, there might not be any new resourceVersions. Therefore a full quorum read each time a timeout is reached. This speaks for a high value.
-#: 4.5 minutes is the default, set to detect the first case above in a reasonable time, while being just below the default resourceVersion expiration of 5 minutes.
+#: * On some servers, it might take this long to detect a dropped connection. This speaks for a low value,
+#:   to detect the issue faster.
+#: * When connecting, a resourceVersion is used to resume, if still valid. This speaks for a low value,
+#:   to avoid them expiring.
+#: * During idle periods, there might not be any new resourceVersions.
+#:   Therefore a full quorum read each time a timeout is reached.
+#:   This speaks for a high value.
+#: 4.5 minutes is the default, set to detect the first case above in a reasonable time,
+#:while being just below the default resourceVersion expiration of 5 minutes.
 stream_timeout = 270
 #: Default size of Watcher cache. If you expect a lot of events, you might want to increase this.
 watcher_cache_size = 1000
