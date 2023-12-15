@@ -118,7 +118,7 @@ class ApiMixIn(object):
         return [cls.from_dict(item) for item in resp.json()[u"items"]]
 
     @classmethod
-    def watch_list(cls, namespace=None):
+    def watch_list(cls, namespace=None, resource_version=None):
         """Return a generator that yields WatchEvents of cls"""
         if namespace:
             if cls._meta.watch_list_url_template:
@@ -131,13 +131,24 @@ class ApiMixIn(object):
             if not url:
                 raise NotImplementedError("Cannot watch_list, no watch_list_url defined on class {}".format(cls))
 
+        params = {}
+        if resource_version:
+            # As per https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch
+            # only resourceVersion is used for watch queries.
+            params["resourceVersion"] = resource_version
         try:
             # The timeout here appears to be per call to the poll (or similar) system call, so each time data is received, the timeout will reset.
-            resp = cls._client.get(url, stream=True, timeout=config.stream_timeout)
+            resp = cls._client.get(url, stream=True, timeout=config.stream_timeout, params=params)
             for line in resp.iter_lines(chunk_size=None):
                 if line:
                     try:
                         event_json = json.loads(line)
+                        if APIServerError.match(event_json):
+                            LOG.warning(
+                                "Received error event from API server: %s",
+                                event_json["object"]["message"],
+                            )
+                            raise APIServerError(event_json["object"])
                         try:
                             event = WatchEvent(event_json, cls)
                             yield event
@@ -157,9 +168,9 @@ class ApiMixIn(object):
             # If we get this, there were no events received for the timeout period, which might not be an error, just a quiet period.
             underlying = e.args[0]
             if isinstance(underlying, urllib3.exceptions.ReadTimeoutError):
-                LOG.warning(
-                    "Read timeout while streaming from API server. Error: %s",
-                    e,
+                LOG.info(
+                    "Read timeout while waiting for new %s events.",
+                    cls.__name__,
                 )
                 return
             raise
@@ -397,3 +408,16 @@ class SelfModel:
     ```
     """
     pass
+
+class APIServerError(Exception):
+    """Raised when the API server returns an error event in the watch stream"""
+
+    def __init__(self, api_error):
+        self.api_error = api_error
+
+    def __str__(self):
+        return self.api_error["message"]
+
+    @classmethod
+    def match(cls, event_json):
+        return event_json["type"] == "ERROR" and event_json["object"].get("kind") == "Status"

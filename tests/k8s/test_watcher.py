@@ -2,13 +2,13 @@
 # -*- coding: utf-8
 
 # Copyright 2017-2019 The FIAAS Authors
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,7 +19,7 @@
 import mock
 import pytest
 
-from k8s.base import Model, Field, WatchEvent
+from k8s.base import APIServerError, Model, Field, WatchEvent
 from k8s.models.common import ObjectMeta
 from k8s.watcher import Watcher
 
@@ -33,7 +33,7 @@ DELETED = WatchEvent.DELETED
 class TestWatcher(object):
     @pytest.fixture
     def api_watch_list(self):
-        with mock.patch('k8s.base.ApiMixIn.watch_list') as m:
+        with mock.patch("k8s.base.ApiMixIn.watch_list") as m:
             yield m
 
     def test_multiple_events(self, api_watch_list):
@@ -48,7 +48,7 @@ class TestWatcher(object):
         watcher._run_forever = False
         assert list(gen) == []
 
-        api_watch_list.assert_called_with(namespace=None)
+        api_watch_list.assert_called_with(namespace=None, resource_version=None)
 
     def test_handle_reconnect(self, api_watch_list):
         events = [_event(0, ADDED, 1)]
@@ -115,7 +115,24 @@ class TestWatcher(object):
 
         assert list(gen) == []
 
-        api_watch_list.assert_called_with(namespace=namespace)
+        api_watch_list.assert_called_with(namespace=namespace, resource_version=None)
+
+    def test_handle_410(self, api_watch_list):
+        watcher = Watcher(WatchListExample)
+
+        api_watch_list.return_value.__getitem__.side_effect = [
+            _event(0, ADDED, 1),
+            APIServerError({"code": 410, "message": "Gone"}),
+            _event(0, MODIFIED, 2),
+        ]
+        # Seal the mock to make sure __iter__ is not used instead of __getitem__
+        mock.seal(api_watch_list)
+
+        gen = watcher.watch()
+        _assert_event(next(gen), 0, ADDED, 1)
+        _assert_event(next(gen), 0, MODIFIED, 2)
+        watcher._run_forever = False
+        assert list(gen) == []
 
 
 def _event(id, event_type, rv, namespace="default"):
