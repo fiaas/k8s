@@ -19,6 +19,9 @@ import json
 import logging
 from collections import namedtuple
 
+import requests
+import requests.packages.urllib3 as urllib3
+
 from . import config
 from .client import Client, NotFound
 from .fields import Field
@@ -100,7 +103,7 @@ class ApiMixIn(object):
             labels = {"app": Equality(name)}
         selector = cls._label_selector(labels)
         resp = cls._client.get(url, params={"labelSelector": selector})
-        return [cls.from_dict(item) for item in resp.json()[u"items"]]
+        return [cls.from_dict(item) for item in resp.json()["items"]]
 
     @classmethod
     def list(cls, namespace="default"):
@@ -112,36 +115,84 @@ class ApiMixIn(object):
         else:
             url = cls._build_url(name="", namespace=namespace)
         resp = cls._client.get(url)
-        return [cls.from_dict(item) for item in resp.json()[u"items"]]
+        return [cls.from_dict(item) for item in resp.json()["items"]]
 
     @classmethod
-    def watch_list(cls, namespace=None):
+    def watch_list(cls, namespace=None, resource_version=None):
         """Return a generator that yields WatchEvents of cls"""
+        url = cls._watch_list_url(namespace)
+
+        params = {}
+        if resource_version:
+            # As per https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch
+            # only resourceVersion is used for watch queries.
+            params["resourceVersion"] = resource_version
+
+        try:
+            # The timeout here appears to be per call to the poll (or similar) system call,
+            # so each time data is received, the timeout will reset.
+            resp = cls._client.get(url, stream=True, timeout=config.stream_timeout, params=params)
+            for line in resp.iter_lines(chunk_size=None):
+                event = cls._parse_watch_event(line) if line else None
+                if event:
+                    yield event
+        except requests.ConnectionError as e:
+            # ConnectionError is fairly generic, but check for ReadTimeoutError from urllib3.
+            # If we get this, there were no events received for the timeout period, which might not be an error,
+            # just a quiet period.
+            underlying = e.args[0]
+            if isinstance(underlying, urllib3.exceptions.ReadTimeoutError):
+                LOG.info(
+                    "Read timeout while waiting for new %s events.",
+                    cls.__name__,
+                )
+                return
+            raise
+
+    @classmethod
+    def _watch_list_url(cls, namespace):
+        """Loads the optionally namespaced url from the class meta"""
         if namespace:
             if cls._meta.watch_list_url_template:
                 url = cls._meta.watch_list_url_template.format(namespace=namespace)
             else:
                 raise NotImplementedError(
-                    "Cannot watch_list with namespace, no watch_list_url_template defined on class {}".format(cls))
+                    "Cannot watch_list with namespace, no watch_list_url_template defined on class {}".format(cls)
+                )
         else:
             url = cls._meta.watch_list_url
             if not url:
                 raise NotImplementedError("Cannot watch_list, no watch_list_url defined on class {}".format(cls))
+        return url
 
-        resp = cls._client.get(url, stream=True, timeout=config.stream_timeout)
-        for line in resp.iter_lines(chunk_size=None):
-            if line:
-                try:
-                    event_json = json.loads(line)
-                    try:
-                        event = WatchEvent(event_json, cls)
-                        yield event
-                    except TypeError:
-                        LOG.exception(
-                            "Unable to create instance of %s from watch event json, discarding event. event_json=%r",
-                            cls.__name__, event_json)
-                except ValueError:
-                    LOG.exception("Unable to parse JSON on watch event, discarding event. Line: %r", line)
+    @classmethod
+    def _parse_watch_event(cls, line):
+        """
+        Parse a line from the watch stream into a WatchEvent.
+        Raises APIServerError if the line is an error event.
+        """
+        try:
+            event_json = json.loads(line)
+            if APIServerError.match(event_json):
+                LOG.warning(
+                    "Received error event from API server: %s",
+                    event_json["object"]["message"],
+                )
+                raise APIServerError(event_json["object"])
+            event = WatchEvent(event_json, cls)
+            return event
+        except TypeError:
+            LOG.exception(
+                "Unable to create instance of %s from watch event json, discarding event. event_json=%r",
+                cls.__name__,
+                event_json,
+            )
+        except ValueError:
+            LOG.exception(
+                "Unable to parse JSON on watch event, discarding event. Line: %r",
+                line,
+            )
+        return None
 
     @classmethod
     def get(cls, name, namespace="default"):
@@ -376,3 +427,17 @@ class SelfModel:
     ```
     """
     pass
+
+
+class APIServerError(Exception):
+    """Raised when the API server returns an error event in the watch stream"""
+
+    def __init__(self, api_error):
+        self.api_error = api_error
+
+    def __str__(self):
+        return self.api_error["message"]
+
+    @classmethod
+    def match(cls, event_json):
+        return event_json["type"] == "ERROR" and event_json["object"].get("kind") == "Status"
