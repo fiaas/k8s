@@ -129,12 +129,8 @@ class TestWatchList(object):
             '{"type": "ADDED", "object": {"value": 1}}',
         ]
         gen = Example.watch_list()
-        assert next(gen) == WatchEvent(
-            {"type": "ADDED", "object": {"value": 1}}, Example
-        )
-        client.get.assert_called_once_with(
-            "/watch/example", stream=True, timeout=270, params={}
-        )
+        assert next(gen) == WatchEvent({"type": "ADDED", "object": {"value": 1}}, Example)
+        client.get.assert_called_once_with("/watch/example", stream=True, timeout=270, params={})
         assert list(gen) == []
 
     def test_watch_list_with_timeout(self, client):
@@ -146,13 +142,7 @@ class TestWatchList(object):
         # Seal to avoid __iter__ being used instead of __getitem__
         mock.seal(client)
         gen = Example.watch_list()
-        assert next(gen) == WatchEvent(
-            {"type": "ADDED", "object": {"value": 1}}, Example
-        )
+        assert next(gen) == WatchEvent({"type": "ADDED", "object": {"value": 1}}, Example)
         assert list(gen) == []
-        assert (
-            client.get.return_value.iter_lines.return_value.__getitem__.call_count == 2
-        )
-        client.get.assert_called_once_with(
-            "/watch/example", stream=True, timeout=270, params={}
-        )
+        assert client.get.return_value.iter_lines.return_value.__getitem__.call_count == 2
+        client.get.assert_called_once_with("/watch/example", stream=True, timeout=270, params={})

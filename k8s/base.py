@@ -95,11 +95,7 @@ class ApiMixIn(object):
         """
         if namespace is None:
             if not cls._meta.list_url:
-                raise NotImplementedError(
-                    "Cannot find without namespace, no list_url defined on class {}".format(
-                        cls
-                    )
-                )
+                raise NotImplementedError("Cannot find without namespace, no list_url defined on class {}".format(cls))
             url = cls._meta.list_url
         else:
             url = cls._build_url(name="", namespace=namespace)
@@ -114,11 +110,7 @@ class ApiMixIn(object):
         """List all resources in given namespace"""
         if namespace is None:
             if not cls._meta.list_url:
-                raise NotImplementedError(
-                    "Cannot list without namespace, no list_url defined on class {}".format(
-                        cls
-                    )
-                )
+                raise NotImplementedError("Cannot list without namespace, no list_url defined on class {}".format(cls))
             url = cls._meta.list_url
         else:
             url = cls._build_url(name="", namespace=namespace)
@@ -139,9 +131,7 @@ class ApiMixIn(object):
         try:
             # The timeout here appears to be per call to the poll (or similar) system call,
             # so each time data is received, the timeout will reset.
-            resp = cls._client.get(
-                url, stream=True, timeout=config.stream_timeout, params=params
-            )
+            resp = cls._client.get(url, stream=True, timeout=config.stream_timeout, params=params)
             for line in resp.iter_lines(chunk_size=None):
                 event = cls._parse_watch_event(line) if line else None
                 if event:
@@ -167,18 +157,12 @@ class ApiMixIn(object):
                 url = cls._meta.watch_list_url_template.format(namespace=namespace)
             else:
                 raise NotImplementedError(
-                    "Cannot watch_list with namespace, no watch_list_url_template defined on class {}".format(
-                        cls
-                    )
+                    "Cannot watch_list with namespace, no watch_list_url_template defined on class {}".format(cls)
                 )
         else:
             url = cls._meta.watch_list_url
             if not url:
-                raise NotImplementedError(
-                    "Cannot watch_list, no watch_list_url defined on class {}".format(
-                        cls
-                    )
-                )
+                raise NotImplementedError("Cannot watch_list, no watch_list_url defined on class {}".format(cls))
         return url
 
     @classmethod
@@ -199,8 +183,7 @@ class ApiMixIn(object):
             return event
         except TypeError:
             LOG.exception(
-                "Unable to create instance of %s from watch event json, discarding event. "
-                + "event_json=%r",
+                "Unable to create instance of %s from watch event json, discarding event. event_json=%r",
                 cls.__name__,
                 event_json,
             )
@@ -457,7 +440,4 @@ class APIServerError(Exception):
 
     @classmethod
     def match(cls, event_json):
-        return (
-            event_json["type"] == "ERROR"
-            and event_json["object"].get("kind") == "Status"
-        )
+        return event_json["type"] == "ERROR" and event_json["object"].get("kind") == "Status"
