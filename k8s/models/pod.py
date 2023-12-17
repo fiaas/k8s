@@ -209,6 +209,9 @@ class Toleration(Model):
     effect = Field(str)
     tolerationSeconds = Field(int)
 
+class PodStatus(Model):
+    phase = Field(str)
+
 class PodSpec(Model):
     volumes = ListField(Volume)
     containers = ListField(Container)
@@ -238,3 +241,4 @@ class Pod(Model):
 
     metadata = Field(ObjectMeta)
     spec = Field(PodSpec)
+    status = Field(PodStatus)
