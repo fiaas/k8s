@@ -16,7 +16,7 @@
 # limitations under the License.
 
 
-from .common import ObjectMeta, LabelSelector, Condititon
+from .common import ObjectMeta, LabelSelector, Condition
 from ..base import Model
 from ..fields import Field, ListField
 
@@ -29,7 +29,7 @@ class PodDisruptionBudgetSpec(Model):
 
 
 class PodDisruptionBudgetStatus(Model):
-    condition = ListField(Condititon)
+    condition = ListField(Condition)
     currentHealthy = Field(int)
     desiredHealthy = Field(int)
     disruptionsAllowed = Field(int)

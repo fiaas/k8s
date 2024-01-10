@@ -92,7 +92,7 @@ class LabelSelector(Model):
     matchLabels = Field(dict)
 
 
-class Condititon(Model):
+class Condition(Model):
     lastTransitionTime = Field(datetime.datetime)
     message = Field(str)
     observedGeneration = Field(int)
