@@ -88,7 +88,7 @@ class LabelSelectorRequirement(Model):
 
 
 class LabelSelector(Model):
-    matchExpressions = Field(LabelSelectorRequirement)
+    matchExpressions = ListField(LabelSelectorRequirement)
     matchLabels = Field(dict)
 
 
