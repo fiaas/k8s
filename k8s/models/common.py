@@ -79,3 +79,23 @@ class DeleteOptions(Model):
 
 class LocalObjectReference(Model):
     name = Field(str)
+
+
+class LabelSelectorRequirement(Model):
+    key = Field(str)
+    operator = Field(str)
+    values = ListField(str)
+
+
+class LabelSelector(Model):
+    matchExpressions = Field(LabelSelectorRequirement)
+    matchLabels = Field(dict)
+
+
+class Condititon(Model):
+    lastTransitionTime = Field(datetime.datetime)
+    message = Field(str)
+    observedGeneration = Field(int)
+    reason = Field(str)
+    status = Field(str)
+    type = Field(str)
