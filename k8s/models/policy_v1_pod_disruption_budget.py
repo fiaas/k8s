@@ -29,7 +29,7 @@ class PodDisruptionBudgetSpec(Model):
 
 
 class PodDisruptionBudgetStatus(Model):
-    condition = ListField(Condition)
+    conditions = ListField(Condition)
     currentHealthy = Field(int)
     desiredHealthy = Field(int)
     disruptionsAllowed = Field(int)
