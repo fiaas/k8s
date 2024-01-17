@@ -19,7 +19,7 @@
 import mock
 import pytest
 
-from k8s.base import APIServerError, Model, Field, WatchEvent
+from k8s.base import APIServerError, Field, Model, WatchBookmark, WatchEvent
 from k8s.models.common import ObjectMeta
 from k8s.watcher import Watcher
 
@@ -48,7 +48,7 @@ class TestWatcher(object):
         watcher._run_forever = False
         assert list(gen) == []
 
-        api_watch_list.assert_called_with(namespace=None, resource_version=None)
+        api_watch_list.assert_called_with(namespace=None, resource_version=None, allow_bookmarks=True)
 
     def test_handle_reconnect(self, api_watch_list):
         events = [_event(0, ADDED, 1)]
@@ -115,7 +115,7 @@ class TestWatcher(object):
 
         assert list(gen) == []
 
-        api_watch_list.assert_called_with(namespace=namespace, resource_version=None)
+        api_watch_list.assert_called_with(namespace=namespace, resource_version=None, allow_bookmarks=True)
 
     def test_handle_410(self, api_watch_list):
         watcher = Watcher(WatchListExample)
@@ -131,6 +131,30 @@ class TestWatcher(object):
         gen = watcher.watch()
         _assert_event(next(gen), 0, ADDED, 1)
         _assert_event(next(gen), 0, MODIFIED, 2)
+        watcher._run_forever = False
+        assert list(gen) == []
+
+    def test_other_apierror(self, api_watch_list):
+        watcher = Watcher(WatchListExample)
+
+        api_watch_list.side_effect = APIServerError({"code": 400, "message": "Bad Request"})
+        with pytest.raises(APIServerError, match="Bad Request"):
+            next(watcher.watch())
+
+    def test_bookmark(self, api_watch_list):
+        watcher = Watcher(WatchListExample)
+
+        api_watch_list.return_value.__getitem__.side_effect = [
+            _event(0, ADDED, 1),
+            WatchBookmark({"object": {"metadata": {"resourceVersion": "2"}}}),
+            _event(1, MODIFIED, 3),
+        ]
+        # Seal the mock to make sure __iter__ is not used instead of __getitem__
+        mock.seal(api_watch_list)
+
+        gen = watcher.watch()
+        _assert_event(next(gen), 0, ADDED, 1)
+        _assert_event(next(gen), 1, MODIFIED, 3)
         watcher._run_forever = False
         assert list(gen) == []
 

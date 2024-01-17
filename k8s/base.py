@@ -15,6 +15,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+from abc import ABC
+
 import json
 import logging
 from collections import namedtuple
@@ -53,7 +56,7 @@ class MetaModel(type):
             "watch_list_url": getattr(attr_meta, "watch_list_url", ""),
             "watch_list_url_template": getattr(attr_meta, "watch_list_url_template", ""),
             "fields": [],
-            "field_names": []
+            "field_names": [],
         }
         field_names = meta["field_names"]
         fields = meta["fields"]
@@ -74,6 +77,7 @@ class ApiMixIn(object):
 
     Contains methods for working with the API
     """
+
     _client = Client()
 
     @classmethod
@@ -118,15 +122,25 @@ class ApiMixIn(object):
         return [cls.from_dict(item) for item in resp.json()["items"]]
 
     @classmethod
-    def watch_list(cls, namespace=None, resource_version=None):
-        """Return a generator that yields WatchEvents of cls"""
+    def watch_list(cls, namespace=None, resource_version=None, allow_bookmarks=False):
+        """Return a generator that yields WatchEvents of cls.
+        If allowBookmarks is True, WatchBookmarks will also be yielded.
+        It's recommended to use the Watcher class instead of calling this directly,
+        since it handles reconnects and resource versions.
+        """
         url = cls._watch_list_url(namespace)
 
+        # We don't pass timeoutSeconds to the server, since our timeout is between each event,
+        # while the server will apply the timeout as a maximum time serving the full request,
+        # hanging up regardless of time between events. Let the server decide that timeout.
         params = {}
         if resource_version:
             # As per https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch
             # only resourceVersion is used for watch queries.
             params["resourceVersion"] = resource_version
+            LOG.info(f"Restarting %s watch at resource version %s", cls.__name__, resource_version)
+        if allow_bookmarks:
+            params["allowWatchBookmarks"] = "true"
 
         try:
             # The timeout here appears to be per call to the poll (or similar) system call,
@@ -166,20 +180,26 @@ class ApiMixIn(object):
         return url
 
     @classmethod
-    def _parse_watch_event(cls, line):
+    def _parse_watch_event(cls, line) -> WatchBaseEvent:
         """
-        Parse a line from the watch stream into a WatchEvent.
+        Parse a line from the watch stream into a WatchEvent or WatchBookmark.
         Raises APIServerError if the line is an error event.
         """
         try:
             event_json = json.loads(line)
             if APIServerError.match(event_json):
+                err = APIServerError(event_json["object"])
                 LOG.warning(
                     "Received error event from API server: %s",
-                    event_json["object"]["message"],
+                    err,
                 )
-                raise APIServerError(event_json["object"])
-            event = WatchEvent(event_json, cls)
+                raise err
+            if WatchBookmark.match(event_json):
+                LOG.debug("Received bookmark from API server: %s", event_json)
+                event = WatchBookmark(event_json)
+            else:
+                LOG.debug("Received watch event from API server: %s", event_json)
+                event = WatchEvent(event_json, cls)
             return event
         except TypeError:
             LOG.exception(
@@ -248,7 +268,7 @@ class ApiMixIn(object):
 
     @staticmethod
     def _label_selector(labels):
-        """ Build a labelSelector string from a collection of key/values. The parameter can be either
+        """Build a labelSelector string from a collection of key/values. The parameter can be either
         a dict, or a list of (key, value) tuples (this allows for repeating a key).
 
         The keys/values are used to build the `labelSelector` parameter to the API,
@@ -297,7 +317,8 @@ class Model(metaclass=MetaModel):
                 field.default_value_create_instance = False
         if kwarg_names:
             raise TypeError(
-                "{}() got unexpected keyword-arguments: {}".format(self.__class__.__name__, ", ".join(kwarg_names)))
+                "{}() got unexpected keyword-arguments: {}".format(self.__class__.__name__, ", ".join(kwarg_names))
+            )
         if self._new:
             self._validate_fields()
 
@@ -339,8 +360,10 @@ class Model(metaclass=MetaModel):
         return instance
 
     def __repr__(self):
-        return "{}({})".format(self.__class__.__name__,
-                               ", ".join("{}={}".format(key, getattr(self, key)) for key in self._meta.field_names))
+        return "{}({})".format(
+            self.__class__.__name__,
+            ", ".join("{}={}".format(key, getattr(self, key)) for key in self._meta.field_names),
+        )
 
     def __eq__(self, other):
         try:
@@ -353,21 +376,57 @@ def _api_name(name):
     return name[1:] if name.startswith("_") else name
 
 
-class WatchEvent(object):
+class WatchBaseEvent(ABC):
+    """Abstract base class for Watch events.
+    Contains the resource version of the event as property resource_version."""
+
+    __slots__ = ("resource_version",)
+
+    def __init__(self, event_json):
+        self.resource_version = event_json["object"].get("metadata", {}).get("resourceVersion")
+
+    def __eq__(self, other):
+        return self.resource_version == other.resource_version
+
+    def has_object(self):
+        ...
+
+
+class WatchEvent(WatchBaseEvent):
     ADDED = "ADDED"
     MODIFIED = "MODIFIED"
     DELETED = "DELETED"
 
     def __init__(self, event_json, cls):
+        super(WatchEvent, self).__init__(event_json)
         self.type = event_json["type"]
         self.object = cls.from_dict(event_json["object"])
 
     def __repr__(self):
-        return "{cls}(type={type}, object={object})".format(cls=self.__class__.__name__, type=self.type,
-                                                            object=self.object)
+        return "{cls}(type={type}, object={object})".format(
+            cls=self.__class__.__name__, type=self.type, object=self.object
+        )
 
     def __eq__(self, other):
         return self.type == other.type and self.object == other.object
+
+    def has_object(self):
+        return True
+
+
+class WatchBookmark(WatchBaseEvent):
+    """Bookmark events, if enabled, are sent periodically by the API server.
+    They only contain the resourceVersion of the event."""
+
+    def __init__(self, event_json):
+        super(WatchBookmark, self).__init__(event_json)
+
+    @classmethod
+    def match(cls, event_json):
+        return event_json["type"] == "BOOKMARK"
+
+    def has_object(self):
+        return False
 
 
 class LabelSelector(object):
@@ -426,6 +485,7 @@ class SelfModel:
         submodel = Field(SelfModel) # submodel gets the type `MyModel`
     ```
     """
+
     pass
 
 
@@ -436,7 +496,10 @@ class APIServerError(Exception):
         self.api_error = api_error
 
     def __str__(self):
-        return self.api_error["message"]
+        code = self.api_error["code"]
+        reason = self.api_error.get("reason", "(unset)")
+        message = self.api_error.get("message", "(unset)")
+        return f"{code}: reason={reason} message={message}"
 
     @classmethod
     def match(cls, event_json):

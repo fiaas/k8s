@@ -43,7 +43,8 @@ timeout = 20
 #: * When connecting, a resourceVersion is used to resume, if still valid. This speaks for a low value,
 #:   to avoid them expiring.
 #: * During idle periods, there might not be any new resourceVersions.
-#:   Therefore a full quorum read each time a timeout is reached.
+#:   Bookmarks events are used to avoid this, they are sent at a server
+#:   specific interval, but usually about once per minute.
 #:   This speaks for a high value.
 #: 4.5 minutes is the default, set to detect the first case above in a reasonable time,
 #:while being just below the default resourceVersion expiration of 5 minutes.
@@ -53,8 +54,10 @@ watcher_cache_size = 1000
 
 
 # disables bandit warning for this line which triggers because the string contains 'token', which is fine
-def use_in_cluster_config(token_file="/var/run/secrets/kubernetes.io/serviceaccount/token",  # nosec
-                          ca_cert_file="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"):
+def use_in_cluster_config(
+    token_file="/var/run/secrets/kubernetes.io/serviceaccount/token",  # nosec
+    ca_cert_file="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt",
+):
     """
     Configure the client using the recommended configuration for accessing the API from within a Kubernetes cluster:
     https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/#accessing-the-api-from-a-pod
@@ -72,6 +75,7 @@ class FileTokenSource(object):
 
     Intended to support the BoundServiceAccountTokenVolume feature in Kubernetes 1.21 and later.
     """
+
     def __init__(self, token_file, now_func=datetime.now):
         self._token_file = token_file
         self._expires_at = datetime(MINYEAR, 1, 1)  # force read on initial call to _refresh_token

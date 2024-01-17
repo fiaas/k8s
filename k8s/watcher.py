@@ -27,11 +27,12 @@ class Watcher(object):
     """Higher-level interface to watch for changes in objects
 
     The low-level :py:meth:`~.watch_list` method will stop when the API-server drops the connection.
-    When reconnecting, the API-server will send a list of :py:const:`~k8s.base.WatchEvent.ADDED`
+    When reconnecting using that method, the API-server will send a list of :py:const:`~k8s.base.WatchEvent.ADDED`
     events for all objects, even if they have been seen before.
 
     The Watcher will hide this complexity for you, and make sure to reconnect when the
     connection drops, and skip events that have already been seen.
+    It additionally uses bookmarks to avoid the increased load that might be caused by reconnecting.
 
     :param Model model: The model class to watch
     :param int capacity: How many seen objects to keep track of
@@ -55,15 +56,14 @@ class Watcher(object):
         while self._run_forever:
             try:
                 for event in self._model.watch_list(
-                    namespace=namespace, resource_version=last_seen_resource_version
+                    namespace=namespace, resource_version=last_seen_resource_version, allow_bookmarks=True
                 ):
+                    last_seen_resource_version = event.resource_version
+                    if not event.has_object():
+                        continue
                     o = event.object
                     key = (o.metadata.name, o.metadata.namespace)
-                    last_seen_resource_version = o.metadata.resourceVersion
-                    if (
-                        self._seen.get(key) == o.metadata.resourceVersion
-                        and event.type != WatchEvent.DELETED
-                    ):
+                    if self._seen.get(key) == o.metadata.resourceVersion and event.type != WatchEvent.DELETED:
                         continue
                     self._seen[key] = o.metadata.resourceVersion
                     yield event

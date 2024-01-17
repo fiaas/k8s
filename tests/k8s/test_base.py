@@ -20,7 +20,7 @@ import pytest
 import requests
 import requests.packages.urllib3 as urllib3
 
-from k8s.base import Model, Field, WatchEvent, Equality, Inequality, In, NotIn, Exists
+from k8s.base import APIServerError, Equality, Exists, Field, In, Inequality, Model, NotIn, WatchBookmark, WatchEvent
 from k8s.models.common import DeleteOptions, Preconditions
 
 
@@ -146,3 +146,22 @@ class TestWatchList(object):
         assert list(gen) == []
         assert client.get.return_value.iter_lines.return_value.__getitem__.call_count == 2
         client.get.assert_called_once_with("/watch/example", stream=True, timeout=270, params={})
+
+    def test_watch_list_api_error(self, client):
+        client.get.return_value.iter_lines.return_value = [
+            '{"type": "ERROR", "object": {"kind":"Status", "code": 500, "message": "Internal Server Error"}}',
+        ]
+        gen = Example.watch_list()
+        with pytest.raises(APIServerError, match="Internal Server Error"):
+            next(gen)
+
+    def test_watch_list_bookmark(self, client):
+        client.get.return_value.iter_lines.return_value = [
+            '{"type":"BOOKMARK", "object":{"metadata":{"resourceVersion": 4712}}}',
+        ]
+        gen = Example.watch_list(resource_version=4711, allow_bookmarks=True)
+        assert next(gen) == WatchBookmark({"type": "BOOKMARK", "object": {"metadata": {"resourceVersion": 4712}}})
+        assert list(gen) == []
+        client.get.assert_called_once_with(
+            "/watch/example", stream=True, timeout=270, params={"resourceVersion": 4711, "allowWatchBookmarks": "true"}
+        )
