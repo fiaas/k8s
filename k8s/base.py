@@ -138,7 +138,7 @@ class ApiMixIn(object):
             # As per https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch
             # only resourceVersion is used for watch queries.
             params["resourceVersion"] = resource_version
-            LOG.info(f"Restarting %s watch at resource version %s", cls.__name__, resource_version)
+            LOG.info("Restarting %s watch at resource version %s", cls.__name__, resource_version)
         if allow_bookmarks:
             params["allowWatchBookmarks"] = "true"
 
