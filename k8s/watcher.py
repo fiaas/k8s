@@ -59,17 +59,22 @@ class Watcher(object):
                     namespace=namespace, resource_version=last_seen_resource_version, allow_bookmarks=True
                 ):
                     last_seen_resource_version = event.resource_version
-                    if not event.has_object():
-                        continue
-                    o = event.object
-                    key = (o.metadata.name, o.metadata.namespace)
-                    if self._seen.get(key) == o.metadata.resourceVersion and event.type != WatchEvent.DELETED:
-                        continue
-                    self._seen[key] = o.metadata.resourceVersion
-                    yield event
+                    if self._should_yield(event):
+                        yield event
             except APIServerError as e:
                 # A 410 response indicates our resourceVersion is too old, and we need to do a new quorum read.
                 if e.api_error["code"] == 410:
                     last_seen_resource_version = None
                 else:
                     raise
+
+    def _should_yield(self, event) -> bool:
+        """Check if this is a new event, and if so, mark it as seen"""
+        if not event.has_object():
+            return False
+        o = event.object
+        key = (o.metadata.name, o.metadata.namespace)
+        if self._seen.get(key) == o.metadata.resourceVersion and event.type != WatchEvent.DELETED:
+            return False
+        self._seen[key] = o.metadata.resourceVersion
+        return True

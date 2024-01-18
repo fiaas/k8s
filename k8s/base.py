@@ -21,6 +21,7 @@ from abc import ABC
 import json
 import logging
 from collections import namedtuple
+from typing import Optional
 
 import requests
 import requests.packages.urllib3 as urllib3
@@ -180,7 +181,7 @@ class ApiMixIn(object):
         return url
 
     @classmethod
-    def _parse_watch_event(cls, line) -> WatchBaseEvent:
+    def _parse_watch_event(cls, line) -> Optional[WatchBaseEvent]:
         """
         Parse a line from the watch stream into a WatchEvent or WatchBookmark.
         Raises APIServerError if the line is an error event.
