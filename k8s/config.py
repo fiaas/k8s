@@ -35,15 +35,29 @@ verify_ssl = True
 debug = False
 #: Default timeout for most operations
 timeout = 20
-#: Default timeout for streaming operations
-stream_timeout = 3600
-#: Default size of Watcher cache
+#: Default timeout for streaming operations, used while waiting for more events.
+#: When reached, the library will usually info log and reconnect.
+#: There's a few considerations when setting this value:
+#: * On some servers, it might take this long to detect a dropped connection. This speaks for a low value,
+#:   to detect the issue faster.
+#: * When connecting, a resourceVersion is used to resume, if still valid. This speaks for a low value,
+#:   to avoid them expiring.
+#: * During idle periods, there might not be any new resourceVersions.
+#:   Bookmarks events are used to avoid this, they are sent at a server
+#:   specific interval, but usually about once per minute.
+#:   This speaks for a high value.
+#: 4.5 minutes is the default, set to detect the first case above in a reasonable time,
+#:while being just below the default resourceVersion expiration of 5 minutes.
+stream_timeout = 270
+#: Default size of Watcher cache. If you expect a lot of events, you might want to increase this.
 watcher_cache_size = 1000
 
 
 # disables bandit warning for this line which triggers because the string contains 'token', which is fine
-def use_in_cluster_config(token_file="/var/run/secrets/kubernetes.io/serviceaccount/token",  # nosec
-                          ca_cert_file="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"):
+def use_in_cluster_config(
+    token_file="/var/run/secrets/kubernetes.io/serviceaccount/token",  # nosec
+    ca_cert_file="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt",
+):
     """
     Configure the client using the recommended configuration for accessing the API from within a Kubernetes cluster:
     https://kubernetes.io/docs/tasks/access-application-cluster/access-cluster/#accessing-the-api-from-a-pod
@@ -61,6 +75,7 @@ class FileTokenSource(object):
 
     Intended to support the BoundServiceAccountTokenVolume feature in Kubernetes 1.21 and later.
     """
+
     def __init__(self, token_file, now_func=datetime.now):
         self._token_file = token_file
         self._expires_at = datetime(MINYEAR, 1, 1)  # force read on initial call to _refresh_token
