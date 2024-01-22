@@ -17,8 +17,10 @@
 
 import mock
 import pytest
+import requests
+import requests.packages.urllib3 as urllib3
 
-from k8s.base import Model, Field, WatchEvent, Equality, Inequality, In, NotIn, Exists
+from k8s.base import APIServerError, Equality, Exists, Field, In, Inequality, Model, NotIn, WatchBookmark, WatchEvent
 from k8s.models.common import DeleteOptions, Preconditions
 
 
@@ -114,3 +116,52 @@ class TestDeleteList(object):
             "propagationPolicy": "Foreground"
         }
         client.delete.assert_called_once_with("/example", params={"labelSelector": "foo=bar"}, body=expected_body)
+
+
+class TestWatchList(object):
+    @pytest.fixture
+    def client(self):
+        with mock.patch.object(Example, "_client") as m:
+            yield m
+
+    def test_watch_list(self, client):
+        client.get.return_value.iter_lines.return_value = [
+            '{"type": "ADDED", "object": {"value": 1}}',
+        ]
+        gen = Example.watch_list()
+        assert next(gen) == WatchEvent({"type": "ADDED", "object": {"value": 1}}, Example)
+        client.get.assert_called_once_with("/watch/example", stream=True, timeout=270, params={})
+        assert list(gen) == []
+
+    def test_watch_list_with_timeout(self, client):
+        client.get.return_value.iter_lines.return_value.__getitem__.side_effect = [
+            '{"type": "ADDED", "object": {"value": 1}}',
+            requests.ConnectionError(urllib3.exceptions.ReadTimeoutError("", "", "")),
+            '{"type": "MODIFIED", "object": {"value": 2}}',  # Not reached
+        ]
+        # Seal to avoid __iter__ being used instead of __getitem__
+        mock.seal(client)
+        gen = Example.watch_list()
+        assert next(gen) == WatchEvent({"type": "ADDED", "object": {"value": 1}}, Example)
+        assert list(gen) == []
+        assert client.get.return_value.iter_lines.return_value.__getitem__.call_count == 2
+        client.get.assert_called_once_with("/watch/example", stream=True, timeout=270, params={})
+
+    def test_watch_list_api_error(self, client):
+        client.get.return_value.iter_lines.return_value = [
+            '{"type": "ERROR", "object": {"kind":"Status", "code": 500, "message": "Internal Server Error"}}',
+        ]
+        gen = Example.watch_list()
+        with pytest.raises(APIServerError, match="Internal Server Error"):
+            next(gen)
+
+    def test_watch_list_bookmark(self, client):
+        client.get.return_value.iter_lines.return_value = [
+            '{"type":"BOOKMARK", "object":{"metadata":{"resourceVersion": 4712}}}',
+        ]
+        gen = Example.watch_list(resource_version=4711, allow_bookmarks=True)
+        assert next(gen) == WatchBookmark({"type": "BOOKMARK", "object": {"metadata": {"resourceVersion": 4712}}})
+        assert list(gen) == []
+        client.get.assert_called_once_with(
+            "/watch/example", stream=True, timeout=270, params={"resourceVersion": 4711, "allowWatchBookmarks": "true"}
+        )
