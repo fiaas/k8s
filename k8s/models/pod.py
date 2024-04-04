@@ -216,7 +216,7 @@ class PodSpec(Model):
     automountServiceAccountToken = Field(bool)
     imagePullSecrets = ListField(LocalObjectReference)
     initContainers = ListField(Container)
-    enableServiceLinks = Field(bool)
+    enableServiceLinks = Field(bool, True)
 
 
 class PodTemplateSpec(Model):
