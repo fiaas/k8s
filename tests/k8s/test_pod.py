@@ -90,6 +90,7 @@ class TestPod(object):
                 'serviceAccount': 'default',
                 'serviceAccountName': 'default',
                 'terminationGracePeriodSeconds': 30,
+                'enableServiceLinks': True,
                 'volumes': [{
                     'name': 'my-name',
                     'secret': {
