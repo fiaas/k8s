@@ -90,6 +90,7 @@ class TestPod(object):
                 'serviceAccount': 'default',
                 'serviceAccountName': 'default',
                 'terminationGracePeriodSeconds': 30,
+                'enableServiceLinks': True,
                 'volumes': [{
                     'name': 'my-name',
                     'secret': {
@@ -120,6 +121,8 @@ class TestPod(object):
         assert pod.spec.containers[0].ports[0].name == "http5000"
         call_params = pod.as_dict()
         put.return_value.json.return_value = call_params
+
+        assert pod.spec.enableServiceLinks is True
 
         pod.save()
         pytest.helpers.assert_any_call(put, POD_URI + NAME, call_params)
