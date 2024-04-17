@@ -28,7 +28,7 @@ import requests.packages.urllib3 as urllib3
 
 from . import config
 from .client import Client, NotFound
-from .fields import Field, ReadOnlyField
+from .fields import Field
 
 LOG = logging.getLogger(__name__)
 LOG.addHandler(logging.NullHandler())
@@ -151,7 +151,7 @@ class ApiMixIn(object):
             # As per https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch
             # only resourceVersion is used for watch queries.
             params["resourceVersion"] = resource_version
-            LOG.info("Restarting %s watch at resource version %s", cls.__name__, resource_version)
+            LOG.info("(Re)starting %s watch at resource version %s", cls.__name__, resource_version)
         if allow_bookmarks:
             params["allowWatchBookmarks"] = "true"
 
@@ -430,6 +430,26 @@ class WatchEvent(WatchBaseEvent):
         return True
 
 
+class SyntheticAddedWatchEvent(WatchBaseEvent):
+    def __init__(self, obj: Model):
+        # TODO: should SyntheticAddWatchEvent inherit WatchEvent? Does it even need to be its own class?
+        resource_version = obj.metadata.resourceVersion
+        super().__init__({}, resource_version)
+        self.type = WatchEvent.ADDED
+        self.object = obj
+
+    def __repr__(self):
+        return "{cls}(type={type}, object={object})".format(
+            cls=self.__class__.__name__, type=self.type, object=self.object
+        )
+
+    def __eq__(self, other):
+        return self.type == other.type and self.object == other.object
+
+    def has_object(self):
+        return True
+
+
 class WatchBookmark(WatchBaseEvent):
     """Bookmark events, if enabled, are sent periodically by the API server.
     They only contain the resourceVersion of the event."""
@@ -525,7 +545,7 @@ class APIServerError(Exception):
 class ListMeta(Model):
     _continue = Field(str)
     remainingItemCount = Field(int)
-    resourceVersion = ReadOnlyField(str)
+    resourceVersion = Field(str)
 
 
 class ModelList:
