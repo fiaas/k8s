@@ -130,15 +130,58 @@ class TestWatcher(object):
         # verify watch_list was called with resourceVersion returned by list call
         api_watch_list.assert_called_with(namespace=None, resource_version=list_resource_version, allow_bookmarks=True)
 
-    def test_handle_reconnect(self, api_watch_list, api_list_with_meta):
-        # TODO: what does this test?
-        events = [_event(0, ADDED, 1)]
-        api_watch_list.side_effect = [events, events]
+    def test_handle_watcher_cache_watch(self, api_watch_list, api_list_with_meta):
+        # if the same event (same name, namespace and resource version) is returned by watch_list multiple times, it
+        # should only be yielded once. If a DELETED event is received with the same resourceVersion, it should be
+        # yielded.
+        # If a DELETED event is received with the same resourceVersion as a previous event, it should be yielded.
+        model_list = ModelList(metadata=ListMeta(resourceVersion="1"), items=[])
+        api_list_with_meta.return_value = model_list
+
+        # yield event with resource twice, and stop the watcher after yielding the second event
+        event = _event(0, ADDED, 1)
+        delete_event = _event(0, DELETED, 1)
+
+        def side_effect(*args, **kwargs):
+            yield event
+            yield event
+            yield delete_event
+            watcher._run_forever = False
+
+        api_watch_list.side_effect = side_effect
+
         watcher = Watcher(WatchListExample)
         gen = watcher.watch()
 
         _assert_event(next(gen), 0, ADDED, 1)
-        watcher._run_forever = False
+        _assert_event(next(gen), 0, DELETED, 1)
+        assert list(gen) == []
+
+    def test_handle_watcher_cache_list(self, api_watch_list, api_list_with_meta):
+        # if the same event (same name, namespace and resource version) is returned by list and watch_list multiple
+        # times, it should only be yielded once.
+        # If a DELETED event is received with the same resourceVersion as a previous event, it should be yielded.
+        resource = _example_resource(0, 1)
+        model_list = ModelList(metadata=ListMeta(resourceVersion="1"), items=[resource])
+        api_list_with_meta.return_value = model_list
+
+        # yield event twice, and stop the watcher after yielding the second event
+        event = WatchEvent(WatchEvent.ADDED, resource)
+        delete_event = WatchEvent(WatchEvent.DELETED, resource)
+
+        def side_effect(*args, **kwargs):
+            yield event
+            yield event
+            yield delete_event
+            watcher._run_forever = False
+
+        api_watch_list.side_effect = side_effect
+
+        watcher = Watcher(WatchListExample)
+        gen = watcher.watch()
+
+        _assert_event(next(gen), 0, ADDED, 1)
+        _assert_event(next(gen), 0, DELETED, 1)
         assert list(gen) == []
 
     def test_handle_changes(self, api_watch_list, api_list_with_meta):
