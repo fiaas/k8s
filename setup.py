@@ -27,7 +27,7 @@ GENERIC_REQ = [
 ]
 
 CODE_QUALITY_REQ = [
-    'prospector==1.2.0',  # Newer versions require Python 3
+    'prospector==1.3.0',
 ]
 
 TESTS_REQ = [
@@ -37,7 +37,7 @@ TESTS_REQ = [
     "pytest-html==1.22.0",  # Newer versions require Python 3
     "pytest-cov==2.7.1",
     "pytest-helpers-namespace==2019.1.8",
-    'pytest==4.6.11',  # Newer versions require Python 3
+    'pytest==8.1.1',
 ]
 
 
