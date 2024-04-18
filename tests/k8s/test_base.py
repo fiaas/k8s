@@ -208,6 +208,21 @@ class TestList:
         ]
         assert Example.list() == expected
 
+    def test_list_with_meta(self, client, response):
+        client.get.return_value = response
+
+        expected_items = [
+            Example(value=42),
+            Example(value=1337),
+        ]
+
+        actual = Example.list_with_meta()
+
+        assert actual.metadata.resourceVersion == "1"
+        assert actual.metadata._continue == "ENCODED_CONTINUE_TOKEN"
+        assert actual.metadata.remainingItemCount == 1
+        assert actual.items == expected_items
+
     def test_list_empty(self, client, response_empty):
         client.get.return_value = response_empty
 
@@ -216,10 +231,12 @@ class TestList:
     def test_list_with_meta_empty(self, client, response_empty):
         client.get.return_value = response_empty
 
-        assert Example.list_with_meta().metadata.resourceVersion == "2"
-        assert Example.list_with_meta().metadata._continue is None
-        assert Example.list_with_meta().metadata.remainingItemCount is None
-        assert Example.list_with_meta().items == []
+        actual = Example.list_with_meta()
+
+        assert actual.metadata.resourceVersion == "2"
+        assert actual.metadata._continue is None
+        assert actual.metadata.remainingItemCount is None
+        assert actual.items == []
 
     @pytest.mark.parametrize(
         "exception",
