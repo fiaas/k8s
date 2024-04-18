@@ -21,6 +21,7 @@ import requests
 import requests.packages.urllib3 as urllib3
 
 from k8s.base import APIServerError, Equality, Exists, Field, In, Inequality, Model, NotIn, WatchBookmark, WatchEvent
+from k8s.client import NotFound, ServerError, ClientError
 from k8s.models.common import DeleteOptions, Preconditions
 
 
@@ -59,23 +60,23 @@ class TestFind(object):
         Example.find("app_name")
         client.get.assert_called_once_with("/example", params={"labelSelector": "app=app_name"})
 
-    @pytest.mark.parametrize("value, selector", (
-        (Equality("my_value"), "my_key=my_value"),
-        (Inequality("my_value"), "my_key!=my_value"),
-        (In(("value1", "value2")), "my_key in (value1,value2)"),
-        (NotIn(("value1", "value2")), "my_key notin (value1,value2)"),
-        (Exists(), "my_key"),
-        ("my_unwrapped_value", "my_key=my_unwrapped_value"),
-    ))
+    @pytest.mark.parametrize(
+        "value, selector",
+        (
+            (Equality("my_value"), "my_key=my_value"),
+            (Inequality("my_value"), "my_key!=my_value"),
+            (In(("value1", "value2")), "my_key in (value1,value2)"),
+            (NotIn(("value1", "value2")), "my_key notin (value1,value2)"),
+            (Exists(), "my_key"),
+            ("my_unwrapped_value", "my_key=my_unwrapped_value"),
+        ),
+    )
     def test_find_by_selectors(self, client, value, selector):
         Example.find(labels={"my_key": value})
         client.get.assert_called_once_with("/example", params={"labelSelector": selector})
 
     def test_repeated_keys_in_label_selector(self, client):
-        labels = [
-            ("foo", Inequality("bar")),
-            ("foo", Exists())
-        ]
+        labels = [("foo", Inequality("bar")), ("foo", Exists())]
         Example.find(labels=labels)
 
         expected_selector = "foo!=bar,foo"
@@ -84,7 +85,6 @@ class TestFind(object):
 
 
 class TestDeleteList(object):
-
     @pytest.fixture
     def client(self):
         with mock.patch.object(Example, "_client") as m:
@@ -101,7 +101,7 @@ class TestDeleteList(object):
             dryRun=[],
             gracePeriodSeconds=30,
             preconditions=Preconditions(uid="1234", resourceVersion="12"),
-            propagationPolicy="Foreground"
+            propagationPolicy="Foreground",
         )
         Example.delete_list(labels={"foo": "bar"}, delete_options=opts)
 
@@ -109,11 +109,8 @@ class TestDeleteList(object):
             "apiVersion": "foo/v1",
             "dryRun": [],
             "gracePeriodSeconds": 30,
-            "preconditions": {
-                "uid": "1234",
-                "resourceVersion": "12"
-            },
-            "propagationPolicy": "Foreground"
+            "preconditions": {"uid": "1234", "resourceVersion": "12"},
+            "propagationPolicy": "Foreground",
         }
         client.delete.assert_called_once_with("/example", params={"labelSelector": "foo=bar"}, body=expected_body)
 
@@ -165,3 +162,89 @@ class TestWatchList(object):
         client.get.assert_called_once_with(
             "/watch/example", stream=True, timeout=270, params={"resourceVersion": 4711, "allowWatchBookmarks": "true"}
         )
+
+
+class TestList:
+    @pytest.fixture
+    def response(self):
+        data = {
+            "metadata": {
+                "resourceVersion": "1",
+                "continue": "ENCODED_CONTINUE_TOKEN",
+                "remainingItemCount": 1,
+            },
+            "items": [
+                {"value": 42},
+                {"value": 1337},
+            ],
+        }
+        resp = mock.create_autospec(requests.Response, spec_set=True)
+        resp.json.return_value = data
+        yield resp
+
+    @pytest.fixture
+    def response_empty(self):
+        data = {
+            "metadata": {
+                "resourceVersion": "2",
+            },
+            "items": [],
+        }
+        resp = mock.create_autospec(requests.Response, spec_set=True)
+        resp.json.return_value = data
+        yield resp
+
+    @pytest.fixture
+    def client(self):
+        with mock.patch.object(Example, "_client") as m:
+            yield m
+
+    def test_list(self, client, response):
+        client.get.return_value = response
+
+        expected = [
+            Example(value=42),
+            Example(value=1337),
+        ]
+        assert Example.list() == expected
+
+    def test_list_empty(self, client, response_empty):
+        client.get.return_value = response_empty
+
+        assert Example.list() == []
+
+    def test_list_with_meta_empty(self, client, response_empty):
+        client.get.return_value = response_empty
+
+        assert Example.list_with_meta().metadata.resourceVersion == "2"
+        assert Example.list_with_meta().metadata._continue is None
+        assert Example.list_with_meta().metadata.remainingItemCount is None
+        assert Example.list_with_meta().items == []
+
+    @pytest.mark.parametrize(
+        "exception",
+        (
+            NotFound,
+            ClientError,
+            ServerError,
+        ),
+    )
+    def test_list_error(self, client, exception):
+        client.get.side_effect = exception
+
+        with pytest.raises(exception):
+            Example.list()
+
+    @pytest.mark.parametrize(
+        "exception",
+        (
+            NotFound,
+            ClientError,
+            ServerError,
+        ),
+    )
+    def test_list_with_meta_error(self, client, exception):
+        client.get.side_effect = exception
+
+        with pytest.raises(exception):
+            Example.list_with_meta()
