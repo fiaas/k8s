@@ -17,10 +17,13 @@
 
 
 import cachetools
+import logging
 
-from .base import APIServerError, WatchEvent
+from .base import APIServerError, WatchEvent, SyntheticAddedWatchEvent
 
 DEFAULT_CAPACITY = 1000
+
+LOG = logging.getLogger(__name__)
 
 
 class Watcher(object):
@@ -54,6 +57,17 @@ class Watcher(object):
         # Only used on reconnects, the first call to watch does a quorum read.
         last_seen_resource_version = None
         while self._run_forever:
+            if last_seen_resource_version is None:
+                # list all resources and yield a synthetic ADDED watch event for each
+                model_list = self._model.list_with_meta()
+                LOG.info("Got %d %s instances from quorum read", len(model_list.items), self._model.__name__)
+                for obj in model_list.items:
+                    event = SyntheticAddedWatchEvent(obj)
+                    # _should_yield is mainly called here to feed the self._seen cache
+                    if self._should_yield(event):
+                        yield event
+                # watch connection should start at the version of the initial list
+                last_seen_resource_version = model_list.metadata.resourceVersion
             try:
                 for event in self._model.watch_list(
                     namespace=namespace, resource_version=last_seen_resource_version, allow_bookmarks=True
