@@ -41,24 +41,24 @@ class WatchListExample(Model):
     value = Field(int)
 
 
-def _example_resource(id, rv, namespace="default"):
-    metadict = {"name": "name{}".format(id), "namespace": namespace, "resourceVersion": str(rv)}
+def _example_resource(_id, rv, namespace="default"):
+    metadict = {"name": "name{}".format(_id), "namespace": namespace, "resourceVersion": str(rv)}
     metadata = ObjectMeta.from_dict(metadict)
-    return WatchListExample(metadata=metadata, value=(id * 100) + rv)
+    return WatchListExample(metadata=metadata, value=(_id * 100) + rv)
 
 
-def _event(id, event_type, rv, namespace="default"):
-    wle = _example_resource(id, rv, namespace)
+def _event(_id, event_type, rv, namespace="default"):
+    wle = _example_resource(_id, rv, namespace)
     return mock.NonCallableMagicMock(type=event_type, object=wle)
 
 
-def _assert_event(event, id, event_type, rv, namespace="default"):
+def _assert_event(event, _id, event_type, rv, namespace="default"):
     assert event.type == event_type
     o = event.object
     assert o.kind == "Example"
-    assert o.metadata.name == "name{}".format(id)
+    assert o.metadata.name == "name{}".format(_id)
     assert o.metadata.namespace == namespace
-    assert o.value == (id * 100) + rv
+    assert o.value == (_id * 100) + rv
 
 
 @pytest.mark.usefixtures("k8s_config", "logger")
@@ -264,7 +264,7 @@ class TestWatcher(object):
         # verify list and watch_list has now been called twice, and each call of watch_list used the resourceVersion
         # returned by the preceding list call
         assert api_list_with_meta.call_args_list == [mock.call(), mock.call()]
-        api_watch_list.call_args_list == [
+        assert api_watch_list.call_args_list == [
             mock.call(namespace=None, resource_version=first_list_resource_version, allow_bookmarks=True),
             mock.call(namespace=None, resource_version=second_list_resource_version, allow_bookmarks=True),
         ]
