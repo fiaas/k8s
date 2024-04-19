@@ -22,7 +22,7 @@ import requests.packages.urllib3 as urllib3
 
 from k8s.base import APIServerError, Equality, Exists, Field, In, Inequality, Model, NotIn, WatchBookmark, WatchEvent
 from k8s.client import NotFound, ServerError, ClientError
-from k8s.models.common import DeleteOptions, Preconditions
+from k8s.models.common import DeleteOptions, Preconditions, ObjectMeta
 
 
 class Example(Model):
@@ -35,17 +35,17 @@ class Example(Model):
 
 class TestWatchEvent(object):
     def test_watch_event_added(self):
-        watch_event = WatchEvent({"type": "ADDED", "object": {"value": 42}}, Example)
+        watch_event = WatchEvent.from_dict({"type": "ADDED", "object": {"value": 42}}, Example)
         assert watch_event.type == WatchEvent.ADDED
         assert watch_event.object == Example(value=42)
 
     def test_watch_event_modified(self):
-        watch_event = WatchEvent({"type": "MODIFIED", "object": {"value": 42}}, Example)
+        watch_event = WatchEvent.from_dict({"type": "MODIFIED", "object": {"value": 42}}, Example)
         assert watch_event.type == WatchEvent.MODIFIED
         assert watch_event.object == Example(value=42)
 
     def test_watch_event_deleted(self):
-        watch_event = WatchEvent({"type": "DELETED", "object": {"value": 42}}, Example)
+        watch_event = WatchEvent.from_dict({"type": "DELETED", "object": {"value": 42}}, Example)
         assert watch_event.type == WatchEvent.DELETED
         assert watch_event.object == Example(value=42)
 
@@ -126,7 +126,7 @@ class TestWatchList(object):
             '{"type": "ADDED", "object": {"value": 1}}',
         ]
         gen = Example.watch_list()
-        assert next(gen) == WatchEvent({"type": "ADDED", "object": {"value": 1}}, Example)
+        assert next(gen) == WatchEvent.from_dict({"type": "ADDED", "object": {"value": 1}}, Example)
         client.get.assert_called_once_with("/watch/example", stream=True, timeout=270, params={})
         assert list(gen) == []
 
@@ -139,7 +139,7 @@ class TestWatchList(object):
         # Seal to avoid __iter__ being used instead of __getitem__
         mock.seal(client)
         gen = Example.watch_list()
-        assert next(gen) == WatchEvent({"type": "ADDED", "object": {"value": 1}}, Example)
+        assert next(gen) == WatchEvent.from_dict({"type": "ADDED", "object": {"value": 1}}, Example)
         assert list(gen) == []
         assert client.get.return_value.iter_lines.return_value.__getitem__.call_count == 2
         client.get.assert_called_once_with("/watch/example", stream=True, timeout=270, params={})
