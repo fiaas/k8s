@@ -49,7 +49,7 @@ def _example_resource(_id, rv, namespace="default"):
 
 def _event(_id, event_type, rv, namespace="default"):
     wle = _example_resource(_id, rv, namespace)
-    return mock.NonCallableMagicMock(type=event_type, object=wle)
+    return WatchEvent(event_type, wle)
 
 
 def _assert_event(event, _id, event_type, rv, namespace="default"):
