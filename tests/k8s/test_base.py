@@ -30,24 +30,38 @@ class Example(Model):
         url_template = '/example'
         watch_list_url = '/watch/example'
 
+    metadata = Field(ObjectMeta)
     value = Field(int)
+
+
+def _example_object(value=42, resource_version="1"):
+    # Since metadata.resourceVersion is a ReadOnlyField values set are ignored. To avoid this we have to use from_dict
+    # to set the field value, like when deserializing an API response.
+    metadata = ObjectMeta.from_dict({"resourceVersion": resource_version})
+    return Example(metadata=metadata, value=value)
 
 
 class TestWatchEvent(object):
     def test_watch_event_added(self):
-        watch_event = WatchEvent.from_dict({"type": "ADDED", "object": {"value": 42}}, Example)
+        obj = _example_object(42, "1")
+        event_dict = {"type": "ADDED", "object": {"metadata": {"resourceVersion": "1"}, "value": 42}}
+        watch_event = WatchEvent.from_dict(event_dict, Example)
         assert watch_event.type == WatchEvent.ADDED
-        assert watch_event.object == Example(value=42)
+        assert watch_event.object == obj
 
     def test_watch_event_modified(self):
-        watch_event = WatchEvent.from_dict({"type": "MODIFIED", "object": {"value": 42}}, Example)
+        obj = _example_object(42, "1")
+        event_dict = {"type": "MODIFIED", "object": {"metadata": {"resourceVersion": "1"}, "value": 42}}
+        watch_event = WatchEvent.from_dict(event_dict, Example)
         assert watch_event.type == WatchEvent.MODIFIED
-        assert watch_event.object == Example(value=42)
+        assert watch_event.object == obj
 
     def test_watch_event_deleted(self):
-        watch_event = WatchEvent.from_dict({"type": "DELETED", "object": {"value": 42}}, Example)
+        obj = _example_object(42, "1")
+        event_dict = {"type": "DELETED", "object": {"metadata": {"resourceVersion": "1"}, "value": 42}}
+        watch_event = WatchEvent.from_dict(event_dict, Example)
         assert watch_event.type == WatchEvent.DELETED
-        assert watch_event.object == Example(value=42)
+        assert watch_event.object == obj
 
 
 class TestFind(object):
@@ -123,23 +137,25 @@ class TestWatchList(object):
 
     def test_watch_list(self, client):
         client.get.return_value.iter_lines.return_value = [
-            '{"type": "ADDED", "object": {"value": 1}}',
+            '{"type": "ADDED", "object": {"metadata": {"resourceVersion": "1"}, "value": 1}}',
         ]
         gen = Example.watch_list()
-        assert next(gen) == WatchEvent.from_dict({"type": "ADDED", "object": {"value": 1}}, Example)
+        event_dict = {"type": "ADDED", "object": {"metadata": {"resourceVersion": "1"}, "value": 1}}
+        assert next(gen) == WatchEvent.from_dict(event_dict, Example)
         client.get.assert_called_once_with("/watch/example", stream=True, timeout=270, params={})
         assert list(gen) == []
 
     def test_watch_list_with_timeout(self, client):
         client.get.return_value.iter_lines.return_value.__getitem__.side_effect = [
-            '{"type": "ADDED", "object": {"value": 1}}',
+            '{"type": "ADDED", "object": {"metadata": {"resourceVersion": "1"}, "value": 1}}',
             requests.ConnectionError(urllib3.exceptions.ReadTimeoutError("", "", "")),
-            '{"type": "MODIFIED", "object": {"value": 2}}',  # Not reached
+            '{"type": "MODIFIED", "object": {"metadata": {"resourceVersion": "2"}, "value": 2}}',  # Not reached
         ]
         # Seal to avoid __iter__ being used instead of __getitem__
         mock.seal(client)
         gen = Example.watch_list()
-        assert next(gen) == WatchEvent.from_dict({"type": "ADDED", "object": {"value": 1}}, Example)
+        event_dict = {"type": "ADDED", "object": {"metadata": {"resourceVersion": "1"}, "value": 1}}
+        assert next(gen) == WatchEvent.from_dict(event_dict, Example)
         assert list(gen) == []
         assert client.get.return_value.iter_lines.return_value.__getitem__.call_count == 2
         client.get.assert_called_once_with("/watch/example", stream=True, timeout=270, params={})
