@@ -21,7 +21,7 @@ from abc import ABC
 import json
 import logging
 from collections import namedtuple
-from typing import Optional
+from typing import Optional, Dict, Type, List
 
 import requests
 import requests.packages.urllib3 as urllib3
@@ -111,7 +111,7 @@ class ApiMixIn(object):
         return [cls.from_dict(item) for item in resp.json()["items"]]
 
     @classmethod
-    def list(cls, namespace="default"):
+    def _list_raw(cls, namespace="default"):
         """List all resources in given namespace"""
         if namespace is None:
             if not cls._meta.list_url:
@@ -120,7 +120,19 @@ class ApiMixIn(object):
         else:
             url = cls._build_url(name="", namespace=namespace)
         resp = cls._client.get(url)
+        return resp
+
+    @classmethod
+    def list(cls, namespace="default"):
+        """List all resources in given namespace"""
+        resp = cls._list_raw(namespace=namespace)
         return [cls.from_dict(item) for item in resp.json()["items"]]
+
+    @classmethod
+    def list_with_meta(cls, namespace="default"):
+        """List all resources in given namespace. Return ModelList"""
+        resp = cls._list_raw(namespace=namespace)
+        return ModelList.from_dict(cls, resp.json())
 
     @classmethod
     def watch_list(cls, namespace=None, resource_version=None, allow_bookmarks=False):
@@ -139,7 +151,7 @@ class ApiMixIn(object):
             # As per https://kubernetes.io/docs/reference/using-api/api-concepts/#semantics-for-watch
             # only resourceVersion is used for watch queries.
             params["resourceVersion"] = resource_version
-            LOG.info("Restarting %s watch at resource version %s", cls.__name__, resource_version)
+            LOG.info("(Re)starting %s watch at resource version %s", cls.__name__, resource_version)
         if allow_bookmarks:
             params["allowWatchBookmarks"] = "true"
 
@@ -200,7 +212,7 @@ class ApiMixIn(object):
                 event = WatchBookmark(event_json)
             else:
                 LOG.debug("Received watch event from API server: %s", event_json)
-                event = WatchEvent(event_json, cls)
+                event = WatchEvent.from_dict(event_json, cls)
             return event
         except TypeError:
             LOG.exception(
@@ -383,8 +395,8 @@ class WatchBaseEvent(ABC):
 
     __slots__ = ("resource_version",)
 
-    def __init__(self, event_json):
-        self.resource_version = event_json["object"].get("metadata", {}).get("resourceVersion")
+    def __init__(self, resource_version):
+        self.resource_version = resource_version
 
     def __eq__(self, other):
         return self.resource_version == other.resource_version
@@ -398,10 +410,19 @@ class WatchEvent(WatchBaseEvent):
     MODIFIED = "MODIFIED"
     DELETED = "DELETED"
 
-    def __init__(self, event_json, cls):
-        super(WatchEvent, self).__init__(event_json)
-        self.type = event_json["type"]
-        self.object = cls.from_dict(event_json["object"])
+    def __init__(self, _type: str, _object: Model):
+        # resource_version is effectively optional here to replicate the previous behavior
+        # in practice, watch events with None resourceVersion will break the caching in Watcher.watch()
+        resource_version = getattr(getattr(_object, "metadata", None), "resourceVersion", None)
+        super(WatchEvent, self).__init__(resource_version)
+        self.type = _type
+        self.object = _object
+
+    @classmethod
+    def from_dict(cls, event_json: Dict, model_cls: Model) -> WatchEvent:
+        _type = event_json["type"]
+        _object = model_cls.from_dict(event_json["object"])
+        return cls(_type, _object)
 
     def __repr__(self):
         return "{cls}(type={type}, object={object})".format(
@@ -415,12 +436,18 @@ class WatchEvent(WatchBaseEvent):
         return True
 
 
+class SyntheticAddedWatchEvent(WatchEvent):
+    def __init__(self, obj: Model):
+        super(SyntheticAddedWatchEvent, self).__init__(WatchEvent.ADDED, obj)
+
+
 class WatchBookmark(WatchBaseEvent):
     """Bookmark events, if enabled, are sent periodically by the API server.
     They only contain the resourceVersion of the event."""
 
     def __init__(self, event_json):
-        super(WatchBookmark, self).__init__(event_json)
+        resource_version = event_json["object"].get("metadata", {}).get("resourceVersion")
+        super(WatchBookmark, self).__init__(resource_version)
 
     @classmethod
     def match(cls, event_json):
@@ -505,3 +532,26 @@ class APIServerError(Exception):
     @classmethod
     def match(cls, event_json):
         return event_json["type"] == "ERROR" and event_json["object"].get("kind") == "Status"
+
+
+class ListMeta(Model):
+    _continue = Field(str)
+    remainingItemCount = Field(int)
+    resourceVersion = Field(str)
+
+
+class ModelList:
+    """
+    Generic type to hold list of Model instances (items) together with ListMeta (metadata),
+    as returned by list API calls
+    """
+
+    def __init__(self, metadata: ListMeta, items: List[Model]):
+        self.metadata = metadata
+        self.items = items
+
+    @classmethod
+    def from_dict(cls, model_cls: Type[Model], list_response_data: Dict):
+        metadata = ListMeta.from_dict(list_response_data.get('metadata', {}))
+        items = [model_cls.from_dict(item) for item in list_response_data.get('items', [])]
+        return cls(metadata, items)
