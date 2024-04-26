@@ -34,7 +34,6 @@ blocks:
           - mkdir "${PIP_CACHE_DIR}"
           - cache restore "setup-${SEMAPHORE_GIT_BRANCH}-$(checksum setup.py)","setup-${SEMAPHORE_GIT_BRANCH}",setup-master
           - pip install --upgrade pip
-          - pip install --user setuptools
           - pip install --user tox
       jobs:
         - name: Tests
