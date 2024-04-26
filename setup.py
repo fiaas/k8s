@@ -28,6 +28,7 @@ GENERIC_REQ = [
 
 CODE_QUALITY_REQ = [
     'prospector==1.10.3',
+    'setuptools==69.5.1',
 ]
 
 TESTS_REQ = [
@@ -96,6 +97,7 @@ def main():
             "Programming Language :: Python :: 3.9",
             "Programming Language :: Python :: 3.10",
             "Programming Language :: Python :: 3.11",
+            "Programming Language :: Python :: 3.12",
             "Topic :: Internet",
             "Topic :: Software Development :: Libraries :: Python Modules",
             "Topic :: System :: Clustering",
