@@ -30,7 +30,7 @@ requests==2.31.0
     # via sphinx
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==7.3.5
+sphinx==7.3.7
     # via
     #   -r requirements.in
     #   sphinxcontrib-applehelp
