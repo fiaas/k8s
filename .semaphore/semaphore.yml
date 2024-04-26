@@ -41,7 +41,7 @@ blocks:
             - tox
           matrix:
             - env_var: TOXENV
-              values: ["py38", "py39"]
+              values: ["py39", "py310"]
         - name: Gather coverage data
           commands:
             - CODACY_PROJECT_TOKEN=$CODACY_K8S_API_TOKEN tox -e coverage
