@@ -4,4 +4,4 @@
 # When updating dependencies here:
 # - Install pip-tools with `pip install pip-tools`
 # - Use `pip-compile requirements.in` to update transitive dependency versions in requirements.txt
-Sphinx==7.2.6
+Sphinx==7.3.5
