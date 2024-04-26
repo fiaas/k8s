@@ -34,7 +34,7 @@ TESTS_REQ = [
     'tox==3.28.0', # This is not the latest version
     'mock==5.1.0',
     "pytest-sugar==1.0.0",
-    "pytest-html==4.1.1",  # Newer versions require Python 3
+    "pytest-html==4.1.1",
     "pytest-cov==5.0.0",
     "pytest-helpers-namespace==2021.12.29",
     'pytest==8.1.1',
