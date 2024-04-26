@@ -24,7 +24,7 @@ import pytest
 from k8s import config
 
 
-@pytest.yield_fixture
+@pytest.fixture
 def logger():
     """Set root logger to DEBUG, and add stream handler"""
     root_logger = logging.getLogger()
