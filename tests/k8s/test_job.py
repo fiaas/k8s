@@ -110,4 +110,4 @@ def _create_mock_response():
 
 
 def _uri(namespace, name=""):
-    return "/apis/batch/v1/namespaces/{namespace}/jobs".format(name=name, namespace=namespace)
+    return "/apis/batch/v1/namespaces/{namespace}/jobs".format(namespace=namespace)
