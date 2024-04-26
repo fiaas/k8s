@@ -23,7 +23,7 @@ from setuptools import setup, find_packages
 GENERIC_REQ = [
     "requests==2.31.0",
     "pyrfc3339==1.1",
-    "cachetools==3.1.1",  # Newer versions require Python 3
+    "cachetools==5.3.3",
 ]
 
 CODE_QUALITY_REQ = [
