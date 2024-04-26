@@ -31,12 +31,12 @@ CODE_QUALITY_REQ = [
 ]
 
 TESTS_REQ = [
-    'tox==3.24.5',
-    'mock==3.0.5',  # Newer versions require Python 3
-    "pytest-sugar==0.9.4",
-    "pytest-html==1.22.0",  # Newer versions require Python 3
-    "pytest-cov==2.7.1",
-    "pytest-helpers-namespace==2019.1.8",
+    'tox==3.28.0', # This is not the latest version
+    'mock==5.1.0',
+    "pytest-sugar==1.0.0",
+    "pytest-html==4.1.1",  # Newer versions require Python 3
+    "pytest-cov==5.0.0",
+    "pytest-helpers-namespace==2021.12.29",
     'pytest==8.1.1',
 ]
 
