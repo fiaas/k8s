@@ -27,7 +27,7 @@ GENERIC_REQ = [
 ]
 
 CODE_QUALITY_REQ = [
-    'prospector==1.3.0',
+    'prospector==1.10.3',
 ]
 
 TESTS_REQ = [
