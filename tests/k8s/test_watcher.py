@@ -49,7 +49,7 @@ def _example_resource(_id, rv, namespace="default"):
 
 def _event(_id, event_type, rv, namespace="default"):
     wle = _example_resource(_id, rv, namespace)
-    return WatchEvent(event_type, wle)
+    return WatchEvent(_type=event_type, _object=wle)
 
 
 def _assert_event(event, _id, event_type, rv, namespace="default"):
@@ -166,8 +166,8 @@ class TestWatcher(object):
         api_list_with_meta.return_value = model_list
 
         # yield event twice, and stop the watcher after yielding the second event
-        event = WatchEvent(WatchEvent.ADDED, resource)
-        delete_event = WatchEvent(WatchEvent.DELETED, resource)
+        event = WatchEvent(_type=WatchEvent.ADDED, _object=resource)
+        delete_event = WatchEvent(_type=WatchEvent.DELETED, _object=resource)
 
         def side_effect(*args, **kwargs):
             yield event

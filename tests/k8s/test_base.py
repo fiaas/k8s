@@ -45,23 +45,62 @@ class TestWatchEvent(object):
     def test_watch_event_added(self):
         obj = _example_object(42, "1")
         event_dict = {"type": "ADDED", "object": {"metadata": {"resourceVersion": "1"}, "value": 42}}
-        watch_event = WatchEvent.from_dict(event_dict, Example)
+        watch_event = WatchEvent(event_dict, Example)
         assert watch_event.type == WatchEvent.ADDED
         assert watch_event.object == obj
 
     def test_watch_event_modified(self):
         obj = _example_object(42, "1")
         event_dict = {"type": "MODIFIED", "object": {"metadata": {"resourceVersion": "1"}, "value": 42}}
-        watch_event = WatchEvent.from_dict(event_dict, Example)
+        watch_event = WatchEvent(event_dict, Example)
         assert watch_event.type == WatchEvent.MODIFIED
         assert watch_event.object == obj
 
     def test_watch_event_deleted(self):
         obj = _example_object(42, "1")
         event_dict = {"type": "DELETED", "object": {"metadata": {"resourceVersion": "1"}, "value": 42}}
-        watch_event = WatchEvent.from_dict(event_dict, Example)
+        watch_event = WatchEvent(event_dict, Example)
         assert watch_event.type == WatchEvent.DELETED
         assert watch_event.object == obj
+
+    @pytest.mark.parametrize(
+        "_type",
+        (
+            WatchEvent.ADDED,
+            WatchEvent.MODIFIED,
+            WatchEvent.DELETED,
+        ),
+    )
+    def test_watch_event_type_object(self, _type):
+        obj = _example_object(42, "1")
+        watch_event = WatchEvent(_type=_type, _object=obj)
+        assert watch_event.type == _type
+        assert watch_event.object == obj
+
+    @pytest.mark.parametrize(
+        "kwargs",
+        (
+            # invalid combinations of keyword arguments
+            dict(
+                event_json={"type": "MODIFIED", "object": {"metadata": {"resourceVersion": "1"}, "value": 42}},
+                _type=WatchEvent.MODIFIED,
+            ),
+            dict(
+                event_json={"type": "MODIFIED", "object": {"metadata": {"resourceVersion": "1"}, "value": 42}},
+                _object=_example_object(42, "1"),
+            ),
+            dict(cls=Example, _type=WatchEvent.MODIFIED),
+            dict(cls=Example, _object=_example_object(42, "1")),
+            # passed only one keyword argument, but a correct pair of arguments is required
+            dict(event_json={"type": "MODIFIED", "object": {"metadata": {"resourceVersion": "1"}, "value": 42}}),
+            dict(_object=_example_object(42, "1")),
+            dict(_type=WatchEvent.MODIFIED),
+            dict(cls=Example),
+        ),
+    )
+    def test_watch_event_invalid_params(self, kwargs):
+        with pytest.raises(ValueError):
+            WatchEvent(**kwargs)
 
 
 class TestFind(object):
@@ -141,7 +180,7 @@ class TestWatchList(object):
         ]
         gen = Example.watch_list()
         event_dict = {"type": "ADDED", "object": {"metadata": {"resourceVersion": "1"}, "value": 1}}
-        assert next(gen) == WatchEvent.from_dict(event_dict, Example)
+        assert next(gen) == WatchEvent(event_dict, Example)
         client.get.assert_called_once_with("/watch/example", stream=True, timeout=270, params={})
         assert list(gen) == []
 
@@ -155,7 +194,7 @@ class TestWatchList(object):
         mock.seal(client)
         gen = Example.watch_list()
         event_dict = {"type": "ADDED", "object": {"metadata": {"resourceVersion": "1"}, "value": 1}}
-        assert next(gen) == WatchEvent.from_dict(event_dict, Example)
+        assert next(gen) == WatchEvent(event_dict, Example)
         assert list(gen) == []
         assert client.get.return_value.iter_lines.return_value.__getitem__.call_count == 2
         client.get.assert_called_once_with("/watch/example", stream=True, timeout=270, params={})

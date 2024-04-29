@@ -21,7 +21,7 @@ from abc import ABC
 import json
 import logging
 from collections import namedtuple
-from typing import Optional, Dict, Type, List
+from typing import Optional, Dict, List
 
 import requests
 import requests.packages.urllib3 as urllib3
@@ -212,7 +212,7 @@ class ApiMixIn(object):
                 event = WatchBookmark(event_json)
             else:
                 LOG.debug("Received watch event from API server: %s", event_json)
-                event = WatchEvent.from_dict(event_json, cls)
+                event = WatchEvent(event_json, cls)
             return event
         except TypeError:
             LOG.exception(
@@ -395,8 +395,11 @@ class WatchBaseEvent(ABC):
 
     __slots__ = ("resource_version",)
 
-    def __init__(self, resource_version):
-        self.resource_version = resource_version
+    def __init__(self, event_json=None, resource_version=None):
+        if event_json is not None:
+            self.resource_version = event_json["object"].get("metadata", {}).get("resourceVersion")
+        else:
+            self.resource_version = resource_version
 
     def __eq__(self, other):
         return self.resource_version == other.resource_version
@@ -410,19 +413,21 @@ class WatchEvent(WatchBaseEvent):
     MODIFIED = "MODIFIED"
     DELETED = "DELETED"
 
-    def __init__(self, _type: str, _object: Model):
-        # resource_version is effectively optional here to replicate the previous behavior
-        # in practice, watch events with None resourceVersion will break the caching in Watcher.watch()
-        resource_version = getattr(getattr(_object, "metadata", None), "resourceVersion", None)
-        super(WatchEvent, self).__init__(resource_version)
-        self.type = _type
-        self.object = _object
-
-    @classmethod
-    def from_dict(cls, event_json: Dict, model_cls: Model) -> WatchEvent:
-        _type = event_json["type"]
-        _object = model_cls.from_dict(event_json["object"])
-        return cls(_type, _object)
+    def __init__(self, event_json: dict = None, cls: type[Model] = None, _type: str = None, _object: Model = None):
+        if event_json is not None and cls is not None:
+            super(WatchEvent, self).__init__(event_json=event_json)
+            self.type = event_json["type"]
+            self.object = cls.from_dict(event_json["object"])
+        elif _type is not None and _object is not None:
+            # resource_version is effectively optional here to match the behavior for event_json in WatchBaseEvent
+            # in practice, watch events with None resourceVersion will break the caching in Watcher.watch()
+            resource_version = getattr(getattr(_object, "metadata", None), "resourceVersion", None)
+            super(WatchEvent, self).__init__(resource_version=resource_version)
+            self.type = _type
+            self.object = _object
+        else:
+            raise ValueError("requires either event_json and cls or _type and _object, " +
+                             f"got {event_json=}, {cls=}, {_type=}, {_object=}")
 
     def __repr__(self):
         return "{cls}(type={type}, object={object})".format(
@@ -438,7 +443,7 @@ class WatchEvent(WatchBaseEvent):
 
 class SyntheticAddedWatchEvent(WatchEvent):
     def __init__(self, obj: Model):
-        super(SyntheticAddedWatchEvent, self).__init__(WatchEvent.ADDED, obj)
+        super(SyntheticAddedWatchEvent, self).__init__(_type=WatchEvent.ADDED, _object=obj)
 
 
 class WatchBookmark(WatchBaseEvent):
@@ -446,8 +451,7 @@ class WatchBookmark(WatchBaseEvent):
     They only contain the resourceVersion of the event."""
 
     def __init__(self, event_json):
-        resource_version = event_json["object"].get("metadata", {}).get("resourceVersion")
-        super(WatchBookmark, self).__init__(resource_version)
+        super(WatchBookmark, self).__init__(event_json)
 
     @classmethod
     def match(cls, event_json):
@@ -551,7 +555,7 @@ class ModelList:
         self.items = items
 
     @classmethod
-    def from_dict(cls, model_cls: Type[Model], list_response_data: Dict):
+    def from_dict(cls, model_cls: type[Model], list_response_data: Dict):
         metadata = ListMeta.from_dict(list_response_data.get('metadata', {}))
         items = [model_cls.from_dict(item) for item in list_response_data.get('items', [])]
         return cls(metadata, items)

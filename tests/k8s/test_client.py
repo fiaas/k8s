@@ -223,8 +223,8 @@ class TestWatchListEvents(object):
         get.return_value = response
 
         expected = [
-            WatchEvent(WatchEvent.ADDED, WatchListExample(value=1, requiredValue=2)),
-            WatchEvent(WatchEvent.MODIFIED, WatchListExample(value=3, requiredValue=4)),
+            WatchEvent(_type=WatchEvent.ADDED, _object=WatchListExample(value=1, requiredValue=2)),
+            WatchEvent(_type=WatchEvent.MODIFIED, _object=WatchListExample(value=3, requiredValue=4)),
         ]
 
         items = list(WatchListExample.watch_list())
@@ -257,9 +257,9 @@ definitely not valid json
         get.return_value = response
 
         expected = [
-            WatchEvent(WatchEvent.ADDED, WatchListExample(value=1, requiredValue=2)),
+            WatchEvent(_type=WatchEvent.ADDED, _object=WatchListExample(value=1, requiredValue=2)),
             # "definitely not valid json" should be discarded
-            WatchEvent(WatchEvent.ADDED, WatchListExample(value=5, requiredValue=6)),
+            WatchEvent(_type=WatchEvent.ADDED, _object=WatchListExample(value=5, requiredValue=6)),
         ]
 
         items = list(WatchListExample.watch_list())
@@ -297,9 +297,9 @@ definitely not valid json
         get.return_value = response
 
         expected = [
-            WatchEvent(WatchEvent.ADDED, WatchListExample(value=1, requiredValue=2)),
+            WatchEvent(_type=WatchEvent.ADDED, _object=WatchListExample(value=1, requiredValue=2)),
             # event with value=10 and requiredValue missing should be discarded
-            WatchEvent(WatchEvent.ADDED, WatchListExample(value=5, requiredValue=6)),
+            WatchEvent(_type=WatchEvent.ADDED, _object=WatchListExample(value=5, requiredValue=6)),
         ]
 
         items = list(WatchListExample.watch_list())
