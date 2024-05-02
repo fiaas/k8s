@@ -100,4 +100,4 @@ def _create_default_resourcequota():
 
 
 def _uri(namespace, name=""):
-    return "/api/v1/namespaces/{namespace}/resourcequotas".format(name=name, namespace=namespace)
+    return "/api/v1/namespaces/{namespace}/resourcequotas".format(namespace=namespace)
