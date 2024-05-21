@@ -223,8 +223,8 @@ class TestWatchListEvents(object):
         get.return_value = response
 
         expected = [
-            _create_watchevent(WatchEvent.ADDED, WatchListExample(value=1, requiredValue=2)),
-            _create_watchevent(WatchEvent.MODIFIED, WatchListExample(value=3, requiredValue=4)),
+            WatchEvent(_type=WatchEvent.ADDED, _object=WatchListExample(value=1, requiredValue=2)),
+            WatchEvent(_type=WatchEvent.MODIFIED, _object=WatchListExample(value=3, requiredValue=4)),
         ]
 
         items = list(WatchListExample.watch_list())
@@ -257,9 +257,9 @@ definitely not valid json
         get.return_value = response
 
         expected = [
-            _create_watchevent(WatchEvent.ADDED, WatchListExample(value=1, requiredValue=2)),
+            WatchEvent(_type=WatchEvent.ADDED, _object=WatchListExample(value=1, requiredValue=2)),
             # "definitely not valid json" should be discarded
-            _create_watchevent(WatchEvent.ADDED, WatchListExample(value=5, requiredValue=6)),
+            WatchEvent(_type=WatchEvent.ADDED, _object=WatchListExample(value=5, requiredValue=6)),
         ]
 
         items = list(WatchListExample.watch_list())
@@ -297,19 +297,13 @@ definitely not valid json
         get.return_value = response
 
         expected = [
-            _create_watchevent(WatchEvent.ADDED, WatchListExample(value=1, requiredValue=2)),
+            WatchEvent(_type=WatchEvent.ADDED, _object=WatchListExample(value=1, requiredValue=2)),
             # event with value=10 and requiredValue missing should be discarded
-            _create_watchevent(WatchEvent.ADDED, WatchListExample(value=5, requiredValue=6)),
+            WatchEvent(_type=WatchEvent.ADDED, _object=WatchListExample(value=5, requiredValue=6)),
         ]
 
         items = list(WatchListExample.watch_list())
         assert items == expected
-
-
-def _create_watchevent(event_type, event_object):
-    """factory function for WatchEvent to make it easier to create test data from actual objects, as the constructor
-    takes a dict (unmarshaled json)"""
-    return WatchEvent({"type": event_type, "object": event_object.as_dict()}, event_object.__class__)
 
 
 def _absolute_url(url):
