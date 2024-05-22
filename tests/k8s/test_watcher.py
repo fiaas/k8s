@@ -297,7 +297,7 @@ class TestWatcher(object):
         # synthetic added event for initial resource and added event
         _assert_event(next(gen), 0, ADDED, 0)
         _assert_event(next(gen), 1, ADDED, 2)
-        api_list_with_meta.called_once()
+        api_list_with_meta.assert_called_once()
         api_watch_list.assert_called_once_with(
             namespace=None, resource_version=first_list_resource_version, allow_bookmarks=True
         )
