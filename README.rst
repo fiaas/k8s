@@ -16,7 +16,7 @@
 k8s - Python client library for the Kubernetes API
 --------------------------------------------------
 
-|Semaphore Build Status Badge| |Codacy Quality Badge| |Codacy Coverage Badge|
+|Semaphore Build Status Badge| |Codacy Grade Badge| |Codacy Coverage Badge|
 
 .. |Semaphore Build Status Badge| image:: https://fiaas-svc.semaphoreci.com/badges/k8s.svg?style=shields
     :target: https://fiaas-svc.semaphoreci.com/branches/8e8fdc8c-cd55-4ba3-9dcf-38880531e601
