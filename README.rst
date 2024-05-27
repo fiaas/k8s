@@ -20,8 +20,8 @@ k8s - Python client library for the Kubernetes API
 
 .. |Semaphore Build Status Badge| image:: https://fiaas-svc.semaphoreci.com/badges/k8s.svg?style=shields
     :target: https://fiaas-svc.semaphoreci.com/branches/8e8fdc8c-cd55-4ba3-9dcf-38880531e601
-.. |[![Codacy Badge](https://app.codacy.com/project/badge/Grade/4ebbdb3f34b0452fbbf48bb337dc6465)](https://app.codacy.com/gh/fiaas/k8s/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-.. |[![Codacy Badge](https://app.codacy.com/project/badge/Coverage/4ebbdb3f34b0452fbbf48bb337dc6465)](https://app.codacy.com/gh/fiaas/k8s/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
+.. [![Codacy Badge](https://app.codacy.com/project/badge/Grade/4ebbdb3f34b0452fbbf48bb337dc6465)](https://app.codacy.com/gh/fiaas/k8s/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
+.. [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/4ebbdb3f34b0452fbbf48bb337dc6465)](https://app.codacy.com/gh/fiaas/k8s/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_coverage)
 
 Documentation
     https://k8s.readthedocs.io
