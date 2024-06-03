@@ -59,7 +59,7 @@ class Watcher(object):
         while self._run_forever:
             if last_seen_resource_version is None:
                 # list all resources and yield a synthetic ADDED watch event for each
-                model_list = self._model.list_with_meta()
+                model_list = self._model.list_with_meta(namespace=namespace)
                 LOG.info("Got %d %s instances from quorum read", len(model_list.items), self._model.__name__)
                 for obj in model_list.items:
                     event = SyntheticAddedWatchEvent(obj)
