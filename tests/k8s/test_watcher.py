@@ -106,7 +106,7 @@ class TestWatcher(object):
         watcher._run_forever = False
         assert list(gen) == []
 
-        api_list_with_meta.assert_called_with()
+        api_list_with_meta.assert_called_with(namespace=None)
         # verify watch_list was called with resourceVersion returned by list call
         api_watch_list.assert_called_with(namespace=None, resource_version=list_resource_version, allow_bookmarks=True)
 
@@ -126,7 +126,7 @@ class TestWatcher(object):
 
         assert list(gen) == []
 
-        api_list_with_meta.assert_called_with()
+        api_list_with_meta.assert_called_with(namespace=None)
         # verify watch_list was called with resourceVersion returned by list call
         api_watch_list.assert_called_with(namespace=None, resource_version=list_resource_version, allow_bookmarks=True)
 
@@ -252,7 +252,7 @@ class TestWatcher(object):
 
         assert list(gen) == []
 
-        api_list_with_meta.assert_called_with()
+        api_list_with_meta.assert_called_with(namespace=namespace)
         api_watch_list.assert_called_with(namespace=namespace, resource_version=None, allow_bookmarks=True)
 
     def test_handle_410_list(self, api_watch_list, api_list_with_meta):
@@ -306,7 +306,7 @@ class TestWatcher(object):
         _assert_event(next(gen), 1, MODIFIED, 3)
         # verify list and watch_list has now been called twice, and each call of watch_list used the resourceVersion
         # returned by the preceding list call
-        assert api_list_with_meta.call_args_list == [mock.call(), mock.call()]
+        assert api_list_with_meta.call_args_list == [mock.call(namespace=None), mock.call(namespace=None)]
         assert api_watch_list.call_args_list == [
             mock.call(namespace=None, resource_version=first_list_resource_version, allow_bookmarks=True),
             mock.call(namespace=None, resource_version=second_list_resource_version, allow_bookmarks=True),
