@@ -216,6 +216,7 @@ class PodSpec(Model):
     volumes = ListField(Volume)
     containers = ListField(Container)
     restartPolicy = Field(str, "Always")
+    runtimeClassName = Field(str)
     terminationGracePeriodSeconds = Field(int)
     activeDeadlineSeconds = Field(int)
     dnsPolicy = Field(str, "ClusterFirst")
