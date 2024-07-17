@@ -38,6 +38,7 @@ class ServiceSpec(Model):
     sessionAffinity = Field(str, "None")
     loadBalancerSourceRanges = ListField(str)
     externalTrafficPolicy = Field(str, "None")
+    publishNotReadyAddresses = Field(bool, False)
 
 
 class Service(Model):
