@@ -37,6 +37,8 @@ class ServiceSpec(Model):
     type = Field(str, "ClusterIP")
     sessionAffinity = Field(str, "None")
     loadBalancerSourceRanges = ListField(str)
+    externalTrafficPolicy = Field(str, "None")
+    publishNotReadyAddresses = Field(bool, False)
 
 
 class Service(Model):
