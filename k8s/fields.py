@@ -137,13 +137,17 @@ class OnceField(Field):
 class ListField(Field):
     """ListField is a list (array) of a single type on a model"""
 
-    def __init__(self, field_type, default_value=None, name='__unset__'):
+    def __init__(self, field_type, default_value=None, name='__unset__', empty_as_none=False):
         if default_value is None:
             default_value = []
         super(ListField, self).__init__(field_type, default_value, name=name)
+        self._empty_as_none = empty_as_none
 
     def dump(self, instance):
-        return [self._as_dict(v) for v in getattr(instance, self.attr_name)]
+        v = [self._as_dict(v) for v in getattr(instance, self.attr_name)]
+        if self._empty_as_none and not v:
+            return None
+        return v
 
     def load(self, instance, value):
         if value is None:

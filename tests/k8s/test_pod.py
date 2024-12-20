@@ -2,13 +2,13 @@
 # -*- coding: utf-8
 
 # Copyright 2017-2019 The FIAAS Authors
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #      http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,8 +20,17 @@ import pytest
 
 from k8s.client import NotFound
 from k8s.models.common import ObjectMeta
-from k8s.models.pod import Pod, ContainerPort, Container, LocalObjectReference, PodSpec, Volume, VolumeMount, \
-    SecretVolumeSource
+from k8s.models.pod import (
+    Pod,
+    ContainerPort,
+    Container,
+    LocalObjectReference,
+    PodSpec,
+    PodDNSConfig,
+    Volume,
+    VolumeMount,
+    SecretVolumeSource,
+)
 
 NAME = "my-name"
 NAMESPACE = "my-namespace"
@@ -34,6 +43,14 @@ class TestPod(object):
         pod = _create_pod()
         assert pod.metadata.name == NAME
         assert pod.as_dict()["metadata"]["name"] == NAME
+        assert "dnsOptions" not in pod.as_dict()["spec"]
+
+    def test_create_pod_with_dns_options(self):
+        pod = _create_pod()
+        pod.spec.dnsConfig = PodDNSConfig(
+            searches=["other-namespace.svc.cluster.local"],
+        )
+        assert pod.as_dict()["spec"]["dnsConfig"]["searches"] == ["other-namespace.svc.cluster.local"]
 
     def test_pod_created_if_not_exists(self, post, api_get):
         api_get.side_effect = NotFound()
