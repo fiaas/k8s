@@ -202,6 +202,17 @@ class Volume(Model):
     secret = Field(SecretVolumeSource)
 
 
+class PodDNSConfigOption(Model):
+    name = Field(str)
+    value = Field(str)
+
+
+class PodDNSConfig(Model):
+    nameservers = ListField(str, empty_as_none=True)
+    searches = ListField(str, empty_as_none=True)
+    options = ListField(PodDNSConfigOption, empty_as_none=True)
+
+
 class PodSpec(Model):
     volumes = ListField(Volume)
     containers = ListField(Container)
@@ -209,6 +220,7 @@ class PodSpec(Model):
     terminationGracePeriodSeconds = Field(int)
     activeDeadlineSeconds = Field(int)
     dnsPolicy = Field(str, "ClusterFirst")
+    dnsConfig = Field(PodDNSConfig, None)
     nodeName = Field(str)
     nodeSelector = Field(dict)
     selector = Field(dict)
