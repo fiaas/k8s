@@ -108,6 +108,10 @@ class ExecAction(Model):
     command = Field(list)
 
 
+class SleepAction(Model):
+    seconds = RequiredField(int)
+
+
 class Probe(Model):
     httpGet = Field(HTTPGetAction)
     tcpSocket = Field(TCPSocketAction)
@@ -123,6 +127,7 @@ class Handler(Model):
     httpGet = Field(HTTPGetAction)
     tcpSocket = Field(TCPSocketAction)
     _exec = Field(ExecAction)
+    sleep = Field(SleepAction)
 
 
 class Lifecycle(Model):
