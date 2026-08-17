@@ -24,9 +24,13 @@ from k8s.models.pod import (
     Pod,
     ContainerPort,
     Container,
+    ExecAction,
+    Handler,
+    Lifecycle,
     LocalObjectReference,
     PodSpec,
     PodDNSConfig,
+    SleepAction,
     Volume,
     VolumeMount,
     SecretVolumeSource,
@@ -147,6 +151,30 @@ class TestPod(object):
 
         # call delete with service_name
         pytest.helpers.assert_any_call(delete, POD_URI + NAME)
+
+
+class TestSleepAction(object):
+    def test_prestop_sleep_serializes(self):
+        lifecycle = Lifecycle(preStop=Handler(sleep=SleepAction(seconds=30)))
+
+        assert lifecycle.as_dict() == {"preStop": {"sleep": {"seconds": 30}}}
+
+    def test_sleep_omitted_when_handler_uses_exec(self):
+        handler = Handler(_exec=ExecAction(command=["/bin/true"]))
+
+        assert handler.as_dict() == {"exec": {"command": ["/bin/true"]}}
+
+    def test_seconds_is_required(self):
+        with pytest.raises(TypeError):
+            SleepAction()
+
+    def test_zero_seconds_is_serialized_not_elided(self):
+        assert SleepAction(seconds=0).as_dict() == {"seconds": 0}
+
+    def test_sleep_round_trips_from_dict(self):
+        handler = Handler.from_dict({"sleep": {"seconds": 30}})
+
+        assert handler.sleep.seconds == 30
 
 
 def _create_pod():
